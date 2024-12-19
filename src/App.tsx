@@ -6,11 +6,7 @@ import Test from "./pages/test";
 import SignUp from "./pages/signup"
 import { useEffect } from 'react';
 
-function MyApp() {
-  useEffect(() => {
-    localStorage.removeItem("jwtToken");
-  }, []);
-  
+function MyApp() {  
   return (
     <BrowserRouter>
       <Routes>

@@ -32,6 +32,7 @@ function MyApp() {
                     setInvalidCred(false);
                     localStorage.setItem("jwtToken", response.data.token);
                     navigate('/');
+                    window.location.reload();
                 })
                 .catch(function (response) {
                     setInvalidCred(true);

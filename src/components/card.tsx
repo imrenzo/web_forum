@@ -24,7 +24,7 @@ export default function OutlinedCard({ posts }: OutlinedCardProps) {
     return (
         <Box>
             {posts.map((item) =>
-                <Card variant="outlined" sx = {{ width: '100%', marginTop: 2}}>
+                <Card key={item.post_id} variant="outlined" sx = {{ width: '100%', marginTop: 2}}>
                     <React.Fragment>
                         <CardContent>
                             <Typography variant="h5" component="div">

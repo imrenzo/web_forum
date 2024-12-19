@@ -7,7 +7,7 @@ import Header from "../components/header";
 
 function Home() {
     let [data, setData] = useState<any[]>([]);
-    const  [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
     useEffect(() => {
         const token = localStorage.getItem("jwtToken");
         if (token == null) {
