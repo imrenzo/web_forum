@@ -10,7 +10,7 @@ import (
 
 const secretkey = "hello_world"
 
-func CheckValidUser(w http.ResponseWriter, r *http.Request) {
+func LogInUser(w http.ResponseWriter, r *http.Request) {
 	db := database.OpenDb()
 	defer db.Close()
 	var userData struct {
@@ -55,6 +55,6 @@ func CheckValidUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"message": "Authorised", "token": jwtStr})
 }
 
-func LogOut() {
+func CheckValidToken() {
 	
 }

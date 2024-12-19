@@ -1,17 +1,9 @@
-import * as React from 'react';
-import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
-import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid2';
 import { Typography } from '@mui/material';
 import { LogInSignUpButtons, LoggedInButtons } from './buttons';
 
-interface AutoGridProps {
-    isAuthenticated: Boolean;
-}
-
-
-export default function AutoGrid({ isAuthenticated }: AutoGridProps) {
+function Header({isAuthenticated}: {isAuthenticated: Boolean}) {
     return (
         <Box sx={{ flexGrow: 1, marginTop: 2 }}>
             <Grid container spacing={3}>
@@ -31,3 +23,4 @@ export default function AutoGrid({ isAuthenticated }: AutoGridProps) {
         </Box>
     );
 }
+export default Header;

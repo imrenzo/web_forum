@@ -12,8 +12,7 @@ import (
 	_ "github.com/golang-jwt/jwt/v5"
 	_ "github.com/lib/pq"
 
-	"github.com/imrenzo/web_forum/internal/database"
-	"github.com/imrenzo/web_forum/internal/users"
+	"github.com/imrenzo/web_forum/internal/routes"
 )
 
 func main() {
@@ -28,8 +27,7 @@ func main() {
 		AllowCredentials: true,
 	}))
 
-	router.Get("/", database.LoadPosts)
-	router.Post("/login", users.CheckValidUser)
+	routes.SetUpRoutes(router)
 	if err := http.ListenAndServe(port, router); err != nil {
 		panic(err)
 	}

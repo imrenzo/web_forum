@@ -1,9 +1,9 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import Box from '@mui/material/Box';
 import OutlinedCard from "../components/card";
 import Header from "../components/header";
+import { BoxStyle } from "../components/stylesheet";
 
 function Home() {
     let [data, setData] = useState<any[]>([]);
@@ -31,12 +31,12 @@ function Home() {
     return (
         <>
             <title>Web Forum</title>
-            <Box sx={{ marginLeft: '30%', marginRight: '30%' }}>
-                <Header isAuthenticated={isAuthenticated}></Header>
-                <OutlinedCard posts={data}></OutlinedCard>
-            </Box>
+                <Box sx={BoxStyle}>
+                    <Header isAuthenticated={isAuthenticated}></Header>
+                    <OutlinedCard posts={data}></OutlinedCard>
+                </Box>
         </>
     );
 }
 
-export default Home
+export default Home;
