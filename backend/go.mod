@@ -1,4 +1,4 @@
-module github/com/imrenzo/web_forum
+module github.com/imrenzo/web_forum
 
 go 1.23.4
 
