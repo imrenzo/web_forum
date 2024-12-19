@@ -1,16 +1,21 @@
 import axios from "axios";
-import CSS from "csstype";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import Box from '@mui/material/Box';
+import OutlinedCard from "../components/card";
+import Header from "../components/header";
 
-const postStyle: CSS.Properties = {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-}
-
-function Profile() {
+function Home() {
     let [data, setData] = useState<any[]>([]);
+    const  [isAuthenticated, setIsAuthenticated] = useState(false);
+    useEffect(() => {
+        const token = localStorage.getItem("jwtToken");
+        if (token == null) {
+            setIsAuthenticated(false);
+        } else {
+            setIsAuthenticated(true);
+        }
+    }, []);
 
     useEffect(() => {
         axios
@@ -25,24 +30,13 @@ function Profile() {
 
     return (
         <>
-            <div>
-                <header>
-                    <span style={{ textAlign: 'center' }}>Posts</span>
-                    <span id='authenticate'>
-                        <Link to="/login">
-                            <button>Login</button>
-                        </Link>
-                    </span>
-                </header>
-                <div className='posts' style={postStyle}>
-                    {/* use MUI */}
-                    <ul style={{ padding: '0' }}>
-                        {data.map((item) => <p>{item.post_info}</p>)}
-                    </ul>
-                </div>
-            </div >
+            <title>Web Forum</title>
+            <Box sx={{ marginLeft: '30%', marginRight: '30%' }}>
+                <Header isAuthenticated={isAuthenticated}></Header>
+                <OutlinedCard posts={data}></OutlinedCard>
+            </Box>
         </>
     );
 }
 
-export default Profile
+export default Home
