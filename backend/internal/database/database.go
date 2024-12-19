@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/imrenzo/web_forum/internal/models"
 )
 
 const (
@@ -25,15 +27,6 @@ func OpenDb() *sql.DB {
 	return db
 }
 
-// loding of posts
-type Post struct {
-	Post_title string `json:"post_title"`
-	Post_id    int    `json:"post_id"`
-	Op_id      int    `json:"op_id"`
-	Post_info  string `json:"post_info"`
-	Post_date  string `json:"post_date"`
-}
-
 func LoadPosts(w http.ResponseWriter, r *http.Request) {
 	db := OpenDb()
 	defer db.Close()
@@ -45,21 +38,21 @@ func LoadPosts(w http.ResponseWriter, r *http.Request) {
 	}
 	defer rows.Close()
 
-	var posts []Post
+	var posts []models.Post
 
 	for rows.Next() {
-		var post Post
+		var post models.Post
 		err := rows.Scan(&post.Post_title, &post.Post_id, &post.Op_id, &post.Post_info, &post.Post_date)
 		if err != nil {
 			panic(err)
 		}
 		posts = append(posts, post)
 	}
-	// fmt.Println(posts)
 	err = rows.Err()
 	if err != nil {
 		panic(err)
 	}
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(posts)
 }

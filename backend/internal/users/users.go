@@ -6,6 +6,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/imrenzo/web_forum/internal/database"
+	"github.com/imrenzo/web_forum/internal/models"
 )
 
 const secretkey = "hello_world"
@@ -13,10 +14,7 @@ const secretkey = "hello_world"
 func LogInUser(w http.ResponseWriter, r *http.Request) {
 	db := database.OpenDb()
 	defer db.Close()
-	var userData struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-	}
+	var userData models.UserData
 	err := json.NewDecoder(r.Body).Decode(&userData)
 	if err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
@@ -56,5 +54,5 @@ func LogInUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func CheckValidToken() {
-	
+
 }
