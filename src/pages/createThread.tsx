@@ -1,11 +1,10 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import Header from "../components/header";
 import IsAuthenticated from "../components/authenticate";
-import { BoxStyle } from "../components/stylesheet";
 import { Thread } from "../types/types";
-import { PostThread } from "../contollers/controllers";
+import { ValidateThreadInput, PostThread } from "../contollers/controllers";
+import { BoxStyle } from "../components/stylesheet";
 
 import { Box, Button } from "@mui/material";
 import TextField from '@mui/material/TextField';
@@ -18,30 +17,28 @@ export default function CreateThread() {
 
     let navigate = useNavigate();
 
-    function HandlePostThread(event: FormEvent) {
+    async function HandlePostThread(event: FormEvent) {
         event.preventDefault();
-        if (userEntry.title == '' || userEntry.content == '') {
-            setErrorMessage("Both title and content needs to be filled in");
+
+        const { isValid, errorMessage } = ValidateThreadInput(userEntry);
+        if (!isValid) {
+            setErrorMessage(errorMessage);
+            setValidEntry(isValid);
+            console.log(errorMessage);
+            return;
+        }
+        const sendThread = await PostThread(userEntry);
+        if (sendThread) {
+            console.log('successfully created thread');
             setValidEntry(false);
-            console.log("Invalid Inputs");
+            navigate('/');
+            window.location.reload();
         } else {
-            const sendThread = async () => {
-                try {
-                    const sendingThread = await PostThread(userEntry);
-                    console.log('successfully registered');
-                    setValidEntry(false);
-                    navigate('/');
-                    window.location.reload();
-                } catch (error: any) {
-                    console.log(error.message);
-                    navigate('*');
-                    window.location.reload();
-                }
-            };
-            sendThread();
+            console.log("Failed to create thread");
+            navigate('*');
+            window.location.reload();
         }
     }
-
     function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
         const { id, value } = event.target;
         setUserEntry(prevState => ({
@@ -69,4 +66,6 @@ export default function CreateThread() {
         </>
     );
 }
+
+
 

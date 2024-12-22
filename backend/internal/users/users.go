@@ -4,32 +4,10 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/imrenzo/web_forum/internal/database"
+	"github.com/imrenzo/web_forum/internal/jwtHandler"
 	"github.com/imrenzo/web_forum/internal/models"
 )
-
-const secretkey = "hello_world"
-
-func createJwtToken(username string) string {
-	var (
-		key       []byte
-		token     *jwt.Token
-		jwtString string
-	)
-	key = []byte(secretkey)
-	token = jwt.NewWithClaims(jwt.SigningMethodHS256,
-		jwt.MapClaims{
-			"username": username,
-		})
-
-	jwtString, err := token.SignedString(key)
-	if err != nil {
-		panic(err)
-	}
-
-	return jwtString
-}
 
 func LogInUser(w http.ResponseWriter, r *http.Request) {
 	db := database.OpenDb()
@@ -54,7 +32,7 @@ func LogInUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jwtString := createJwtToken(userData.Username)
+	jwtString := jwtHandler.CreateJwtToken(userData.Username)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{"message": "Authorised", "token": jwtString})
 }
@@ -88,11 +66,7 @@ func SignUpUser(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	jwtString := createJwtToken(userData.Username)
+	jwtString := jwtHandler.CreateJwtToken(userData.Username)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{"message": "sucessfully registered", "token": jwtString})
-}
-
-func CheckValidToken() {
-
 }

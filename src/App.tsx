@@ -15,10 +15,18 @@ function MyApp() {
       <title>Web Forum</title>
       <BrowserRouter>
         <Routes>
+          {/* read db */}
           <Route path="/" element={<Home />}></Route>
-          <Route path="/createThread" element={<CreateThread />}></Route>
-          {/* <Route path="/post_id/edit/:num" element={<EditThread />}></Route> */}
           <Route path="/post_id/:num" element={<LoadIndivPost />}></Route>
+          {/* create thread & comments */}
+          <Route path="/createThread" element={<CreateThread />}></Route>
+          {/* update thread & comments */}
+
+          {/* <Route path="/post_id/edit/:num" element={<EditThread />}></Route> */}
+
+
+          {/* delete thread & comments */}
+          {/* user management */}
           <Route path="/login" element={<Login />}></Route>
           <Route path="/logout" element={<LogOut />}></Route>
           <Route path="/signup" element={<SignUp />}></Route>

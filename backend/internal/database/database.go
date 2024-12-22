@@ -49,8 +49,6 @@ func CreateThread(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, `{"error": "Internal server error"}`, http.StatusInternalServerError)
 		return
 	}
-	fmt.Printf("Decoded struct: %+v\n", createThreadInfo)
-
 
 	var post_id int
 	err = db.QueryRow("SELECT post_id FROM posts WHERE op_id = $1 ORDER BY post_date DESC LIMIT 1;", id).Scan(&post_id)
@@ -162,4 +160,22 @@ func SinglePostAndComments(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(result)
+}
+
+func UsernameExists(username string) (bool, string) {
+	db := OpenDb()
+	defer db.Close()
+
+	var count int
+	err := db.QueryRow(`SELECT COUNT(*) FROM users WHERE username = $1`, username).Scan(&count)
+	if err != nil {
+		panic(err)
+	}
+	if count == 0 {
+		return false, "User does not exist"
+	} else if count > 1 {
+		return false, "Internal Server Error"
+	} else {
+		return true, ""
+	}
 }

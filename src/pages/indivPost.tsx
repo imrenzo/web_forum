@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useParams, Link } from "react-router";
+import { useParams, Link, useNavigate } from "react-router";
 import { Box } from "@mui/material";
 import { BoxStyle } from "../components/stylesheet";
 import Header from "../components/header";
@@ -83,7 +83,6 @@ function DropDown({ postId }: { postId: number }) {
 }
 
 function PostCard({ post }: { post: Post }) {
-    // console.log(post);
     return (
         <Card sx={{ width: '100%' }}>
             <CardHeader
@@ -162,14 +161,26 @@ function CommentsCard({ comments }: { comments: Comments }) {
 
 export default function Page() {
     // get post and comments
-    const [data, setData] = useState<PostWithComments>({ post: [], comments: [] });
+    const [data, setData] = useState<PostWithComments>({ post: null, comments: null });
     let postId = useParams().num;
+    let navigate = useNavigate();
     useEffect(() => {
         if (postId) {
+            // const fetchData = async () => {
+            //     const fetchedData: PostWithComments = await GetPostWithComments(postId as string);
+            //     setData(fetchedData);
+            // }
+            // fetchData();
             const fetchData = async () => {
-                const fetchedData: PostWithComments = await GetPostWithComments(postId as string);
-                setData(fetchedData);
-            }
+                const { isValid, errorMessage, output } = await GetPostWithComments(postId as string);
+                if (!isValid) {
+                    console.log(errorMessage);
+                    navigate('*');
+                    window.location.reload();
+                    return;
+                }
+                setData(output as PostWithComments);
+            };
             fetchData();
         }
     }, [postId]);
@@ -180,8 +191,9 @@ export default function Page() {
             <Box sx={BoxStyle}>
                 <Header isAuthenticated={IsAuthenticated()}></Header>
                 <Card variant="outlined" sx={{ width: '100%' }}>
-                    {/* {data.post != null ? <PostCard post={data.post as Post}></PostCard> : <></>} */}
-                    <PostCard post={data.post as Post}></PostCard>
+                    {data.post != null
+                        ? <PostCard post={data.post as Post}></PostCard>
+                        : <></>}
                 </Card>
                 {data.comments != null
                     ? <CommentsCard comments={data.comments}></CommentsCard>

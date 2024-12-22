@@ -22,8 +22,8 @@ export interface PostsCardsProps {
 export type Comments = Comment[];
 
 export interface PostWithComments {
-    post: Post | [];
-    comments: Comments | [];
+    post: Post | null;
+    comments: Comments | null;
 }
 
 export interface Thread {
