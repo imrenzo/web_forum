@@ -1,33 +1,29 @@
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import CSS from "csstype";
 import axios from "axios";
 import { Button } from '@mui/material';
+import { formStyles } from '../components/stylesheet';
 
-function MyApp() {
+export default function SignUp() {
     const [userData, setUserdata] = useState<{ username: string; password: string }>({ username: '', password: '' });
     const [invalidCred, setInvalidCred] = useState<boolean>(false);
-    let navigate = useNavigate();
+    const [errorMessage, setErrorMessage] = useState<string>('');
 
-    const formStyles: CSS.Properties = {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginTop: '10%',
-    }
+    let navigate = useNavigate();
 
     function HandleSubmit(event: FormEvent) {
         event.preventDefault();
 
         if (userData.username === '' || userData.password === '') {
+            setErrorMessage('Please enter a username/ password');
             setInvalidCred(true);
             setUserdata({ username: '', password: '' });
             console.log("invalid credentials");
         } else {
             axios
-                .post("http://localhost:8080/login", userData)
+                .post("http://localhost:8080/signup", userData)
                 .then(function (response) {
-                    console.log('success');
+                    console.log('successfully registered');
                     console.log(response.data.token);
                     setInvalidCred(false);
                     localStorage.setItem("jwtToken", response.data.token);
@@ -35,10 +31,13 @@ function MyApp() {
                     window.location.reload();
                 })
                 .catch(function (response) {
-                    setInvalidCred(true);
+                    if (response.status === 409) {
+                        setErrorMessage('Username is already taken');
+                        setInvalidCred(true);
+                    }
                 })
         }
-    }
+    };
 
     return (
         <div style={formStyles}>
@@ -61,13 +60,11 @@ function MyApp() {
                     </div>
                 </div>
 
-                <div style={{ textAlign: 'center' }}>{invalidCred && <p id="hiddenText" style={{ color: 'red' }}>Invalid username/ password</p>}
-                    <Button variant='outlined' type="submit">Log In</Button>
+                <div style={{ textAlign: 'center' }}>{invalidCred && <p id="hiddenText" style={{ color: 'red' }}>{errorMessage}</p>}
+                    <Button variant='contained' type="submit">Sign Up</Button>
                 </div>
             </form>
         </div>
 
     );
 }
-
-export default MyApp;

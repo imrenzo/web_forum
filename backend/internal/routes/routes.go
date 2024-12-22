@@ -8,5 +8,9 @@ import (
 
 func SetUpRoutes(router chi.Router) {
 	router.Get("/", database.LoadPosts)
+	router.Get("/post_id/{num}", database.SinglePostAndComments)
+	// router.Put("/post_id/{num}", database.SinglePostAndComments)
+	router.Post("/createThread", database.CreateThread)
 	router.Post("/login", users.LogInUser)
+	router.Post("/signup", users.SignUpUser)
 }

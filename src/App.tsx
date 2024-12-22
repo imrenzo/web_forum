@@ -1,20 +1,31 @@
 import './App.css';
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Login from "./pages/login";
+import Login from "./userManagement/login";
 import Home from "./pages/home";
-import IndivPost from "./pages/indivPost";
-import SignUp from "./pages/signup";
+import LoadIndivPost from "./pages/indivPost";
+import SignUp from "./userManagement/signup";
+import LogOut from "./userManagement/logout";
+import NotFound from './pages/notFound';
+import CreateThread from './pages/createThread';
+import EditThread from './pages/createThread';
 
 function MyApp() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />}></Route>
-        <Route path="/login" element={<Login />}></Route>
-        <Route path="/signup" element={<SignUp />}></Route>
-        <Route path="/id/:num" element={<IndivPost />}></Route>
-      </Routes>
-    </BrowserRouter>
+    <>
+      <title>Web Forum</title>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />}></Route>
+          <Route path="/createThread" element={<CreateThread />}></Route>
+          {/* <Route path="/post_id/edit/:num" element={<EditThread />}></Route> */}
+          <Route path="/post_id/:num" element={<LoadIndivPost />}></Route>
+          <Route path="/login" element={<Login />}></Route>
+          <Route path="/logout" element={<LogOut />}></Route>
+          <Route path="/signup" element={<SignUp />}></Route>
+          <Route path="*" element={<NotFound />}></Route>
+        </Routes>
+      </BrowserRouter >
+    </>
   );
 }
 
