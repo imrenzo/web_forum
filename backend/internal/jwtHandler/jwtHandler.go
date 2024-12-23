@@ -26,7 +26,7 @@ type MyCustomClaims struct {
 func CreateJwtToken(username string) string {
 	key := []byte(secretkey)
 	// token validity duration
-	expirationTime := time.Now().Add(time.Minute / 6)
+	expirationTime := time.Now().Add(time.Hour)
 
 	claims := MyCustomClaims{
 		username,
