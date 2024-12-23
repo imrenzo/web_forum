@@ -1,18 +1,22 @@
 import { Link } from 'react-router-dom';
 import Header from '../components/header';
+import { PageBoxStyle } from '../components/stylesheet';
 
-function NotFound() {
+import { Box } from '@mui/material';
+
+export default function NotFound(errorStatus: { errorStatus: number }) {
     return (
-      <>
-      <title>Error</title>
-      <Header isAuthenticated={true}></Header>
-        <div>
-            <h1>404 - Page Not Found</h1>
-            <p>Oops! The page you're looking for doesn't exist.</p>
-            <Link to="/" >Go back to Home</Link>
-        </div>
+        <>
+            <Box sx={PageBoxStyle}>
+                <title>Error</title>
+                <Header></Header>
+                <div>
+                    <h1>{errorStatus.errorStatus}
+                    </h1>
+                    <p>Oops! The page you're looking for doesn't exist.</p>
+                    <Link to="/" >Go back to Home</Link>
+                </div>
+            </Box>
         </>
     );
 };
-
-export default NotFound;

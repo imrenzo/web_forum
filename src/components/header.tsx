@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { LogInSignUpButtons } from './buttons';
+import IsAuthenticated from './authenticate';
 import { link } from './stylesheet';
 
 import Box from '@mui/material/Box';
@@ -19,8 +20,10 @@ import AdbIcon from '@mui/icons-material/Adb';
 const pages: { [key: string]: string }[] = [{ 'Home': '/' }, { 'Create Thread': '/createThread' }, { 'My Threads': '/' }];
 const iconDropdown: { [key: string]: string }[] = [{ 'Settings': '/' }, { 'Log Out': '/logout' }];
 
+
 // From MUI with some tweaking
-function Header({ isAuthenticated }: { isAuthenticated: Boolean }) {
+function Header() {
+    const { isAuthenticated, isLoading } = IsAuthenticated();
     const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
 
@@ -34,6 +37,10 @@ function Header({ isAuthenticated }: { isAuthenticated: Boolean }) {
     const CloseNavMenu = () => { setAnchorElNav(null); };
 
     const CloseUserMenu = () => { setAnchorElUser(null); };
+
+    if (isLoading) {
+        return null;
+    }
 
     return (<>
         <AppBar position="static">

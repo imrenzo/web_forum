@@ -6,8 +6,7 @@ import LoadIndivPost from "./pages/indivPost";
 import SignUp from "./userManagement/signup";
 import LogOut from "./userManagement/logout";
 import NotFound from './pages/notFound';
-import CreateThread from './pages/createThread';
-import EditThread from './pages/createThread';
+import HandleThread from './pages/HandleThread';
 
 function MyApp() {
   return (
@@ -19,7 +18,8 @@ function MyApp() {
           <Route path="/" element={<Home />}></Route>
           <Route path="/post_id/:num" element={<LoadIndivPost />}></Route>
           {/* create thread & comments */}
-          <Route path="/createThread" element={<CreateThread />}></Route>
+          <Route path="/createThread" element={<HandleThread method="create" />}></Route>
+          <Route path="/test" element={<HandleThread method="test" />}></Route>
           {/* update thread & comments */}
 
           {/* <Route path="/post_id/edit/:num" element={<EditThread />}></Route> */}
@@ -30,7 +30,7 @@ function MyApp() {
           <Route path="/login" element={<Login />}></Route>
           <Route path="/logout" element={<LogOut />}></Route>
           <Route path="/signup" element={<SignUp />}></Route>
-          <Route path="*" element={<NotFound />}></Route>
+          <Route path="*" element={<NotFound errorStatus={404} />}></Route>
         </Routes>
       </BrowserRouter >
     </>

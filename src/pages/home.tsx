@@ -1,14 +1,11 @@
 import * as React from 'react';
-import axios from "axios";
 import { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
-
 import { GetAllPostsOnly } from '../contollers/controllers';
 import { PostsCardsProps } from '../types/types';
 import Header from "../components/header";
 import FormatDate from "../components/dateformat";
-import { BoxStyle } from "../components/stylesheet";
-import IsAuthenticated from "../components/authenticate";
+import { PageBoxStyle } from "../components/stylesheet";
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -82,8 +79,8 @@ export default function Home() {
     return (
         <>
             <title>Web Forum</title>
-            <Box sx={BoxStyle}>
-                <Header isAuthenticated={IsAuthenticated()}></Header>
+            <Box sx={PageBoxStyle}>
+                <Header></Header>
                 <AllPosts posts={posts}></AllPosts>
             </Box>
         </>

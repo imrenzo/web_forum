@@ -12,6 +12,7 @@ func SetUpRoutes(router chi.Router) {
 	router.Get("/post_id/{num}", database.SinglePostAndComments)
 	// router.Put("/post_id/{num}", database.SinglePostAndComments)
 	router.With(jwtHandler.TokenVerifyMiddleware).Post("/createThread", database.CreateThread)
+	router.Get("/authenticate", jwtHandler.DirectAuthenticate)
 	// router.Post("/createThread", database.CreateThread)
 	router.Post("/login", users.LogInUser)
 	router.Post("/signup", users.SignUpUser)

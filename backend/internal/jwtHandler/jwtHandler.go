@@ -25,7 +25,8 @@ type MyCustomClaims struct {
 
 func CreateJwtToken(username string) string {
 	key := []byte(secretkey)
-	expirationTime := time.Now().Add(time.Hour)
+	// token validity duration
+	expirationTime := time.Now().Add(time.Minute / 6)
 
 	claims := MyCustomClaims{
 		username,
@@ -111,6 +112,50 @@ func TokenVerifyMiddleware(next http.Handler) http.Handler {
 			return
 		}
 	})
+}
+
+func DirectAuthenticate(w http.ResponseWriter, r *http.Request) {
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" {
+		http.Error(w, "Authorization header is missing", http.StatusUnauthorized)
+		return
+	}
+
+	// Check if the header is in the correct "Bearer <token>" format
+	tokenParts := strings.Split(authHeader, " ")
+	if len(tokenParts) != 2 || tokenParts[0] != "Bearer" {
+		http.Error(w, "Invalid authorization format", http.StatusUnauthorized)
+		return
+	}
+
+	tokenStr := tokenParts[1]
+
+	claims, err := VerifyToken(tokenStr)
+
+	if err != nil {
+		// if strings.Contains(err.Error(), "token is expired") {
+		// 	println("token is expired")
+		// 	http.ResponseWriter(http.StatusLocked)
+		// 	return
+		// }
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	username := claims.Username
+	if username != "" {
+		exists, err := database.UsernameExists(username)
+		if !exists {
+			log.Println(err)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		return
+	} else {
+		log.Println("Audience is empty, unable to extract username")
+		http.Error(w, "Unknown error occurred", http.StatusUnauthorized)
+		return
+	}
 }
 
 // get username of the token

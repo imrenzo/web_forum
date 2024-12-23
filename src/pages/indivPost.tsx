@@ -1,14 +1,13 @@
 import * as React from 'react';
 import { useParams, Link, useNavigate } from "react-router";
 import { Box } from "@mui/material";
-import { BoxStyle } from "../components/stylesheet";
 import Header from "../components/header";
 import { useEffect, useState } from "react";
 import { Post, Comments } from "../types/types";
 import FormatDate from "../components/dateformat";
-import IsAuthenticated from "../components/authenticate";
 import { GetPostWithComments } from '../contollers/controllers';
 import { PostWithComments } from '../types/types';
+import { PageBoxStyle } from "../components/stylesheet";
 
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -84,48 +83,51 @@ function DropDown({ postId }: { postId: number }) {
 
 function PostCard({ post }: { post: Post }) {
     return (
-        <Card sx={{ width: '100%' }}>
-            <CardHeader
-                avatar={
-                    <Avatar sx={{ bgcolor: red[500] }} >
-                        {post == null ? <></> : <p>{post.username}</p>}
-                    </Avatar>
-                }
-                action={<DropDown postId={post.post_id}></DropDown>}
-                title={post == null ? '' : post.username}
-                subheader={post == null ? '' : FormatDate(post.post_date as string)}
-            />
-            <CardContent sx={{ overflow: 'hidden', }}>
-                <Typography variant="h5" sx={{ color: 'text.primary', whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: '700' }}>
-                    {post == null ? <></> : <>{post.post_title}</>}
-                </Typography>
-                <Typography>&nbsp;</Typography>
-                <Typography variant="body1" sx={{ color: 'text.primary', whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {post == null ? <></> : <>{post.post_info}</>}
-                </Typography>
-            </CardContent>
-            <CardActions disableSpacing sx={{ display: 'flex', justifyContent: 'space-between', }}>
-                <Typography variant='subtitle1'>
-                    {FormatDate(post.post_date as string)}
-                </Typography>
-                <Box>
-                    <IconButton aria-label="view comment icon">
-                        <CommentIcon />
-                    </IconButton>
-                    <Link to='/signup'>
-                        <IconButton aria-label="add comment icon">
-                            <AddCommentIcon />
+        <>
+            <title>{post.post_id}</title>
+            <Card sx={{ width: '100%' }}>
+                <CardHeader
+                    avatar={
+                        <Avatar sx={{ bgcolor: red[500] }} >
+                            {post == null ? <></> : <p>{post.username}</p>}
+                        </Avatar>
+                    }
+                    action={<DropDown postId={post.post_id}></DropDown>}
+                    title={post == null ? '' : post.username}
+                    subheader={post == null ? '' : FormatDate(post.post_date as string)}
+                />
+                <CardContent sx={{ overflow: 'hidden', }}>
+                    <Typography variant="h5" sx={{ color: 'text.primary', whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: '700' }}>
+                        {post == null ? <></> : <>{post.post_title}</>}
+                    </Typography>
+                    <Typography>&nbsp;</Typography>
+                    <Typography variant="body1" sx={{ color: 'text.primary', whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {post == null ? <></> : <>{post.post_info}</>}
+                    </Typography>
+                </CardContent>
+                <CardActions disableSpacing sx={{ display: 'flex', justifyContent: 'space-between', }}>
+                    <Typography variant='subtitle1'>
+                        {FormatDate(post.post_date as string)}
+                    </Typography>
+                    <Box>
+                        <IconButton aria-label="view comment icon">
+                            <CommentIcon />
                         </IconButton>
-                    </Link>
-                    <IconButton aria-label="add to favorites">
-                        <>3&nbsp;</><FavoriteIcon />
-                    </IconButton>
-                    <IconButton aria-label="share">
-                        <ShareIcon />
-                    </IconButton>
-                </Box>
-            </CardActions>
-        </Card>
+                        <Link to='/signup'>
+                            <IconButton aria-label="add comment icon">
+                                <AddCommentIcon />
+                            </IconButton>
+                        </Link>
+                        <IconButton aria-label="add to favorites">
+                            <>3&nbsp;</><FavoriteIcon />
+                        </IconButton>
+                        <IconButton aria-label="share">
+                            <ShareIcon />
+                        </IconButton>
+                    </Box>
+                </CardActions>
+            </Card>
+        </>
     )
 }
 
@@ -188,8 +190,8 @@ export default function Page() {
 
     return (
         <>
-            <Box sx={BoxStyle}>
-                <Header isAuthenticated={IsAuthenticated()}></Header>
+            <Box sx={PageBoxStyle}>
+                <Header></Header>
                 <Card variant="outlined" sx={{ width: '100%' }}>
                     {data.post != null
                         ? <PostCard post={data.post as Post}></PostCard>

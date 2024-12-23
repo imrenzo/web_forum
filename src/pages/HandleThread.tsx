@@ -1,15 +1,16 @@
 import { FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/header";
-import IsAuthenticated from "../components/authenticate";
 import { Thread } from "../types/types";
 import { ValidateThreadInput, PostThread } from "../contollers/controllers";
-import { BoxStyle } from "../components/stylesheet";
+import NotFound from "./notFound";
+import { PageBoxStyle } from "../components/stylesheet";
 
 import { Box, Button } from "@mui/material";
 import TextField from '@mui/material/TextField';
 
-export default function CreateThread() {
+
+export function CreateThread() {
     /////////////////////// CHANGE op_id ///////////////////////
     const [userEntry, setUserEntry] = useState<Thread>({ op_id: 1, title: '', content: '' });
     const [validEntry, setValidEntry] = useState<boolean>(true);
@@ -25,17 +26,16 @@ export default function CreateThread() {
             setErrorMessage(errorMessage);
             setValidEntry(isValid);
             console.log(errorMessage);
-            return;
+            return NotFound({ errorStatus: 404 });
         }
         const sendThread = await PostThread(userEntry);
-        if (sendThread) {
+        if (sendThread.success) {
             console.log('successfully created thread');
             setValidEntry(false);
             navigate('/');
             window.location.reload();
         } else {
-            console.log("Failed to create thread");
-            navigate('*');
+            NotFound({ errorStatus: sendThread.errorStatus as number });
             window.location.reload();
         }
     }
@@ -49,8 +49,9 @@ export default function CreateThread() {
 
     return (
         <>
-            <Box sx={BoxStyle}>
-                <Header isAuthenticated={IsAuthenticated()}></Header>
+            <title>Create Thread</title>
+            <Box sx={PageBoxStyle}>
+                <Header></Header>
                 <form onSubmit={HandlePostThread}>
                     <Box sx={{ marginTop: 1, marginBottom: 1, }}>
                         <TextField fullWidth label="Title" id="title" value={userEntry.title} onChange={handleInputChange} multiline />
@@ -68,4 +69,24 @@ export default function CreateThread() {
 }
 
 
+const methods = ["create", "update", "delete"];
+const methodsFunctions = [CreateThread];
 
+export default function HandleThread(method: { method: string }) {
+    let navigate = useNavigate();
+    const index = methods.indexOf(method.method);
+    if (index !== -1) {
+        return methodsFunctions[index]();
+    } else {
+        console.log("invalid method");
+        return NotFound({ errorStatus: 404 });
+    }
+}
+
+function UpdateThread() {
+    return;
+}
+
+function DeleteThread() {
+    return;
+}

@@ -1,7 +1,7 @@
 import CSS from "csstype";
 
 const width: string = '30%'
-export const BoxStyle: { marginLeft: string, marginRight: string } = {
+export const PageBoxStyle: { marginLeft: string, marginRight: string } = {
     marginLeft: width,
     marginRight: width,
 };

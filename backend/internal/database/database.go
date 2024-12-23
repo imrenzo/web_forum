@@ -42,7 +42,7 @@ func CreateThread(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-	fmt.Println("obj: ", createThreadInfo)
+
 	_, err = db.Query(`
 		INSERT INTO posts (op_id, post_title, post_info) VALUES ($1, $2, $3);`, createThreadInfo.Op_id, createThreadInfo.Title, createThreadInfo.ThreadInfo)
 	if err != nil {
