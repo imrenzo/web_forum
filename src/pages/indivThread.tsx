@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { useParams, Link, useNavigate } from "react-router";
+import { useParams, Link, useNavigate, Navigate } from "react-router";
 import { Box } from "@mui/material";
 import Header from "../components/header";
 import { useEffect, useState } from "react";
 import { Post, Comments } from "../types/types";
 import FormatDate from "../components/dateformat";
-import { GetPostWithComments } from '../contollers/controllers';
+import { GetPostWithComments, CheckIsOwner } from '../apiService/apiService';
 import { PostWithComments } from '../types/types';
 import { PageBoxStyle } from "../components/stylesheet";
 
@@ -27,20 +27,34 @@ import Menu from '@mui/material/Menu';
 import Container from '@mui/material/Container';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
+import NotFound from './notFound';
 
 
 function DropDown({ postId }: { postId: number }) {
-    const vertIconDropdown: { [key: string]: string }[] = [{ 'Edit': '/post_id/' }, { 'test': '/' }];
+    // const username = localStorage.getItem("username");
+    const [isOwner, setIsOwner] = useState(false);
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
-
     const OpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorElUser(event.currentTarget);
     };
 
     const CloseUserMenu = () => { setAnchorElUser(null); };
 
-    return (<>
-        <Container maxWidth="xs">
+    useEffect(() => {
+        const verifiedOwner = async () => {
+            const verifyOwner = await CheckIsOwner(postId);
+            console.log("is owner? ", verifyOwner.success);
+            if (verifyOwner.success) {
+                setIsOwner(true);
+            } else {
+                NotFound({ errorStatus: verifyOwner.errorStatus as number });
+            }
+        }
+        verifiedOwner();
+    }, []);
+
+    return (isOwner
+        ? <Container maxWidth="xs">
             <Toolbar disableGutters>
                 <Box sx={{ flexGrow: 0 }}>
                     <Tooltip title="Open settings">
@@ -63,22 +77,21 @@ function DropDown({ postId }: { postId: number }) {
                         open={Boolean(anchorElUser)}
                         onClose={CloseUserMenu}
                     >
-                        <Link to={`/post_id/edit/${postId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                        <Link to={`/edit_thread/${postId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                             <MenuItem onClick={CloseUserMenu}>
                                 <Typography sx={{ textAlign: 'center' }}>Edit Thread</Typography>
                             </MenuItem>
                         </Link>
-                        <Link to='/' style={{ textDecoration: 'none', color: 'inherit' }}>
+                        <Link to={`/delete_thread/${postId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                             <MenuItem>
-                                <Typography sx={{ textAlign: 'center', }}>Share</Typography>
+                                <Typography sx={{ textAlign: 'center', }}>Delete Thread</Typography>
                             </MenuItem>
                         </Link>
                     </Menu>
                 </Box>
             </Toolbar>
         </Container>
-    </>
-    );
+        : <></>);
 }
 
 function PostCard({ post }: { post: Post }) {
@@ -154,6 +167,9 @@ function CommentsCard({ comments }: { comments: Comments }) {
                         <Typography variant="body1" sx={{ color: 'text.primary', whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                             {comment.comment_info}
                         </Typography>
+                        <Typography>
+                            {comment.commenter_id}
+                        </Typography>
                     </CardContent>
                 </Card>
             ))}
@@ -162,17 +178,12 @@ function CommentsCard({ comments }: { comments: Comments }) {
 }
 
 export default function Page() {
-    // get post and comments
+    // get individual post and comments
     const [data, setData] = useState<PostWithComments>({ post: null, comments: null });
     let postId = useParams().num;
     let navigate = useNavigate();
     useEffect(() => {
         if (postId) {
-            // const fetchData = async () => {
-            //     const fetchedData: PostWithComments = await GetPostWithComments(postId as string);
-            //     setData(fetchedData);
-            // }
-            // fetchData();
             const fetchData = async () => {
                 const { isValid, errorMessage, output } = await GetPostWithComments(postId as string);
                 if (!isValid) {
@@ -197,10 +208,10 @@ export default function Page() {
                         ? <PostCard post={data.post as Post}></PostCard>
                         : <></>}
                 </Card>
-                {data.comments != null
+                {/* {data.comments != null
                     ? <CommentsCard comments={data.comments}></CommentsCard>
                     : <></>
-                }
+                } */}
             </Box>
         </>
     );
