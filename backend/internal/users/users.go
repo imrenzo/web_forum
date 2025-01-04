@@ -32,7 +32,9 @@ func LogInUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jwtString := jwtHandler.CreateJwtToken(userData.Username)
+	userData.User_ID = GetUserID(userData.Username)
+
+	jwtString := jwtHandler.CreateJwtToken(userData.Username, userData.User_ID)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{"message": "Authorised", "token": jwtString})
 }
@@ -66,7 +68,20 @@ func SignUpUser(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	jwtString := jwtHandler.CreateJwtToken(userData.Username)
+	userData.User_ID = GetUserID(userData.Username)
+
+	jwtString := jwtHandler.CreateJwtToken(userData.Username, userData.User_ID)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{"message": "sucessfully registered", "token": jwtString})
+}
+
+func GetUserID(username string) int {
+	db := database.OpenDb()
+	defer db.Close()
+	var id int
+	err := db.QueryRow("SELECT user_id FROM users WHERE username = $1", username).Scan(&id)
+	if err != nil {
+		panic(err)
+	}
+	return id
 }
