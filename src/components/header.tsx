@@ -20,7 +20,6 @@ import AdbIcon from '@mui/icons-material/Adb';
 const pages: { [key: string]: string }[] = [{ 'Home': '/' }, { 'Create Thread': '/createThread' }, { 'My Threads': '/' }];
 const iconDropdown: { [key: string]: string }[] = [{ 'Settings': '/' }, { 'Log Out': '/logout' }];
 
-
 // From MUI with some tweaking
 function Header() {
     const { isAuthenticated, isLoading } = IsAuthenticated();
@@ -66,46 +65,48 @@ function Header() {
                     >
                         Forum
                     </Typography>
-                    <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-                        <IconButton
-                            size="large"
-                            aria-label="account of current user"
-                            aria-controls="menu-appbar"
-                            aria-haspopup="true"
-                            onClick={OpenNavMenu}
-                            color="inherit"
-                        >
-                            <MenuIcon></MenuIcon>
-                        </IconButton>
-                        <Menu
-                            id="menu-appbar"
-                            anchorEl={anchorElNav}
-                            anchorOrigin={{
-                                vertical: 'bottom',
-                                horizontal: 'left',
-                            }}
-                            keepMounted
-                            transformOrigin={{
-                                vertical: 'top',
-                                horizontal: 'left',
-                            }}
-                            open={Boolean(anchorElNav)}
-                            onClose={CloseNavMenu}
-                            sx={{ display: { xs: 'block', md: 'none' } }}
-                        >
-                            {pages.map((page) => {
-                                let key: string = Object.keys(page)[0];
-                                let href: string = page[key];
-                                return (
-                                    <a href={href} style={link} key={key} >
-                                        <MenuItem onClick={CloseNavMenu} >
-                                            <Typography sx={{ textAlign: 'center' }}>{key}</Typography>
-                                        </MenuItem>
-                                    </a>
-                                )
-                            })}
-                        </Menu>
-                    </Box>
+                    {isAuthenticated
+                        ? <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+                            <IconButton
+                                size="large"
+                                aria-label="account of current user"
+                                aria-controls="menu-appbar"
+                                aria-haspopup="true"
+                                onClick={OpenNavMenu}
+                                color="inherit"
+                            >
+                                <MenuIcon></MenuIcon>
+                            </IconButton>
+                            <Menu
+                                id="menu-appbar"
+                                anchorEl={anchorElNav}
+                                anchorOrigin={{
+                                    vertical: 'bottom',
+                                    horizontal: 'left',
+                                }}
+                                keepMounted
+                                transformOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'left',
+                                }}
+                                open={Boolean(anchorElNav)}
+                                onClose={CloseNavMenu}
+                                sx={{ display: { xs: 'block', md: 'none' } }}
+                            >
+                                {pages.map((page) => {
+                                    let key: string = Object.keys(page)[0];
+                                    let href: string = page[key];
+                                    return (
+                                        <a href={href} style={link} key={key} >
+                                            <MenuItem onClick={CloseNavMenu} >
+                                                <Typography sx={{ textAlign: 'center' }}>{key}</Typography>
+                                            </MenuItem>
+                                        </a>
+                                    )
+                                })}
+                            </Menu>
+                        </Box>
+                        : <></>}
                     <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
                     <Typography
                         variant="h5"
@@ -125,22 +126,25 @@ function Header() {
                     >
                         Forum
                     </Typography>
-                    <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-                        {pages.map((page) => {
-                            let key: string = Object.keys(page)[0];
-                            let href: string = page[key];
-                            return (
-                                <a href={href} style={link} key={key}>
-                                    <Button
-                                        onClick={CloseNavMenu}
-                                        sx={{ my: 2, color: 'white', display: 'block' }}
-                                    >
-                                        {key}
-                                    </Button>
-                                </a>
-                            )
-                        })}
-                    </Box>
+                    {isAuthenticated
+                        ? <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+                            {pages.map((page) => {
+                                let key: string = Object.keys(page)[0];
+                                let href: string = page[key];
+                                return (
+                                    <a href={href} style={link} key={key}>
+                                        <Button
+                                            onClick={CloseNavMenu}
+                                            // align login and logout buttons to the right
+                                            sx={{ my: 2, color: 'white', display: 'block' }}
+                                        >
+                                            {key}
+                                        </Button>
+                                    </a>
+                                )
+                            })}
+                        </Box>
+                        : <></>}
                     {!(isAuthenticated)
                         ? <Box sx={{ flexGrow: 0 }}>
                             <LogInSignUpButtons></LogInSignUpButtons>

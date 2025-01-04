@@ -27,7 +27,6 @@ export interface PostWithComments {
 }
 
 export interface Thread {
-    op_id: Number | null;
     title: string | null;
     content: string | null;
 }
