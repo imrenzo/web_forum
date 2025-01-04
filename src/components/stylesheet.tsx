@@ -1,6 +1,6 @@
 import CSS from "csstype";
 
-const width: string = '30%'
+const width: string = '20%'
 export const PageBoxStyle: { marginLeft: string, marginRight: string } = {
     marginLeft: width,
     marginRight: width,
