@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
-import { GetAllPostsOnly } from '../contollers/controllers';
+import { GetAllPostsOnly } from '../apiService/apiService';
 import { PostsCardsProps } from '../types/types';
 import Header from "../components/header";
 import FormatDate from "../components/dateformat";
