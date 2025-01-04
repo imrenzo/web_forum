@@ -8,6 +8,8 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
+
+	"github.com/imrenzo/web_forum/internal/jwtHandler"
 	"github.com/imrenzo/web_forum/internal/models"
 )
 
@@ -19,8 +21,6 @@ const (
 	dbname   = "web_forum"
 )
 
-const id = 1 //for testing without jwt
-
 func OpenDb() *sql.DB {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
@@ -31,11 +31,9 @@ func OpenDb() *sql.DB {
 	return db
 }
 
-// ////////// Creation of Posts and Comments ////////////
+// // Create Posts (checking that user in context from jwt middleware & user making post are the same person)and
+// // need add ftn for creating Comments ////
 func CreateThread(w http.ResponseWriter, r *http.Request) {
-	db := OpenDb()
-	defer db.Close()
-
 	var createThreadInfo models.CreateThread
 	err := json.NewDecoder(r.Body).Decode(&createThreadInfo)
 	if err != nil {
@@ -43,15 +41,23 @@ func CreateThread(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userID := jwtHandler.GetUserIDfromJWT(r)
+
+	db := OpenDb()
+	defer db.Close()
+
 	_, err = db.Query(`
-		INSERT INTO posts (op_id, post_title, post_info) VALUES ($1, $2, $3);`, createThreadInfo.Op_id, createThreadInfo.Title, createThreadInfo.ThreadInfo)
+		INSERT INTO posts (op_id, post_title, post_info) VALUES ($1, $2, $3);`, userID, createThreadInfo.Title, createThreadInfo.ThreadInfo)
+
 	if err != nil {
 		http.Error(w, `{"error": "Internal server error"}`, http.StatusInternalServerError)
 		return
 	}
 
+	//get post_id so that can load back into page
 	var post_id int
-	err = db.QueryRow("SELECT post_id FROM posts WHERE op_id = $1 ORDER BY post_date DESC LIMIT 1;", id).Scan(&post_id)
+	err = db.QueryRow("SELECT post_id FROM posts WHERE op_id = $1 AND post_title = $2 AND post_info = $3",
+		userID, createThreadInfo.Title, createThreadInfo.ThreadInfo).Scan(&post_id)
 	if err != nil {
 		panic(err)
 	}
@@ -64,8 +70,44 @@ func CreateThread(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(post_id)
 }
 
+func DeleteThread(w http.ResponseWriter, r *http.Request) {
+	db := OpenDb()
+	defer db.Close()
+	post_idStr := chi.URLParam(r, "id")
+	post_id, err := strconv.Atoi(post_idStr)
+	if err != nil {
+		panic(err)
+	}
+
+	userID := jwtHandler.GetUserIDfromJWT(r)
+
+	// ensure user that original poster and userID making delete req matches
+	var op_id int
+	err = db.QueryRow("SELECT op_id FROM posts WHERE post_id = $1", post_id).Scan(&op_id)
+	if err != nil {
+		panic(err)
+	}
+
+	if op_id != userID {
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
+	// deletes posts and comments associated with it as comments have foreign key constraint
+	_, err = db.Query("DELETE FROM comments WHERE post_id = $1", post_id)
+	if err != nil {
+		panic(err)
+	}
+
+	_, err = db.Query("DELETE FROM posts WHERE post_id = $1", post_id)
+	if err != nil {
+		panic(err)
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
 // ////////// Read Posts and Comments ////////////
-// load all posts
 func LoadPosts(w http.ResponseWriter, r *http.Request) {
 	db := OpenDb()
 	defer db.Close()
@@ -99,11 +141,10 @@ func LoadPosts(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(posts)
 }
 
-// load single post
 func SinglePostAndComments(w http.ResponseWriter, r *http.Request) {
 	db := OpenDb()
 	defer db.Close()
-	idStr := chi.URLParam(r, "num")
+	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		panic(err)
@@ -158,24 +199,38 @@ func SinglePostAndComments(w http.ResponseWriter, r *http.Request) {
 		Post:     post,
 		Comments: comments,
 	}
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(result)
 }
 
-func UsernameExists(username string) (bool, string) {
+func CheckPostOwner(w http.ResponseWriter, r *http.Request) {
 	db := OpenDb()
 	defer db.Close()
 
+	var postId int
+	err := json.NewDecoder(r.Body).Decode(&postId)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	userID := jwtHandler.GetUserIDfromJWT(r)
+	println("userid: ", userID)
+	println("postid: ", postId)
 	var count int
-	err := db.QueryRow(`SELECT COUNT(*) FROM users WHERE username = $1`, username).Scan(&count)
+	err = db.QueryRow(`SELECT COUNT(*)
+						FROM users 
+						INNER JOIN posts ON user_id = op_id
+						WHERE user_id = $1 AND post_id = $2`, userID, postId).Scan(&count)
 	if err != nil {
 		panic(err)
 	}
-	if count == 0 {
-		return false, "User does not exist"
-	} else if count > 1 {
-		return false, "Internal Server Error"
-	} else {
-		return true, ""
+	println("count: ", count)
+	if count != 1 {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
 	}
+
+	w.WriteHeader(http.StatusNoContent)
 }

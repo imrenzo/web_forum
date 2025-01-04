@@ -9,27 +9,29 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/imrenzo/web_forum/internal/database"
+	"github.com/imrenzo/web_forum/internal/shared"
 )
 
 const secretkey = "hello_world"
 
-const usernameKey contextKey = "username"
+const userIDkey contextKey = "userID"
 
 type contextKey string
 
 type MyCustomClaims struct {
 	Username string `json:"username"`
+	UserID   int    `json:"userID"`
 	jwt.RegisteredClaims
 }
 
-func CreateJwtToken(username string) string {
+func CreateJwtToken(username string, userID int) string {
 	key := []byte(secretkey)
 	// token validity duration
 	expirationTime := time.Now().Add(time.Hour)
 
 	claims := MyCustomClaims{
 		username,
+		userID,
 		jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 			Issuer:    "web-forum",
@@ -56,12 +58,10 @@ func VerifyToken(tokenStr string) (*MyCustomClaims, error) {
 		fmt.Println("Error parsing token:", err)
 		return nil, err
 	}
-
 	claims, ok := token.Claims.(*MyCustomClaims)
 	if !ok {
 		return nil, fmt.Errorf("failed to parse token claims")
 	}
-
 	if token.Valid {
 		if claims.Issuer != "web-forum" {
 			return nil, fmt.Errorf("invalid token")
@@ -75,6 +75,7 @@ func VerifyToken(tokenStr string) (*MyCustomClaims, error) {
 	return nil, fmt.Errorf("invalid token")
 }
 
+// for crud processes that requires token authentication
 func TokenVerifyMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
@@ -90,7 +91,6 @@ func TokenVerifyMiddleware(next http.Handler) http.Handler {
 			return
 		}
 		tokenStr := tokenParts[1]
-
 		claims, err := VerifyToken(tokenStr)
 
 		if err != nil {
@@ -98,22 +98,26 @@ func TokenVerifyMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		username := claims.Username
-		if username != "" {
-			exists, err := database.UsernameExists(username)
+		id := claims.UserID
+
+		if id > 0 {
+			exists, errormsg := shared.UserIDExists(id)
 			if !exists {
-				log.Println(err)
+				log.Println(errormsg)
 				return
 			}
-			ctx := context.WithValue(r.Context(), usernameKey, username)
+			// println("************************************authenticated by middleware!************************************")
+			ctx := context.WithValue(r.Context(), userIDkey, id)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		} else {
-			log.Println("Audience is empty, unable to extract username")
+			log.Println("Empty id!")
+			http.Error(w, "Invalid User ID", http.StatusUnauthorized)
 			return
 		}
 	})
 }
 
+// check that token is valid for header bar
 func DirectAuthenticate(w http.ResponseWriter, r *http.Request) {
 	authHeader := r.Header.Get("Authorization")
 	if authHeader == "" {
@@ -133,31 +137,15 @@ func DirectAuthenticate(w http.ResponseWriter, r *http.Request) {
 	claims, err := VerifyToken(tokenStr)
 
 	if err != nil {
-		// if strings.Contains(err.Error(), "token is expired") {
-		// 	println("token is expired")
-		// 	http.ResponseWriter(http.StatusLocked)
-		// 	return
-		// }
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
 
-	username := claims.Username
-	if username != "" {
-		exists, err := database.UsernameExists(username)
-		if !exists {
-			log.Println(err)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-		return
-	} else {
-		log.Println("Audience is empty, unable to extract username")
-		http.Error(w, "Unknown error occurred", http.StatusUnauthorized)
-		return
-	}
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(fmt.Sprintf("UserID: , %d", claims.UserID)))
 }
 
-// get username of the token
-// need to check with REQUESTER USERNAME
-// username := r.Context().Value(usernameKey).(string)
+func GetUserIDfromJWT(r *http.Request) int {
+	jwtUserID := r.Context().Value(userIDkey).(int)
+	return jwtUserID
+}

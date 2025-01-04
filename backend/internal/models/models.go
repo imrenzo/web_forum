@@ -10,6 +10,7 @@ type Post struct {
 }
 
 type UserData struct {
+	User_ID  int    `json:"userID"`
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
@@ -23,12 +24,16 @@ type Comments struct {
 }
 
 type PostWithComments struct {
-	Post       Post       `json:"post"`
+	Post     Post       `json:"post"`
 	Comments []Comments `json:"comments"`
 }
 
 type CreateThread struct {
-	Op_id		int		`json:"op_id"`
-	Title		string	`json:"title"`
-	ThreadInfo	string	`json:"content"`
+	Title      string `json:"title"`
+	ThreadInfo string `json:"content"`
+}
+
+type PostOwnerCheck struct {
+	Username string `json:"username"`
+	PostId   int    `json:"postId"`
 }
