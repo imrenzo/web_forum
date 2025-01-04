@@ -27,6 +27,8 @@ export default function SignUp() {
                     console.log(response.data.token);
                     setInvalidCred(false);
                     localStorage.setItem("jwtToken", response.data.token);
+                    localStorage.setItem("username", userData.username);
+                    console.log("successfully signed up & logged in");
                     navigate('/');
                     window.location.reload();
                 })

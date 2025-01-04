@@ -25,10 +25,10 @@ export default function LogIn() {
             axios
                 .post("http://localhost:8080/login", userData)
                 .then(function (response) {
-                    console.log('success');
-                    console.log(response.data.token);
                     setInvalidCred(false);
                     localStorage.setItem("jwtToken", response.data.token);
+                    localStorage.setItem("username", userData.username);
+                    console.log("logged in");
                     navigate('/');
                     window.location.reload();
                 })

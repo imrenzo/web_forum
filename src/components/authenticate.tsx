@@ -21,6 +21,8 @@ export default function IsAuthenticated(): { isAuthenticated: boolean; isLoading
                     setIsAuthenticated(true);
                 } catch (error) {
                     localStorage.removeItem("jwtToken");
+                    localStorage.removeItem("username");
+                    console.log("deleted local storage!!");
                     setIsAuthenticated(false);
 
                 } finally {
@@ -30,6 +32,5 @@ export default function IsAuthenticated(): { isAuthenticated: boolean; isLoading
         }
         checkAuthorised();
     }, [])
-    console.log("isAuthenticated: ", isAuthenticated);
     return { isAuthenticated, isLoading };
 }
