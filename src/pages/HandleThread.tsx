@@ -1,8 +1,8 @@
 import { FormEvent, useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Header from "../components/header";
-import { Thread } from "../types/types";
-import { ValidateThreadInput, CreateJWTHeader } from "../apiService/apiService";
+import { GetThread, Thread, ThreadWithComments } from "../types/types";
+import { ValidateThreadInput, CreateJWTHeader, GetThreadWithComments } from "../apiService/apiService";
 import NotFound from "./notFound";
 import { PageBoxStyle } from "../components/stylesheet";
 import api from "../components/api";
@@ -27,7 +27,6 @@ export default function HandleThread(method: { method: string }) {
 
 // HandleCreateThread and HandleUpdateThread have many similarities but logic is nested within own ftn
 function HandleCreateThread() {
-    // op_id handled in controllers.tsx
     const [userEntry, setUserEntry] = useState<Thread>({ title: '', content: '' });
     const [validEntry, setValidEntry] = useState<boolean>(true);
     const [errorMessage, setErrorMessage] = useState<string>('');
@@ -63,7 +62,7 @@ function HandleCreateThread() {
         }
     };
 
-    async function HandleRequest(event: FormEvent) {
+    async function HandlePostRequest(event: FormEvent) {
         event.preventDefault();
         const { isValid, errorMessage } = ValidateThreadInput(userEntry);
         console.log("valid: ", isValid);
@@ -98,7 +97,7 @@ function HandleCreateThread() {
             <title>Create Thread</title>
             <Box sx={PageBoxStyle}>
                 <Header></Header>
-                <form onSubmit={HandleRequest}>
+                <form onSubmit={HandlePostRequest}>
                     <Box sx={{ marginTop: 1, marginBottom: 1, }}>
                         <TextField fullWidth label="Title" id="title" value={userEntry.title} onChange={handleInputChange} multiline />
                     </Box>
@@ -115,8 +114,114 @@ function HandleCreateThread() {
 }
 
 function HandleUpdateThread() {
-    return (<></>);
+    const [userEntry, setUserEntry] = useState<Thread>({ title: '', content: '' });
+    const [validEntry, setValidEntry] = useState<boolean>(true);
+    const [errorMessage, setErrorMessage] = useState<string>('');
+
+    let navigate = useNavigate();
+    let threadId = useParams().num;
+
+    useEffect(() => {
+        if (threadId) {
+            const fetchData = async () => {
+                console.log("Getting thread with comments");
+                const { isValid, errorMessage, output } = await GetThreadWithComments(threadId as string);
+                if (!isValid) {
+                    console.log(errorMessage);
+                    navigate('*');
+                    window.location.reload();
+                    return;
+                }
+                const ThreadWithComments = output as ThreadWithComments;
+                const Thread = ThreadWithComments.thread as GetThread;
+                setUserEntry({ title: Thread.thread_title, content: Thread.thread_info });
+            };
+            fetchData();
+        }
+    }, [threadId]);
+
+
+    async function PutThread(userEntry: Thread): Promise<{ success: Boolean, errorStatus: number | null }> {
+        try {
+            const jwtHeader = CreateJWTHeader();
+            if (jwtHeader == null) {
+                console.error();
+                return { success: false, errorStatus: 401 };
+            }
+            console.log("Sending to backend PUT request")
+            console.log(userEntry);
+            const response = await api.put("/updateThread", userEntry, { headers: jwtHeader });
+            console.log("successfully updated thread")
+            return { success: true, errorStatus: null };
+        } catch (error: unknown) {
+            if (error instanceof AxiosError) {
+                if (error.response) {
+                    if (error.response.status == 401) {
+                        localStorage.removeItem("username");
+                        localStorage.removeItem("jwtToken");
+                    }
+                    return { success: false, errorStatus: error.response.status };
+                } else {
+                    return { success: false, errorStatus: 500 };
+                }
+            }
+            return { success: false, errorStatus: 404 };
+        }
+    };
+
+    async function HandlePutRequest(event: FormEvent) {
+        event.preventDefault();
+        const { isValid, errorMessage } = ValidateThreadInput(userEntry);
+        console.log("valid: ", isValid);
+        if (!isValid) {
+            setErrorMessage(errorMessage);
+            setValidEntry(isValid);
+            console.log(errorMessage);
+            return NotFound({ errorStatus: 404 });
+        }
+        const sendThread = await PutThread(userEntry);
+        if (sendThread.success) {
+            console.log('successfully created thread');
+            setValidEntry(false);
+            // navigate('/');
+            // window.location.reload();
+        } else {
+            
+            NotFound({ errorStatus: sendThread.errorStatus as number });
+
+            // window.location.reload();
+        }
+    }
+
+    function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+        const { id, value } = event.target;
+        setUserEntry(prevState => ({
+            ...prevState,
+            [id]: value,
+        }));
+    }
+
+    return (
+        <>
+            <title>Update Thread</title>
+            <Box sx={PageBoxStyle}>
+                <Header></Header>
+                <form onSubmit={HandlePutRequest}>
+                    <Box sx={{ marginTop: 1, marginBottom: 1, }}>
+                        <TextField fullWidth label="Title" id="title" value={userEntry.title} onChange={handleInputChange} multiline />
+                    </Box>
+                    <Box sx={{ marginTop: 1, marginBottom: 1, }}>
+                        <TextField fullWidth label="Content" id="content" value={userEntry.content} onChange={handleInputChange} multiline />
+                    </Box>
+                    <div style={{ textAlign: 'right' }}>{!validEntry && <p id="hiddenText" style={{ color: 'red' }}>{errorMessage}</p>}
+                        <Button variant='contained' type="submit">Update thread</Button>
+                    </div>
+                </form>
+            </Box>
+        </>
+    );
 }
+
 
 function HandleDeleteThread() {
     console.log("deleting...");
@@ -153,7 +258,7 @@ function HandleDeleteThread() {
         }
     }
 
-    async function HandleRequest(threadId: string) {
+    async function HandleDeleteRequest(threadId: string) {
         const response = await DeleteThread(threadId);
         if (response.success) {
             console.log(`successfully deleted thread thread id: ${threadId}`);
@@ -166,7 +271,7 @@ function HandleDeleteThread() {
     }
 
     if (threadId) {
-        HandleRequest(threadId);
+        HandleDeleteRequest(threadId);
     }
 
     return (<></>);

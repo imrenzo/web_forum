@@ -3,11 +3,11 @@ import { useParams, Link, useNavigate, Navigate } from "react-router";
 import { Box } from "@mui/material";
 import Header from "../components/header";
 import { useEffect, useState } from "react";
-import { GetThread, GetThreadWithComments, Comments } from "../types/types";
+import { GetThread, ThreadWithComments, Comments } from "../types/types";
 import FormatDate from "../components/dateformat";
-import { CheckIsOwner } from '../apiService/apiService';
+import { CheckIsOwner, GetThreadWithComments } from '../apiService/apiService';
 import { PageBoxStyle } from "../components/stylesheet";
-import api from '../components/api';
+
 
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -179,19 +179,11 @@ function CommentsCard({ comments }: { comments: Comments }) {
 
 export default function Page() {
     // get individual thread and comments
-    const [data, setData] = useState<GetThreadWithComments>({ thread: null, comments: null });
+    const [data, setData] = useState<ThreadWithComments>({ thread: null, comments: null });
     let threadId = useParams().num;
     let navigate = useNavigate();
 
-    async function GetThreadWithComments(threadId: string): Promise<{ isValid: boolean; errorMessage: string; output: GetThreadWithComments | null }> {
-        try {
-            const response = await api.get(`/thread_id/${threadId}`);
-            return { isValid: true, errorMessage: '', output: response.data };
-        } catch (error) {
-            console.log(error);
-            return { isValid: false, errorMessage: "Thread does not exist", output: null };
-        }
-    };
+   
 
     useEffect(() => {
         if (threadId) {
@@ -204,7 +196,7 @@ export default function Page() {
                     window.location.reload();
                     return;
                 }
-                setData(output as GetThreadWithComments);
+                setData(output as ThreadWithComments);
             };
             fetchData();
         }

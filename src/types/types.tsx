@@ -21,7 +21,7 @@ export interface GetThreadsCardsProps {
 
 export type Comments = Comment[];
 
-export interface GetThreadWithComments {
+export interface ThreadWithComments {
     thread: GetThread | null;
     comments: Comments | null;
 }

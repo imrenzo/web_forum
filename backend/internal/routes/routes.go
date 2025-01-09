@@ -10,10 +10,13 @@ import (
 func SetUpRoutes(router chi.Router) {
 	router.Get("/", database.LoadThreads)
 	router.Get("/thread_id/{id}", database.SingleThreadAndComments)
-	// router.Put("/thread_id/{num}", database.SingleThreadAndComments)
+
 	router.With(jwtHandler.TokenVerifyMiddleware).Post("/checkthreadowner", database.CheckThreadOwner)
-	
+
 	router.With(jwtHandler.TokenVerifyMiddleware).Post("/createThread", database.CreateThread)
+
+	// const response = await api.put("/updateThread", userEntry, { headers: jwtHeader });
+
 	router.With(jwtHandler.TokenVerifyMiddleware).Delete("/delete_thread/{id}", database.DeleteThread)
 	// user handling
 	router.Get("/authenticate", jwtHandler.DirectAuthenticate)

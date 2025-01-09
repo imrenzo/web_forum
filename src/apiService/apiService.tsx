@@ -1,5 +1,5 @@
 import axios, { AxiosError } from "axios";
-import { GetThreadWithComments, Thread } from "../types/types";
+import { ThreadWithComments, Thread } from "../types/types";
 import api from "../components/api";
 
 export function ValidateThreadInput(userEntry: Thread): { isValid: boolean; errorMessage: string } {
@@ -37,3 +37,13 @@ export async function CheckIsOwner(threadId: number): Promise<{ success: Boolean
         return { success: false, errorStatus: 401 };
     }
 }
+
+export async function GetThreadWithComments(threadId: string): Promise<{ isValid: boolean; errorMessage: string; output: ThreadWithComments | null }> {
+    try {
+        const response = await api.get(`/thread_id/${threadId}`);
+        return { isValid: true, errorMessage: '', output: response.data };
+    } catch (error) {
+        console.log(error);
+        return { isValid: false, errorMessage: "Thread does not exist", output: null };
+    }
+};
