@@ -1,12 +1,11 @@
 import * as React from 'react';
 import { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
-import { GetAllPostsOnly } from '../apiService/apiService';
 import { PostsCardsProps } from '../types/types';
 import Header from "../components/header";
 import FormatDate from "../components/dateformat";
 import { PageBoxStyle } from "../components/stylesheet";
-
+import axios from "axios";
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
@@ -69,10 +68,14 @@ export default function Home() {
 
     useEffect(() => {
         const fetchPosts = async () => {
-            const fetchedPosts = await GetAllPostsOnly();
-            setPosts(fetchedPosts);
+            try {
+                const response = await axios.get("http://localhost:8080/");
+                setPosts(response.data);
+            } catch (error) {
+                console.log(error);
+                setPosts([]);
+            }
         };
-
         fetchPosts();
     }, []);
 

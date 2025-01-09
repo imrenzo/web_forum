@@ -22,7 +22,7 @@ function MyApp() {
           <Route path="/createThread" element={<HandleThread method="create" />}></Route>
 
           {/* update thread & comments */}
-          {/* <Route path="/edit_thread/:num" element={<HandleThread method="update" />}></Route> */}
+          <Route path="/edit_thread/:num" element={<HandleThread method="update" />}></Route>
 
           {/* delete thread & comments */}
           <Route path="/delete_thread/:num" element={<HandleThread method="delete" />}></Route>

@@ -5,9 +5,10 @@ import Header from "../components/header";
 import { useEffect, useState } from "react";
 import { Post, Comments } from "../types/types";
 import FormatDate from "../components/dateformat";
-import { GetPostWithComments, CheckIsOwner } from '../apiService/apiService';
+import { CheckIsOwner } from '../apiService/apiService';
 import { PostWithComments } from '../types/types';
 import { PageBoxStyle } from "../components/stylesheet";
+import api from '../components/api';
 
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -182,6 +183,17 @@ export default function Page() {
     const [data, setData] = useState<PostWithComments>({ post: null, comments: null });
     let postId = useParams().num;
     let navigate = useNavigate();
+
+    async function GetPostWithComments(postId: string): Promise<{ isValid: boolean; errorMessage: string; output: PostWithComments | null }> {
+        try {
+            const response = await api.get(`/post_id/${postId}`);
+            return { isValid: true, errorMessage: '', output: response.data };
+        } catch (error) {
+            console.log(error);
+            return { isValid: false, errorMessage: "Thread does not exist", output: null };
+        }
+    };
+
     useEffect(() => {
         if (postId) {
             const fetchData = async () => {
