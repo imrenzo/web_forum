@@ -1,5 +1,5 @@
 import axios, { AxiosError } from "axios";
-import { PostWithComments, Thread } from "../types/types";
+import { GetThreadWithComments, Thread } from "../types/types";
 import api from "../components/api";
 
 export function ValidateThreadInput(userEntry: Thread): { isValid: boolean; errorMessage: string } {
@@ -21,7 +21,7 @@ export function CreateJWTHeader(): { "Authorization": string; "Content-Type": st
     }
 }
 
-export async function CheckIsOwner(postId: number): Promise<{ success: Boolean, errorStatus: number | null }> {
+export async function CheckIsOwner(threadId: number): Promise<{ success: Boolean, errorStatus: number | null }> {
     try {
         const jwtHeader = CreateJWTHeader();
         if (jwtHeader == null) {
@@ -29,11 +29,11 @@ export async function CheckIsOwner(postId: number): Promise<{ success: Boolean, 
             return { success: false, errorStatus: 401 }
         };
         console.log("sending response");
-        const response = await api.post("/checkpostowner", postId, { headers: jwtHeader });
+        const response = await api.post("/checkthreadowner", threadId, { headers: jwtHeader });
         console.log("success");
         return { success: true, errorStatus: null };
     } catch (error: unknown) {
-        // anything else is unauthorised so should not show dropdown options to update/ delete post
+        // anything else is unauthorised so should not show dropdown options to update/ delete thread
         return { success: false, errorStatus: 401 };
     }
 }

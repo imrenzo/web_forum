@@ -2,7 +2,7 @@ import './App.css';
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Login from "./userManagement/login";
 import Home from "./pages/home";
-import LoadIndivPost from "./pages/indivThread";
+import LoadIndivThread from "./pages/indivThread";
 import SignUp from "./userManagement/signup";
 import LogOut from "./userManagement/logout";
 import NotFound from './pages/notFound';
@@ -16,7 +16,7 @@ function MyApp() {
         <Routes>
           {/* read db */}
           <Route path="/" element={<Home />}></Route>
-          <Route path="/post_id/:num" element={<LoadIndivPost />}></Route>
+          <Route path="/thread_id/:num" element={<LoadIndivThread />}></Route>
 
           {/* create thread & comments */}
           <Route path="/createThread" element={<HandleThread method="create" />}></Route>

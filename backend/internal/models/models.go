@@ -1,12 +1,12 @@
 package models
 
-type Post struct {
+type GetThread struct {
 	Username   string `json:"username"`
-	Post_id    int    `json:"post_id"`
+	Thread_id    int    `json:"thread_id"`
 	Op_id      int    `json:"user_id"`
-	Post_title string `json:"post_title"`
-	Post_info  string `json:"post_info"`
-	Post_date  string `json:"post_date"`
+	Thread_title string `json:"thread_title"`
+	Thread_info  string `json:"thread_info"`
+	Thread_date  string `json:"thread_date"`
 }
 
 type UserData struct {
@@ -23,8 +23,8 @@ type Comments struct {
 	Comment_date string `json:"comment_date"`
 }
 
-type PostWithComments struct {
-	Post     Post       `json:"post"`
+type GetThreadWithComments struct {
+	GetThread     GetThread       `json:"thread"`
 	Comments []Comments `json:"comments"`
 }
 
@@ -33,7 +33,7 @@ type CreateThread struct {
 	ThreadInfo string `json:"content"`
 }
 
-type PostOwnerCheck struct {
+type ThreadOwnerCheck struct {
 	Username string `json:"username"`
-	PostId   int    `json:"postId"`
+	ThreadId   int    `json:"threadId"`
 }

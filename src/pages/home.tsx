@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
-import { PostsCardsProps } from '../types/types';
+import { GetThreadsCardsProps } from '../types/types';
 import Header from "../components/header";
 import FormatDate from "../components/dateformat";
 import { PageBoxStyle } from "../components/stylesheet";
@@ -15,32 +15,32 @@ import IconButton from '@mui/material/IconButton';
 import CommentIcon from '@mui/icons-material/Comment';
 import AddCommentIcon from '@mui/icons-material/AddComment';
 
-function AllPosts({ posts }: PostsCardsProps) {
+function AllThreads({ threads }: GetThreadsCardsProps) {
     return (
         <>
-            {posts === null
+            {threads === null
                 ? <Box>
                     <br></br>
-                    <Typography variant='body1'>No posts yet. Create the first Thread!</Typography >
+                    <Typography variant='body1'>No threads yet. Create the first Thread!</Typography >
                 </Box>
                 : <Box>
-                    {posts.map((item) =>
-                        <Link key={item.post_id} to={`/post_id/${item.post_id}`} style={{ textDecoration: 'none' }}>
+                    {threads.map((item) =>
+                        <Link key={item.thread_id} to={`/thread_id/${item.thread_id}`} style={{ textDecoration: 'none' }}>
                             <Card variant="outlined" sx={{ width: '100%', marginTop: 2 }}>
                                 <React.Fragment>
                                     <CardContent>
                                         <Typography variant="h5" component="div">
-                                            {item.post_title}
+                                            {item.thread_title}
                                         </Typography>
                                         <br></br>
                                         <Typography variant='body1' sx={{}}>
-                                            {item.post_info}
+                                            {item.thread_info}
                                         </Typography>
                                     </CardContent>
                                 </React.Fragment>
                                 <CardActions disableSpacing sx={{ display: 'flex', justifyContent: 'space-between', }}>
                                     <Typography variant='subtitle1'>
-                                        {FormatDate(item.post_date)}
+                                        {FormatDate(item.thread_date)}
                                     </Typography>
                                     <Box>
                                         <IconButton aria-label="view comment icon">
@@ -64,19 +64,19 @@ function AllPosts({ posts }: PostsCardsProps) {
 }
 
 export default function Home() {
-    const [posts, setPosts] = useState<any[]>([]);
+    const [threads, setThreads] = useState<any[]>([]);
 
     useEffect(() => {
-        const fetchPosts = async () => {
+        const fetchThreads = async () => {
             try {
                 const response = await axios.get("http://localhost:8080/");
-                setPosts(response.data);
+                setThreads(response.data);
             } catch (error) {
                 console.log(error);
-                setPosts([]);
+                setThreads([]);
             }
         };
-        fetchPosts();
+        fetchThreads();
     }, []);
 
     return (
@@ -84,7 +84,7 @@ export default function Home() {
             <title>Web Forum</title>
             <Box sx={PageBoxStyle}>
                 <Header></Header>
-                <AllPosts posts={posts}></AllPosts>
+                <AllThreads threads={threads}></AllThreads>
             </Box>
         </>
     );

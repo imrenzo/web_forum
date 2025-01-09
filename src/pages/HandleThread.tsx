@@ -120,11 +120,11 @@ function HandleUpdateThread() {
 
 function HandleDeleteThread() {
     console.log("deleting...");
-    let postId = useParams().num;
-    console.log("postId: ", postId);
+    let threadId = useParams().num;
+    console.log("threadId: ", threadId);
     let navigate = useNavigate();
 
-    async function DeleteThread(postID: string): Promise<{ success: Boolean, errorStatus: number | null }> {
+    async function DeleteThread(threadID: string): Promise<{ success: Boolean, errorStatus: number | null }> {
         try {
             const jwtHeader = CreateJWTHeader();
             if (jwtHeader == null) {
@@ -132,7 +132,7 @@ function HandleDeleteThread() {
                 return { success: false, errorStatus: 401 };
             }
             console.log("Sending to backend delete request");
-            const response = await api.delete(`/delete_thread/${postID}`, { headers: jwtHeader });
+            const response = await api.delete(`/delete_thread/${threadID}`, { headers: jwtHeader });
             if (response.status != 204) {
                 return { success: false, errorStatus: 400 };
             }
@@ -153,10 +153,10 @@ function HandleDeleteThread() {
         }
     }
 
-    async function HandleRequest(postId: string) {
-        const response = await DeleteThread(postId);
+    async function HandleRequest(threadId: string) {
+        const response = await DeleteThread(threadId);
         if (response.success) {
-            console.log(`successfully deleted thread post id: ${postId}`);
+            console.log(`successfully deleted thread thread id: ${threadId}`);
             navigate('/');
             window.location.reload();
         } else {
@@ -165,8 +165,8 @@ function HandleDeleteThread() {
         }
     }
 
-    if (postId) {
-        HandleRequest(postId);
+    if (threadId) {
+        HandleRequest(threadId);
     }
 
     return (<></>);

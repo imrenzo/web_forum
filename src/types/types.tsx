@@ -1,10 +1,10 @@
-export interface Post {
+export interface GetThread {
     username: string;
-    post_id: number;
+    thread_id: number;
     op_id: number;
-    post_title: string;
-    post_info: string;
-    post_date: string;
+    thread_title: string;
+    thread_info: string;
+    thread_date: string;
 };
 
 export interface Comment {
@@ -15,14 +15,14 @@ export interface Comment {
     comment_date: string;
 };
 
-export interface PostsCardsProps {
-    posts: Post[];
+export interface GetThreadsCardsProps {
+    threads: GetThread[];
 };
 
 export type Comments = Comment[];
 
-export interface PostWithComments {
-    post: Post | null;
+export interface GetThreadWithComments {
+    thread: GetThread | null;
     comments: Comments | null;
 }
 

@@ -3,10 +3,9 @@ import { useParams, Link, useNavigate, Navigate } from "react-router";
 import { Box } from "@mui/material";
 import Header from "../components/header";
 import { useEffect, useState } from "react";
-import { Post, Comments } from "../types/types";
+import { GetThread, GetThreadWithComments, Comments } from "../types/types";
 import FormatDate from "../components/dateformat";
 import { CheckIsOwner } from '../apiService/apiService';
-import { PostWithComments } from '../types/types';
 import { PageBoxStyle } from "../components/stylesheet";
 import api from '../components/api';
 
@@ -31,7 +30,7 @@ import MenuItem from '@mui/material/MenuItem';
 import NotFound from './notFound';
 
 
-function DropDown({ postId }: { postId: number }) {
+function DropDown({ threadId }: { threadId: number }) {
     // const username = localStorage.getItem("username");
     const [isOwner, setIsOwner] = useState(false);
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
@@ -43,7 +42,7 @@ function DropDown({ postId }: { postId: number }) {
 
     useEffect(() => {
         const verifiedOwner = async () => {
-            const verifyOwner = await CheckIsOwner(postId);
+            const verifyOwner = await CheckIsOwner(threadId);
             console.log("is owner? ", verifyOwner.success);
             if (verifyOwner.success) {
                 setIsOwner(true);
@@ -78,12 +77,12 @@ function DropDown({ postId }: { postId: number }) {
                         open={Boolean(anchorElUser)}
                         onClose={CloseUserMenu}
                     >
-                        <Link to={`/edit_thread/${postId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                        <Link to={`/edit_thread/${threadId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                             <MenuItem onClick={CloseUserMenu}>
                                 <Typography sx={{ textAlign: 'center' }}>Edit Thread</Typography>
                             </MenuItem>
                         </Link>
-                        <Link to={`/delete_thread/${postId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                        <Link to={`/delete_thread/${threadId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                             <MenuItem>
                                 <Typography sx={{ textAlign: 'center', }}>Delete Thread</Typography>
                             </MenuItem>
@@ -95,33 +94,33 @@ function DropDown({ postId }: { postId: number }) {
         : <></>);
 }
 
-function PostCard({ post }: { post: Post }) {
+function ThreadCard({ thread }: { thread: GetThread }) {
     return (
         <>
-            <title>{post.post_id}</title>
+            <title>{thread.thread_id}</title>
             <Card sx={{ width: '100%' }}>
                 <CardHeader
                     avatar={
                         <Avatar sx={{ bgcolor: red[500] }} >
-                            {post == null ? <></> : <p>{post.username}</p>}
+                            {thread == null ? <></> : <p>{thread.username}</p>}
                         </Avatar>
                     }
-                    action={<DropDown postId={post.post_id}></DropDown>}
-                    title={post == null ? '' : post.username}
-                    subheader={post == null ? '' : FormatDate(post.post_date as string)}
+                    action={<DropDown threadId={thread.thread_id}></DropDown>}
+                    title={thread == null ? '' : thread.username}
+                    subheader={thread == null ? '' : FormatDate(thread.thread_date as string)}
                 />
                 <CardContent sx={{ overflow: 'hidden', }}>
                     <Typography variant="h5" sx={{ color: 'text.primary', whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: '700' }}>
-                        {post == null ? <></> : <>{post.post_title}</>}
+                        {thread == null ? <></> : <>{thread.thread_title}</>}
                     </Typography>
                     <Typography>&nbsp;</Typography>
                     <Typography variant="body1" sx={{ color: 'text.primary', whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {post == null ? <></> : <>{post.post_info}</>}
+                        {thread == null ? <></> : <>{thread.thread_info}</>}
                     </Typography>
                 </CardContent>
                 <CardActions disableSpacing sx={{ display: 'flex', justifyContent: 'space-between', }}>
                     <Typography variant='subtitle1'>
-                        {FormatDate(post.post_date as string)}
+                        {FormatDate(thread.thread_date as string)}
                     </Typography>
                     <Box>
                         <IconButton aria-label="view comment icon">
@@ -179,14 +178,14 @@ function CommentsCard({ comments }: { comments: Comments }) {
 }
 
 export default function Page() {
-    // get individual post and comments
-    const [data, setData] = useState<PostWithComments>({ post: null, comments: null });
-    let postId = useParams().num;
+    // get individual thread and comments
+    const [data, setData] = useState<GetThreadWithComments>({ thread: null, comments: null });
+    let threadId = useParams().num;
     let navigate = useNavigate();
 
-    async function GetPostWithComments(postId: string): Promise<{ isValid: boolean; errorMessage: string; output: PostWithComments | null }> {
+    async function GetThreadWithComments(threadId: string): Promise<{ isValid: boolean; errorMessage: string; output: GetThreadWithComments | null }> {
         try {
-            const response = await api.get(`/post_id/${postId}`);
+            const response = await api.get(`/thread_id/${threadId}`);
             return { isValid: true, errorMessage: '', output: response.data };
         } catch (error) {
             console.log(error);
@@ -195,20 +194,21 @@ export default function Page() {
     };
 
     useEffect(() => {
-        if (postId) {
+        if (threadId) {
             const fetchData = async () => {
-                const { isValid, errorMessage, output } = await GetPostWithComments(postId as string);
+                console.log("Getting thread with comments");
+                const { isValid, errorMessage, output } = await GetThreadWithComments(threadId as string);
                 if (!isValid) {
                     console.log(errorMessage);
                     navigate('*');
                     window.location.reload();
                     return;
                 }
-                setData(output as PostWithComments);
+                setData(output as GetThreadWithComments);
             };
             fetchData();
         }
-    }, [postId]);
+    }, [threadId]);
 
 
     return (
@@ -216,14 +216,14 @@ export default function Page() {
             <Box sx={PageBoxStyle}>
                 <Header></Header>
                 <Card variant="outlined" sx={{ width: '100%' }}>
-                    {data.post != null
-                        ? <PostCard post={data.post as Post}></PostCard>
+                    {data.thread != null
+                        ? <ThreadCard thread={data.thread as GetThread}></ThreadCard>
                         : <></>}
                 </Card>
-                {/* {data.comments != null
+                {data.comments != null
                     ? <CommentsCard comments={data.comments}></CommentsCard>
                     : <></>
-                } */}
+                }
             </Box>
         </>
     );
