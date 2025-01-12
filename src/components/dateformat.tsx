@@ -1,10 +1,10 @@
 export default function FormatDate(dateStr: string): string {
-    if (dateStr == undefined) {
+    if (!dateStr) {
         console.log("UNDEFINED DATE STR: ", dateStr);
         return "error";
     }
 
-    const trimmedDateStr = dateStr.split('.')[0] + 'Z';
+    const trimmedDateStr = dateStr.split('.')[0];
     const date = new Date(trimmedDateStr);
 
     return new Intl.DateTimeFormat('en-SG', {

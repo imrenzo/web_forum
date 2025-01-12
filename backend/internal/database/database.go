@@ -101,7 +101,7 @@ func UpdateThread(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// update thread
-	_, err = db.Query("UPDATE threads SET thread_title = $1, thread_info = $2 WHERE thread_id = $3;", createThreadInfo.Title, createThreadInfo.ThreadInfo, thread_id)
+	_, err = db.Query("UPDATE threads SET thread_title = $1, thread_info = $2, thread_date = CURRENT_TIMESTAMP WHERE thread_id = $3;", createThreadInfo.Title, createThreadInfo.ThreadInfo, thread_id)
 	if err != nil {
 		panic(err)
 	}
@@ -277,9 +277,9 @@ func CheckThreadOwner(w http.ResponseWriter, r *http.Request) {
 func MyThreads(w http.ResponseWriter, r *http.Request) {
 	db := OpenDb()
 	defer db.Close()
-	println("test")
+
 	userID := jwtHandler.GetUserIDfromJWT(r)
-	println("tested")
+
 	req := `SELECT username,thread_id, user_id, thread_title, thread_info, thread_date
 			FROM users 
 			INNER JOIN threads ON user_id = op_id

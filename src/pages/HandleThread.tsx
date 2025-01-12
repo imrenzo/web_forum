@@ -15,7 +15,6 @@ import TextField from '@mui/material/TextField';
 export default function HandleThread() {
     let method = useParams().method;
     let id = useParams().id;
-    const navigate = useNavigate();
 
     if (method == "create") {
         if (id != undefined) {
