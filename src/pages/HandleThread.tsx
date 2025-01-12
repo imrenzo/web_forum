@@ -1,27 +1,35 @@
 import { FormEvent, useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { AxiosError } from "axios";
 import Header from "../components/header";
 import { GetThread, Thread, ThreadWithComments } from "../types/types";
 import { ValidateThreadInput, CreateJWTHeader, GetThreadWithComments } from "../apiService/apiService";
 import NotFound from "./notFound";
-import { PageBoxStyle } from "../components/stylesheet";
 import api from "../components/api";
+import { PageBoxStyle } from "../components/stylesheet";
 
-import { AxiosError } from "axios";
 import { Box, Button } from "@mui/material";
 import TextField from '@mui/material/TextField';
 
-const methods = ["create", "update", "delete"];
-const methodsFunctions = [HandleCreateThread, HandleUpdateThread, HandleDeleteThread];
-
 // routing into the different methods
-export default function HandleThread(method: { method: string }) {
-    const index = methods.indexOf(method.method);
-    if (index !== -1) {
-        return methodsFunctions[index]();
+export default function HandleThread() {
+    let method = useParams().method;
+    let id = useParams().id;
+    const navigate = useNavigate();
+
+    if (method == "create") {
+        if (id != undefined) {
+            console.log("invalid url");
+            return NotFound();
+        }
+        return HandleCreateThread();
+    } else if (method == "update" && id) {
+        return HandleUpdateThread(id as string);
+    } else if (method == "delete" && id) {
+        return HandleDeleteThread(id as string);
     } else {
         console.log("invalid method");
-        return NotFound({ errorStatus: 404 });
+        return NotFound();
     }
 }
 
@@ -43,7 +51,7 @@ function HandleCreateThread() {
             console.log("Sending to backend post request")
             // error with response
             console.log(userEntry);
-            const response = await api.post("/createThread", userEntry, { headers: jwtHeader });
+            const response = await api.post("/thread/create", userEntry, { headers: jwtHeader });
             console.log("successfully posted")
             return { success: true, errorStatus: null };
         } catch (error: unknown) {
@@ -70,17 +78,15 @@ function HandleCreateThread() {
             setErrorMessage(errorMessage);
             setValidEntry(isValid);
             console.log(errorMessage);
-            return NotFound({ errorStatus: 404 });
+            navigate('*');
         }
         const sendThread = await PostThread(userEntry);
         if (sendThread.success) {
             console.log('successfully created thread');
             setValidEntry(false);
             navigate('/');
-            window.location.reload();
         } else {
-            NotFound({ errorStatus: sendThread.errorStatus as number });
-            window.location.reload();
+            // NotFound({ errorStatus: sendThread.errorStatus as number });
         }
     }
 
@@ -113,13 +119,12 @@ function HandleCreateThread() {
     );
 }
 
-function HandleUpdateThread() {
+function HandleUpdateThread(threadId: string) {
     const [userEntry, setUserEntry] = useState<Thread>({ title: '', content: '' });
     const [validEntry, setValidEntry] = useState<boolean>(true);
     const [errorMessage, setErrorMessage] = useState<string>('');
 
     let navigate = useNavigate();
-    let threadId = useParams().num;
 
     useEffect(() => {
         if (threadId) {
@@ -129,7 +134,6 @@ function HandleUpdateThread() {
                 if (!isValid) {
                     console.log(errorMessage);
                     navigate('*');
-                    window.location.reload();
                     return;
                 }
                 const ThreadWithComments = output as ThreadWithComments;
@@ -150,8 +154,11 @@ function HandleUpdateThread() {
             }
             console.log("Sending to backend PUT request")
             console.log(userEntry);
-            const response = await api.put("/updateThread", userEntry, { headers: jwtHeader });
+            const response = await api.put(`/thread/update/${threadId}`, userEntry, { headers: jwtHeader });
             console.log("successfully updated thread")
+            if (response.status != 204) {
+                return { success: false, errorStatus: 400 };
+            }
             return { success: true, errorStatus: null };
         } catch (error: unknown) {
             if (error instanceof AxiosError) {
@@ -171,25 +178,24 @@ function HandleUpdateThread() {
 
     async function HandlePutRequest(event: FormEvent) {
         event.preventDefault();
+        console.log("sending put request");
         const { isValid, errorMessage } = ValidateThreadInput(userEntry);
         console.log("valid: ", isValid);
         if (!isValid) {
             setErrorMessage(errorMessage);
             setValidEntry(isValid);
             console.log(errorMessage);
-            return NotFound({ errorStatus: 404 });
+            navigate('*');
         }
         const sendThread = await PutThread(userEntry);
         if (sendThread.success) {
             console.log('successfully created thread');
             setValidEntry(false);
-            // navigate('/');
-            // window.location.reload();
+            navigate(`/thread_id/${threadId}`);
+            window.location.reload();
         } else {
-            
-            NotFound({ errorStatus: sendThread.errorStatus as number });
-
-            // window.location.reload();
+            const errorStatus = sendThread.errorStatus as number;
+            navigate(`/error/${errorStatus}`);
         }
     }
 
@@ -222,11 +228,7 @@ function HandleUpdateThread() {
     );
 }
 
-
-function HandleDeleteThread() {
-    console.log("deleting...");
-    let threadId = useParams().num;
-    console.log("threadId: ", threadId);
+function HandleDeleteThread(threadId: string) {
     let navigate = useNavigate();
 
     async function DeleteThread(threadID: string): Promise<{ success: Boolean, errorStatus: number | null }> {
@@ -237,7 +239,7 @@ function HandleDeleteThread() {
                 return { success: false, errorStatus: 401 };
             }
             console.log("Sending to backend delete request");
-            const response = await api.delete(`/delete_thread/${threadID}`, { headers: jwtHeader });
+            const response = await api.delete(`/thread/delete/${threadID}`, { headers: jwtHeader });
             if (response.status != 204) {
                 return { success: false, errorStatus: 400 };
             }
@@ -263,10 +265,9 @@ function HandleDeleteThread() {
         if (response.success) {
             console.log(`successfully deleted thread thread id: ${threadId}`);
             navigate('/');
-            window.location.reload();
         } else {
-            NotFound({ errorStatus: response.errorStatus as number });
-            window.location.reload();
+            const status = response.errorStatus as number;
+            navigate(`/error/${status}`);
         }
     }
 

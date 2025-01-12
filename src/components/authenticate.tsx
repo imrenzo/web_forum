@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "./api";
+
 export default function IsAuthenticated(): { isAuthenticated: boolean; isLoading: boolean } {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);

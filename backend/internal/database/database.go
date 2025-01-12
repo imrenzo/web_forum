@@ -70,6 +70,45 @@ func CreateThread(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(thread_id)
 }
 
+func UpdateThread(w http.ResponseWriter, r *http.Request) {
+	var createThreadInfo models.CreateThread
+	err := json.NewDecoder(r.Body).Decode(&createThreadInfo)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	db := OpenDb()
+	defer db.Close()
+	thread_idStr := chi.URLParam(r, "id")
+	thread_id, err := strconv.Atoi(thread_idStr)
+	if err != nil {
+		panic(err)
+	}
+
+	userID := jwtHandler.GetUserIDfromJWT(r)
+
+	// ensure user that original poster and userID making update req matches
+	var op_id int
+	err = db.QueryRow("SELECT op_id FROM threads WHERE thread_id = $1", thread_id).Scan(&op_id)
+	if err != nil {
+		panic(err)
+	}
+
+	if op_id != userID {
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
+	// update thread
+	_, err = db.Query("UPDATE threads SET thread_title = $1, thread_info = $2 WHERE thread_id = $3;", createThreadInfo.Title, createThreadInfo.ThreadInfo, thread_id)
+	if err != nil {
+		panic(err)
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func DeleteThread(w http.ResponseWriter, r *http.Request) {
 	db := OpenDb()
 	defer db.Close()
@@ -108,7 +147,7 @@ func DeleteThread(w http.ResponseWriter, r *http.Request) {
 }
 
 // ////////// Read Threads and Comments ////////////
-func LoadThreads(w http.ResponseWriter, r *http.Request) {
+func AllThreads(w http.ResponseWriter, r *http.Request) {
 	db := OpenDb()
 	defer db.Close()
 
@@ -233,4 +272,40 @@ func CheckThreadOwner(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func MyThreads(w http.ResponseWriter, r *http.Request) {
+	db := OpenDb()
+	defer db.Close()
+	println("test")
+	userID := jwtHandler.GetUserIDfromJWT(r)
+	println("tested")
+	req := `SELECT username,thread_id, user_id, thread_title, thread_info, thread_date
+			FROM users 
+			INNER JOIN threads ON user_id = op_id
+			WHERE user_id = $1
+			ORDER BY thread_date DESC`
+	threadRows, err := db.Query(req, userID)
+	if err != nil {
+		panic(err)
+	}
+	defer threadRows.Close()
+
+	var threads []models.GetThread
+
+	for threadRows.Next() {
+		var thread models.GetThread
+		err := threadRows.Scan(&thread.Username, &thread.Thread_id, &thread.Op_id, &thread.Thread_title, &thread.Thread_info, &thread.Thread_date)
+		if err != nil {
+			panic(err)
+		}
+		threads = append(threads, thread)
+	}
+	err = threadRows.Err()
+	if err != nil {
+		panic(err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(threads)
 }

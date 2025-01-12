@@ -8,18 +8,19 @@ import (
 )
 
 func SetUpRoutes(router chi.Router) {
-	router.Get("/", database.LoadThreads)
-	router.Get("/thread_id/{id}", database.SingleThreadAndComments)
-
+	// read db for threads
+	router.Get("/", database.AllThreads)
+	router.Get("/thread/read/{id}", database.SingleThreadAndComments)
+	router.With(jwtHandler.TokenVerifyMiddleware).Get("/mythreads", database.MyThreads)
 	router.With(jwtHandler.TokenVerifyMiddleware).Post("/checkthreadowner", database.CheckThreadOwner)
 
-	router.With(jwtHandler.TokenVerifyMiddleware).Post("/createThread", database.CreateThread)
+	// create, update, delete thread
+	router.With(jwtHandler.TokenVerifyMiddleware).Post("/thread/create", database.CreateThread)
+	router.With(jwtHandler.TokenVerifyMiddleware).Put("/thread/update/{id}", database.UpdateThread)
+	router.With(jwtHandler.TokenVerifyMiddleware).Delete("/thread/delete/{id}", database.DeleteThread)
 
-	// const response = await api.put("/updateThread", userEntry, { headers: jwtHeader });
-
-	router.With(jwtHandler.TokenVerifyMiddleware).Delete("/delete_thread/{id}", database.DeleteThread)
-	// user handling
+	// user management & authentication
 	router.Get("/authenticate", jwtHandler.DirectAuthenticate)
-	router.Post("/login", users.LogInUser)
-	router.Post("/signup", users.SignUpUser)
+	router.Post("/user/login", users.LogInUser)
+	router.Post("/user/signup", users.SignUpUser)
 }

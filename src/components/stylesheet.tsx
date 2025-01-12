@@ -1,6 +1,7 @@
 import CSS from "csstype";
 
 const width: string = '20%'
+
 export const PageBoxStyle: { marginLeft: string, marginRight: string } = {
     marginLeft: width,
     marginRight: width,
@@ -13,7 +14,7 @@ export const formStyles: CSS.Properties = {
     marginTop: '10%',
 };
 
-export const link: CSS.Properties = { 
+export const link: CSS.Properties = {
     color: 'inherit',
     textDecoration: 'none',
- }
+}

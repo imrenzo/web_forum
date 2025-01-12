@@ -146,6 +146,8 @@ func DirectAuthenticate(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetUserIDfromJWT(r *http.Request) int {
+	println("get userID")
 	jwtUserID := r.Context().Value(userIDkey).(int)
+	println("userID: ", jwtUserID)
 	return jwtUserID
 }

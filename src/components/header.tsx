@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { LogInSignUpButtons } from './buttons';
 import IsAuthenticated from './authenticate';
 import { link } from './stylesheet';
 
@@ -16,12 +15,33 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
+import Stack from '@mui/material/Stack';
 
-const pages: { [key: string]: string }[] = [{ 'Home': '/' }, { 'Create Thread': '/createThread' }, { 'My Threads': '/' }];
-const iconDropdown: { [key: string]: string }[] = [{ 'Settings': '/' }, { 'Log Out': '/logout' }];
+const pages: { [key: string]: string }[] = [{ 'Home': '/' }, { 'Create Thread': '/thread/create' }, { 'My Threads': '/mythreads' }];
+const iconDropdown: { [key: string]: string }[] = [{ 'Settings': '/' }, { 'Log Out': '/user/logout' }];
+
+function LogInSignUpButtons() {
+    const ButtonStyles = {
+        // swap background & font color from Bar
+        backgroundColor: 'white',
+        color: '#1976D2',
+        '&:hover': {
+            backgroundColor: '#448aff',
+        },
+    }
+
+    return (
+        <Box>
+            <Stack direction="row" spacing={2}>
+                <Button variant="contained" href="/user/login" sx={ButtonStyles}>Log In</Button>
+                <Button variant="contained" href="/user/signup" sx={ButtonStyles}>Sign up</Button>
+            </Stack>
+        </Box>
+    );
+}
 
 // From MUI with some tweaking
-function Header() {
+export default function Header() {
     const { isAuthenticated, isLoading } = IsAuthenticated();
     const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
@@ -146,10 +166,10 @@ function Header() {
                         </Box>
                         : <></>}
                     {!(isAuthenticated)
-                        ? <Box sx={{ flexGrow: 0 }}>
+                        ? <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'flex-end' }}>
                             <LogInSignUpButtons></LogInSignUpButtons>
                         </Box>
-                        : <Box sx={{ flexGrow: 0 }}>
+                        : <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'flex-end' }}>
                             <Tooltip title="Open settings">
                                 <IconButton onClick={OpenUserMenu} sx={{ p: 0 }}>
                                     <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
@@ -191,5 +211,3 @@ function Header() {
     </>
     );
 }
-
-export default Header;

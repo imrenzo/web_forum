@@ -1,12 +1,10 @@
-import './App.css';
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Login from "./userManagement/login";
-import Home from "./pages/home";
+import Home, { MyThreads } from "./pages/threadPages";
 import LoadIndivThread from "./pages/indivThread";
-import SignUp from "./userManagement/signup";
-import LogOut from "./userManagement/logout";
 import NotFound from './pages/notFound';
-import HandleThread from './pages/HandleThread';
+import HandleThread from './pages/handleThread';
+import UserMethod from './userManagement/user';
+import './App.css';
 
 function MyApp() {
   return (
@@ -14,24 +12,23 @@ function MyApp() {
       <title>Web Forum</title>
       <BrowserRouter>
         <Routes>
-          {/* read db */}
+          {/* for creating thread */}
+          <Route path="/thread/:method" element={<HandleThread />}></Route>
+
+          {/* read threads */}
           <Route path="/" element={<Home />}></Route>
-          <Route path="/thread_id/:num" element={<LoadIndivThread />}></Route>
+          <Route path="/thread_id/:id" element={<LoadIndivThread />}></Route>
+          <Route path="/mythreads" element={<MyThreads />}></Route>
 
-          {/* create thread & comments */}
-          <Route path="/createThread" element={<HandleThread method="create" />}></Route>
-
-          {/* update thread & comments */}
-          <Route path="/edit_thread/:num" element={<HandleThread method="update" />}></Route>
-
-          {/* delete thread & comments */}
-          <Route path="/delete_thread/:num" element={<HandleThread method="delete" />}></Route>
+          {/* for updating and deleting thread */}
+          <Route path="/thread/:method/:id" element={<HandleThread />}></Route>
 
           {/* user management */}
-          <Route path="/login" element={<Login />}></Route>
-          <Route path="/logout" element={<LogOut />}></Route>
-          <Route path="/signup" element={<SignUp />}></Route>
-          <Route path="*" element={<NotFound errorStatus={404} />}></Route>
+          <Route path="/user/:method" element={<UserMethod />}></Route>
+
+          {/* error handling */}
+          <Route path="/error/:status" element={<NotFound />}></Route>
+          <Route path="*" element={<NotFound />}></Route>
         </Routes>
       </BrowserRouter >
     </>

@@ -8,7 +8,6 @@ import FormatDate from "../components/dateformat";
 import { CheckIsOwner, GetThreadWithComments } from '../apiService/apiService';
 import { PageBoxStyle } from "../components/stylesheet";
 
-
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardHeader from '@mui/material/CardHeader';
@@ -27,8 +26,6 @@ import Menu from '@mui/material/Menu';
 import Container from '@mui/material/Container';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
-import NotFound from './notFound';
-
 
 function DropDown({ threadId }: { threadId: number }) {
     // const username = localStorage.getItem("username");
@@ -47,7 +44,7 @@ function DropDown({ threadId }: { threadId: number }) {
             if (verifyOwner.success) {
                 setIsOwner(true);
             } else {
-                NotFound({ errorStatus: verifyOwner.errorStatus as number });
+                setIsOwner(false);
             }
         }
         verifiedOwner();
@@ -77,12 +74,12 @@ function DropDown({ threadId }: { threadId: number }) {
                         open={Boolean(anchorElUser)}
                         onClose={CloseUserMenu}
                     >
-                        <Link to={`/edit_thread/${threadId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                        <Link to={`/thread/update/${threadId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                             <MenuItem onClick={CloseUserMenu}>
                                 <Typography sx={{ textAlign: 'center' }}>Edit Thread</Typography>
                             </MenuItem>
                         </Link>
-                        <Link to={`/delete_thread/${threadId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                        <Link to={`/thread/delete/${threadId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                             <MenuItem>
                                 <Typography sx={{ textAlign: 'center', }}>Delete Thread</Typography>
                             </MenuItem>
@@ -148,7 +145,7 @@ function CommentsCard({ comments }: { comments: Comments }) {
     return (
         <Card sx={{ width: '100%', marginTop: 2 }}>
             {comments.map((comment) => (
-                <Card style={{ border: "none", boxShadow: "none" }}>
+                <Card key={comment.comment_id} style={{ border: "none", boxShadow: "none" }}>
                     <CardHeader
                         avatar={
                             <Avatar sx={{ bgcolor: red[500] }} >
@@ -177,13 +174,11 @@ function CommentsCard({ comments }: { comments: Comments }) {
     );
 }
 
-export default function Page() {
+export default function LoadIndivThread() {
     // get individual thread and comments
     const [data, setData] = useState<ThreadWithComments>({ thread: null, comments: null });
-    let threadId = useParams().num;
+    let threadId = useParams().id;
     let navigate = useNavigate();
-
-   
 
     useEffect(() => {
         if (threadId) {

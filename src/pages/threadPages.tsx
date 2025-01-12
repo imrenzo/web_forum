@@ -1,11 +1,14 @@
 import * as React from 'react';
 import { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
+import axios from "axios";
 import { GetThreadsCardsProps } from '../types/types';
 import Header from "../components/header";
 import FormatDate from "../components/dateformat";
+import { CreateJWTHeader } from '../apiService/apiService';
+import api from '../components/api';
 import { PageBoxStyle } from "../components/stylesheet";
-import axios from "axios";
+
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
@@ -21,7 +24,7 @@ function AllThreads({ threads }: GetThreadsCardsProps) {
             {threads === null
                 ? <Box>
                     <br></br>
-                    <Typography variant='body1'>No threads yet. Create the first Thread!</Typography >
+                    <Typography variant='body1'>No threads yet. Create your first Thread!</Typography >
                 </Box>
                 : <Box>
                     {threads.map((item) =>
@@ -59,6 +62,39 @@ function AllThreads({ threads }: GetThreadsCardsProps) {
                     )}
                 </Box>
             }
+        </>
+    );
+}
+
+export function MyThreads() {
+    const [threads, setThreads] = useState<any[]>([]);
+
+    useEffect(() => {
+        const fetchThreads = async () => {
+            try {
+                const jwtHeader = CreateJWTHeader();
+                if (jwtHeader == null) {
+                    console.error();
+                    return { success: false, errorStatus: 401 };
+                }
+                console.log("Sending to backend get request");
+                const response = await api.get("/mythreads", { headers: jwtHeader });
+                setThreads(response.data);
+            } catch (error) {
+                console.log(error);
+                setThreads([]);
+            }
+        };
+        fetchThreads();
+    }, []);
+
+    return (
+        <>
+            <title>Web Forum</title>
+            <Box sx={PageBoxStyle}>
+                <Header></Header>
+                <AllThreads threads={threads}></AllThreads>
+            </Box>
         </>
     );
 }
