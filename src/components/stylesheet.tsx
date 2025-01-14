@@ -13,8 +13,3 @@ export const formStyles: CSS.Properties = {
     justifyContent: 'center',
     marginTop: '10%',
 };
-
-export const link: CSS.Properties = {
-    color: 'inherit',
-    textDecoration: 'none',
-}

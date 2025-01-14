@@ -1,21 +1,13 @@
 import * as React from 'react';
 import IsAuthenticated from './authenticate';
-import { link } from './stylesheet';
 
-import Box from '@mui/material/Box';
-import { Typography } from '@mui/material';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Menu from '@mui/material/Menu';
+import {
+    Box, Button, Typography, AppBar, Toolbar, IconButton,
+    Menu, Container, Avatar, Tooltip, MenuItem, Stack
+} from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import Container from '@mui/material/Container';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
-import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
-import Stack from '@mui/material/Stack';
+import { Link } from 'react-router-dom';
 
 const pages: { [key: string]: string }[] = [{ 'Home': '/' }, { 'Create Thread': '/thread/create' }, { 'My Threads': '/mythreads' }];
 const iconDropdown: { [key: string]: string }[] = [{ 'Settings': '/' }, { 'Log Out': '/user/logout' }];
@@ -45,6 +37,7 @@ export default function Header() {
     const { isAuthenticated, isLoading } = IsAuthenticated();
     const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
+    const username = localStorage.getItem("username");
 
     const OpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorElNav(event.currentTarget);
@@ -65,9 +58,11 @@ export default function Header() {
         <AppBar position="static">
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
-                    <a href='/' style={link}>
-                        <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
-                    </a>
+                    <Box sx={{ textDecoration: 'none', }}>
+                        <Link to={'/'} style={{ color: 'inherit', textDecoration: 'none' }}>
+                            <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+                        </Link>
+                    </Box>
                     <Typography
                         variant="h6"
                         noWrap
@@ -117,22 +112,28 @@ export default function Header() {
                                     let key: string = Object.keys(page)[0];
                                     let href: string = page[key];
                                     return (
-                                        <a href={href} style={link} key={key} >
-                                            <MenuItem onClick={CloseNavMenu} >
-                                                <Typography sx={{ textAlign: 'center' }}>{key}</Typography>
-                                            </MenuItem>
-                                        </a>
+                                        <Box sx={{ textDecoration: 'none' }} key={key}>
+                                            <Link to={href} style={{ color: 'inherit', textDecoration: 'none' }}>
+                                                <MenuItem onClick={CloseNavMenu} >
+                                                    <Typography sx={{ textAlign: 'center' }}>{key}</Typography>
+                                                </MenuItem>
+                                            </Link>
+                                        </Box>
                                     )
                                 })}
                             </Menu>
                         </Box>
                         : <></>}
-                    <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
+                    <Box sx={{ textDecoration: 'none' }}>
+                        <Link to={'/'} style={{ color: 'inherit', textDecoration: 'none' }}>
+                            <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
+                        </Link>
+                    </Box>
                     <Typography
                         variant="h5"
                         noWrap
                         component="a"
-                        href="#app-bar-with-responsive-menu"
+                        href="/"
                         sx={{
                             mr: 2,
                             display: { xs: 'flex', md: 'none' },
@@ -152,15 +153,17 @@ export default function Header() {
                                 let key: string = Object.keys(page)[0];
                                 let href: string = page[key];
                                 return (
-                                    <a href={href} style={link} key={key}>
-                                        <Button
-                                            onClick={CloseNavMenu}
-                                            // align login and logout buttons to the right
-                                            sx={{ my: 2, color: 'white', display: 'block' }}
-                                        >
-                                            {key}
-                                        </Button>
-                                    </a>
+                                    <Box sx={{ textDecoration: 'none' }} key={key}>
+                                        <Link to={href} style={{ color: 'inherit', textDecoration: 'none' }}>
+                                            <Button
+                                                onClick={CloseNavMenu}
+                                                // align login and logout buttons to the right
+                                                sx={{ my: 2, color: 'white', display: 'block' }}
+                                            >
+                                                {key}
+                                            </Button>
+                                        </Link>
+                                    </Box>
                                 )
                             })}
                         </Box>
@@ -172,7 +175,7 @@ export default function Header() {
                         : <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'flex-end' }}>
                             <Tooltip title="Open settings">
                                 <IconButton onClick={OpenUserMenu} sx={{ p: 0 }}>
-                                    <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                                    <Avatar>{username == null ? '' : username[0].toUpperCase()}</Avatar>
                                 </IconButton>
                             </Tooltip>
                             <Menu
@@ -195,11 +198,13 @@ export default function Header() {
                                     let key: string = Object.keys(page)[0];
                                     let href: string = page[key];
                                     return (
-                                        <a href={href} style={link} key={key}>
-                                            <MenuItem onClick={CloseUserMenu}>
-                                                <Typography sx={{ textAlign: 'center' }}>{key}</Typography>
-                                            </MenuItem>
-                                        </a>
+                                        <Box sx={{ textDecoration: 'none' }} key={key}>
+                                            <Link to={href} style={{ color: 'inherit', textDecoration: 'none' }}>
+                                                <MenuItem onClick={CloseUserMenu}>
+                                                    <Typography sx={{ textAlign: 'center' }}>{key}</Typography>
+                                                </MenuItem>
+                                            </Link>
+                                        </Box>
                                     )
                                 })}
                             </Menu>

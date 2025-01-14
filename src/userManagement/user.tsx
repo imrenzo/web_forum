@@ -7,7 +7,7 @@ import { formStyles } from '../components/stylesheet';
 import { Button } from '@mui/material';
 
 export default function UserMethod() {
-    let method = useParams().method;
+    const method = useParams().method;
 
     if (method == "login") {
         return LogIn();

@@ -8,6 +8,12 @@ import (
 )
 
 func SetUpRoutes(router chi.Router) {
+	// user management & authentication
+	router.Get("/authenticate", jwtHandler.DirectAuthenticate)
+	router.Post("/user/login", users.LogInUser)
+	router.Post("/user/signup", users.SignUpUser)
+
+	// ** For threads **
 	// read db for threads
 	router.Get("/", database.AllThreads)
 	router.Get("/thread/read/{id}", database.SingleThreadAndComments)
@@ -19,8 +25,8 @@ func SetUpRoutes(router chi.Router) {
 	router.With(jwtHandler.TokenVerifyMiddleware).Put("/thread/update/{id}", database.UpdateThread)
 	router.With(jwtHandler.TokenVerifyMiddleware).Delete("/thread/delete/{id}", database.DeleteThread)
 
-	// user management & authentication
-	router.Get("/authenticate", jwtHandler.DirectAuthenticate)
-	router.Post("/user/login", users.LogInUser)
-	router.Post("/user/signup", users.SignUpUser)
+	// ** For Comments **
+	router.With(jwtHandler.TokenVerifyMiddleware).Post("/comment/{id}", database.CreateComment)
+	router.With(jwtHandler.TokenVerifyMiddleware).Delete("/comment/delete/{commentID}", database.DeleteComment)
+
 }

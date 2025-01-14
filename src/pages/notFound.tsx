@@ -6,6 +6,7 @@ import { Box } from '@mui/material';
 
 export default function NotFound() {
     const status = useParams().status;
+    
     return (
         <>
             <Box sx={PageBoxStyle}>

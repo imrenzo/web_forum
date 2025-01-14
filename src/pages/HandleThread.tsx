@@ -3,18 +3,17 @@ import { useNavigate, useParams } from "react-router-dom";
 import { AxiosError } from "axios";
 import Header from "../components/header";
 import { GetThread, Thread, ThreadWithComments } from "../types/types";
-import { ValidateThreadInput, CreateJWTHeader, GetThreadWithComments } from "../apiService/apiService";
+import { CreateJWTHeader, GetThreadWithComments } from "../apiService/apiService";
 import NotFound from "./notFound";
 import api from "../components/api";
 import { PageBoxStyle } from "../components/stylesheet";
 
-import { Box, Button } from "@mui/material";
-import TextField from '@mui/material/TextField';
+import { Box, Button, TextField } from "@mui/material";
 
 // routing into the different methods
 export default function HandleThread() {
-    let method = useParams().method;
-    let id = useParams().id;
+    const method = useParams().method;
+    const id = useParams().id;
 
     if (method == "create") {
         if (id != undefined) {
@@ -32,7 +31,14 @@ export default function HandleThread() {
     }
 }
 
-// HandleCreateThread and HandleUpdateThread have many similarities but logic is nested within own ftn
+function ValidateThreadInput(userEntry: Thread): { isValid: boolean; errorMessage: string } {
+    if (userEntry.title == '' || userEntry.content == '') {
+        return { isValid: false, errorMessage: "Both title and content needs to be filled in" };
+    }
+    return { isValid: true, errorMessage: '' };
+
+};
+
 function HandleCreateThread() {
     const [userEntry, setUserEntry] = useState<Thread>({ title: '', content: '' });
     const [validEntry, setValidEntry] = useState<boolean>(true);
@@ -48,7 +54,6 @@ function HandleCreateThread() {
                 return { success: false, errorStatus: 401 };
             }
             console.log("Sending to backend post request")
-            // error with response
             console.log(userEntry);
             const response = await api.post("/thread/create", userEntry, { headers: jwtHeader });
             console.log("successfully posted")
@@ -77,15 +82,17 @@ function HandleCreateThread() {
             setErrorMessage(errorMessage);
             setValidEntry(isValid);
             console.log(errorMessage);
-            navigate('*');
+            return;
         }
+
         const sendThread = await PostThread(userEntry);
         if (sendThread.success) {
             console.log('successfully created thread');
             setValidEntry(false);
             navigate('/');
         } else {
-            // NotFound({ errorStatus: sendThread.errorStatus as number });
+            const errorStatus = sendThread.errorStatus as number;
+            navigate(`/error/${errorStatus}`);
         }
     }
 
@@ -228,6 +235,7 @@ function HandleUpdateThread(threadId: string) {
 }
 
 function HandleDeleteThread(threadId: string) {
+    const [run, setRun] = useState(false);
     let navigate = useNavigate();
 
     async function DeleteThread(threadID: string): Promise<{ success: Boolean, errorStatus: number | null }> {
@@ -262,7 +270,7 @@ function HandleDeleteThread(threadId: string) {
     async function HandleDeleteRequest(threadId: string) {
         const response = await DeleteThread(threadId);
         if (response.success) {
-            console.log(`successfully deleted thread thread id: ${threadId}`);
+            console.log(`successfully deleted thread, id: ${threadId}`);
             navigate('/');
         } else {
             const status = response.errorStatus as number;
@@ -270,7 +278,8 @@ function HandleDeleteThread(threadId: string) {
         }
     }
 
-    if (threadId) {
+    if (!run) {
+        setRun(true);
         HandleDeleteRequest(threadId);
     }
 

@@ -1,34 +1,24 @@
 import * as React from 'react';
 import { useParams, Link, useNavigate, Navigate } from "react-router";
-import { Box } from "@mui/material";
 import Header from "../components/header";
-import { useEffect, useState } from "react";
-import { GetThread, ThreadWithComments, Comments } from "../types/types";
+import { FormEvent, useEffect, useState } from "react";
+import { CreateComment } from '../components/handleComment';
+import { ValidateCommentInput } from '../apiService/apiService';
 import FormatDate from "../components/dateformat";
 import { CheckIsOwner, GetThreadWithComments } from '../apiService/apiService';
+import { GetThread, ThreadWithComments, Comments } from "../types/types";
 import { PageBoxStyle } from "../components/stylesheet";
 
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CardHeader from '@mui/material/CardHeader';
-import CardActions from '@mui/material/CardActions';
-import Avatar from '@mui/material/Avatar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
+import {
+    Card, CardContent, CardHeader, CardActions, Avatar, IconButton, Typography,
+    Toolbar, Menu, Container, Tooltip, MenuItem, TextField, Box, Button
+} from '@mui/material';
 import { red } from '@mui/material/colors';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import ShareIcon from '@mui/icons-material/Share';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import CommentIcon from '@mui/icons-material/Comment';
 import AddCommentIcon from '@mui/icons-material/AddComment';
-import Toolbar from '@mui/material/Toolbar';
-import Menu from '@mui/material/Menu';
-import Container from '@mui/material/Container';
-import Tooltip from '@mui/material/Tooltip';
-import MenuItem from '@mui/material/MenuItem';
 
-function DropDown({ threadId }: { threadId: number }) {
-    // const username = localStorage.getItem("username");
+function ThreadDropDownButton({ threadId }: { threadId: number }) {
+    let navigate = useNavigate();
     const [isOwner, setIsOwner] = useState(false);
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
     const OpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -36,6 +26,15 @@ function DropDown({ threadId }: { threadId: number }) {
     };
 
     const CloseUserMenu = () => { setAnchorElUser(null); };
+
+    function handleDeleteThread() {
+        const confirmed = window.confirm("Are you sure you want to delete this thread?");
+        if (confirmed) {
+            navigate(`/thread/delete/${threadId}`);
+            console.log("here");
+        }
+        CloseUserMenu();
+    };
 
     useEffect(() => {
         const verifiedOwner = async () => {
@@ -54,11 +53,9 @@ function DropDown({ threadId }: { threadId: number }) {
         ? <Container maxWidth="xs">
             <Toolbar disableGutters>
                 <Box sx={{ flexGrow: 0 }}>
-                    <Tooltip title="Open settings">
-                        <IconButton onClick={OpenUserMenu} sx={{ p: 0 }}>
-                            <MoreVertIcon></MoreVertIcon>
-                        </IconButton>
-                    </Tooltip>
+                    <IconButton onClick={OpenUserMenu} sx={{ p: 0 }}>
+                        <MoreVertIcon></MoreVertIcon>
+                    </IconButton>
                     <Menu
                         sx={{ mt: '45px' }}
                         anchorEl={anchorElUser}
@@ -79,11 +76,9 @@ function DropDown({ threadId }: { threadId: number }) {
                                 <Typography sx={{ textAlign: 'center' }}>Edit Thread</Typography>
                             </MenuItem>
                         </Link>
-                        <Link to={`/thread/delete/${threadId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                            <MenuItem>
-                                <Typography sx={{ textAlign: 'center', }}>Delete Thread</Typography>
-                            </MenuItem>
-                        </Link>
+                        <MenuItem onClick={handleDeleteThread}>
+                            <Typography sx={{ textAlign: 'center', }}>Delete Thread</Typography>
+                        </MenuItem>
                     </Menu>
                 </Box>
             </Toolbar>
@@ -91,7 +86,86 @@ function DropDown({ threadId }: { threadId: number }) {
         : <></>);
 }
 
+function CommentDropDownButton({ commentID }: { commentID: number }) {
+    const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
+    const OpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorElUser(event.currentTarget);
+    };
+
+    const CloseUserMenu = () => { setAnchorElUser(null); };
+
+    return (
+        <Container maxWidth="xs">
+            <Toolbar disableGutters>
+                <Box sx={{ flexGrow: 0 }}>
+                    <IconButton onClick={OpenUserMenu} sx={{ p: 0 }}>
+                        <MoreVertIcon></MoreVertIcon>
+                    </IconButton>
+                    <Menu
+                        sx={{ mt: '45px' }}
+                        anchorEl={anchorElUser}
+                        anchorOrigin={{
+                            vertical: 'top',
+                            horizontal: 'right',
+                        }}
+                        keepMounted
+                        transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'right',
+                        }}
+                        open={Boolean(anchorElUser)}
+                        onClose={CloseUserMenu}
+                    >
+                        {/* <Link to={`/comment/update/${commentID}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                            <MenuItem onClick={CloseUserMenu}>
+                                <Typography sx={{ textAlign: 'center' }}>Edit Comment</Typography>
+                            </MenuItem>
+                        </Link> */}
+                        <Link to={`/comment/delete/${commentID}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                            <MenuItem>
+                                <Typography sx={{ textAlign: 'center', }}>Delete Comment</Typography>
+                            </MenuItem>
+                        </Link>
+                    </Menu>
+                </Box>
+            </Toolbar>
+        </Container>
+    )
+}
+
 function ThreadCard({ thread }: { thread: GetThread }) {
+    const [addCommentBox, setAddCommentBox] = useState(false);
+    const [comment, setComment] = useState("");
+    const [errorMessage, setErrorMessage] = useState<string>('');
+    const navigate = useNavigate();
+    const threadId = useParams().id;
+
+    function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+        const { id, value } = event.target;
+        setComment(value);
+    }
+
+    async function HandleAddComment(event: FormEvent) {
+        event.preventDefault();
+        const { isValid, errorMessage } = ValidateCommentInput(comment);
+        console.log("valid: ", isValid);
+        if (!isValid) {
+            setErrorMessage(errorMessage);
+            console.log(errorMessage);
+            return;
+        }
+
+        const createComment = await CreateComment(comment, threadId as string);
+        if (createComment.success) {
+            console.log('successfully created comment');
+            navigate(`/thread_id/${threadId}`);
+            window.location.reload();
+        } else {
+            const errorStatus = createComment.errorStatus as number;
+            navigate(`/error/${errorStatus}`);
+        }
+    }
+
     return (
         <>
             <title>{thread.thread_id}</title>
@@ -99,12 +173,11 @@ function ThreadCard({ thread }: { thread: GetThread }) {
                 <CardHeader
                     avatar={
                         <Avatar sx={{ bgcolor: red[500] }} >
-                            {thread == null ? <></> : <p>{thread.username}</p>}
+                            {thread == null ? <></> : <p>{thread.username[0].toUpperCase()}</p>}
                         </Avatar>
                     }
-                    action={<DropDown threadId={thread.thread_id}></DropDown>}
-                    title={thread == null ? '' : thread.username}
-                    subheader={thread == null ? '' : FormatDate(thread.thread_date as string)}
+                    action={<ThreadDropDownButton threadId={thread.thread_id}></ThreadDropDownButton>}
+                    title={thread == null ? '' : <Typography>{thread.username}</Typography>}
                 />
                 <CardContent sx={{ overflow: 'hidden', }}>
                     <Typography variant="h5" sx={{ color: 'text.primary', whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: '700' }}>
@@ -120,28 +193,35 @@ function ThreadCard({ thread }: { thread: GetThread }) {
                         {FormatDate(thread.thread_date as string)}
                     </Typography>
                     <Box>
-                        <IconButton aria-label="view comment icon">
-                            <CommentIcon />
-                        </IconButton>
-                        <Link to='/signup'>
-                            <IconButton aria-label="add comment icon">
-                                <AddCommentIcon />
+                        <Tooltip title="Add Comment">
+                            <IconButton aria-label="add comment button" onClick={() => setAddCommentBox(!addCommentBox)}>
+                                <AddCommentIcon sx={{ fontSize: 40 }} />
                             </IconButton>
-                        </Link>
-                        <IconButton aria-label="add to favorites">
+                        </Tooltip>
+                        {/* <IconButton aria-label="like button">
                             <>3&nbsp;</><FavoriteIcon />
-                        </IconButton>
-                        <IconButton aria-label="share">
-                            <ShareIcon />
-                        </IconButton>
+                        </IconButton> */}
                     </Box>
                 </CardActions>
+            </Card >
+            <Card sx={addCommentBox ? { marginTop: 1, display: 'block' } : { marginTop: 1, display: 'none' }}>
+                <form onSubmit={HandleAddComment}>
+                    <Box sx={{ marginTop: 1 }}>
+                        <TextField fullWidth label="Add Comment" id="comment" value={comment} onChange={handleInputChange} multiline />
+                    </Box>
+                    <div style={{ textAlign: 'right' }}>
+                        <p id="hiddenText" style={{ color: 'red' }}>{errorMessage}</p>
+                        <Button variant='contained' type="submit">Post Comment</Button>
+                    </div>
+                </form>
             </Card>
         </>
     )
 }
 
 function CommentsCard({ comments }: { comments: Comments }) {
+    const username = localStorage.getItem("username");
+
     return (
         <Card sx={{ width: '100%', marginTop: 2 }}>
             {comments.map((comment) => (
@@ -149,13 +229,11 @@ function CommentsCard({ comments }: { comments: Comments }) {
                     <CardHeader
                         avatar={
                             <Avatar sx={{ bgcolor: red[500] }} >
-                                {comment.username}
+                                {comment.username[0].toUpperCase()}
                             </Avatar>
                         }
                         action={
-                            <IconButton aria-label="settings">
-                                <MoreVertIcon />
-                            </IconButton>
+                            comment.username == username ? <CommentDropDownButton commentID={comment.comment_id} /> : <></>
                         }
                         title={comment.username}
                         subheader={FormatDate(comment.comment_date)}
@@ -177,7 +255,7 @@ function CommentsCard({ comments }: { comments: Comments }) {
 export default function LoadIndivThread() {
     // get individual thread and comments
     const [data, setData] = useState<ThreadWithComments>({ thread: null, comments: null });
-    let threadId = useParams().id;
+    const threadId = useParams().id;
     let navigate = useNavigate();
 
     useEffect(() => {

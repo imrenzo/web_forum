@@ -31,8 +31,25 @@ func OpenDb() *sql.DB {
 	return db
 }
 
-// // Create Threads (checking that user in context from jwt middleware & user making thread are the same person)and
-// // need add ftn for creating Comments ////
+func URLGetThreadID(r *http.Request) int {
+	thread_idStr := chi.URLParam(r, "id")
+	thread_id, err := strconv.Atoi(thread_idStr)
+	if err != nil {
+		panic(err)
+	}
+	return thread_id
+}
+
+func URLGetCommentID(r *http.Request) int {
+	comment_idStr := chi.URLParam(r, "commentID")
+	comment_id, err := strconv.Atoi(comment_idStr)
+	if err != nil {
+		panic(err)
+	}
+	return comment_id
+}
+
+// ** For Threads: **
 func CreateThread(w http.ResponseWriter, r *http.Request) {
 	var createThreadInfo models.CreateThread
 	err := json.NewDecoder(r.Body).Decode(&createThreadInfo)
@@ -46,11 +63,11 @@ func CreateThread(w http.ResponseWriter, r *http.Request) {
 	db := OpenDb()
 	defer db.Close()
 
-	_, err = db.Query(`
+	_, err = db.Exec(`
 		INSERT INTO threads (op_id, thread_title, thread_info) VALUES ($1, $2, $3);`, userID, createThreadInfo.Title, createThreadInfo.ThreadInfo)
 
 	if err != nil {
-		http.Error(w, `{"error": "Internal server error"}`, http.StatusInternalServerError)
+		http.Error(w, "unable to insert into threads", http.StatusInternalServerError)
 		return
 	}
 
@@ -59,8 +76,10 @@ func CreateThread(w http.ResponseWriter, r *http.Request) {
 	err = db.QueryRow("SELECT thread_id FROM threads WHERE op_id = $1 AND thread_title = $2 AND thread_info = $3",
 		userID, createThreadInfo.Title, createThreadInfo.ThreadInfo).Scan(&thread_id)
 	if err != nil {
-		panic(err)
+		http.Error(w, "unable to obtain id from newly created thread", http.StatusInternalServerError)
+		return
 	}
+
 	if thread_id <= 0 {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -80,19 +99,16 @@ func UpdateThread(w http.ResponseWriter, r *http.Request) {
 
 	db := OpenDb()
 	defer db.Close()
-	thread_idStr := chi.URLParam(r, "id")
-	thread_id, err := strconv.Atoi(thread_idStr)
-	if err != nil {
-		panic(err)
-	}
 
+	thread_id := URLGetThreadID(r)
 	userID := jwtHandler.GetUserIDfromJWT(r)
 
 	// ensure user that original poster and userID making update req matches
 	var op_id int
 	err = db.QueryRow("SELECT op_id FROM threads WHERE thread_id = $1", thread_id).Scan(&op_id)
 	if err != nil {
-		panic(err)
+		http.Error(w, "UpdateThread: unable to get op_id", http.StatusInternalServerError)
+		return
 	}
 
 	if op_id != userID {
@@ -101,9 +117,10 @@ func UpdateThread(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// update thread
-	_, err = db.Query("UPDATE threads SET thread_title = $1, thread_info = $2, thread_date = CURRENT_TIMESTAMP WHERE thread_id = $3;", createThreadInfo.Title, createThreadInfo.ThreadInfo, thread_id)
+	_, err = db.Exec("UPDATE threads SET thread_title = $1, thread_info = $2, thread_date = CURRENT_TIMESTAMP WHERE thread_id = $3;", createThreadInfo.Title, createThreadInfo.ThreadInfo, thread_id)
 	if err != nil {
-		panic(err)
+		http.Error(w, "unable to update thread", http.StatusInternalServerError)
+		return
 	}
 
 	w.WriteHeader(http.StatusNoContent)
@@ -112,19 +129,16 @@ func UpdateThread(w http.ResponseWriter, r *http.Request) {
 func DeleteThread(w http.ResponseWriter, r *http.Request) {
 	db := OpenDb()
 	defer db.Close()
-	thread_idStr := chi.URLParam(r, "id")
-	thread_id, err := strconv.Atoi(thread_idStr)
-	if err != nil {
-		panic(err)
-	}
 
+	thread_id := URLGetThreadID(r)
 	userID := jwtHandler.GetUserIDfromJWT(r)
 
 	// ensure user that original poster and userID making delete req matches
 	var op_id int
-	err = db.QueryRow("SELECT op_id FROM threads WHERE thread_id = $1", thread_id).Scan(&op_id)
+	err := db.QueryRow("SELECT op_id FROM threads WHERE thread_id = $1", thread_id).Scan(&op_id)
 	if err != nil {
-		panic(err)
+		http.Error(w, "DeleteThread: unable to obtain op_id", http.StatusInternalServerError)
+		return
 	}
 
 	if op_id != userID {
@@ -133,20 +147,22 @@ func DeleteThread(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// deletes threads and comments associated with it as comments have foreign key constraint
-	_, err = db.Query("DELETE FROM comments WHERE thread_id = $1", thread_id)
+	_, err = db.Exec("DELETE FROM comments WHERE thread_id = $1", thread_id)
 	if err != nil {
-		panic(err)
+		http.Error(w, "DeleteThread: unable to delete comments", http.StatusInternalServerError)
+		return
 	}
 
-	_, err = db.Query("DELETE FROM threads WHERE thread_id = $1", thread_id)
+	_, err = db.Exec("DELETE FROM threads WHERE thread_id = $1", thread_id)
 	if err != nil {
-		panic(err)
+		http.Error(w, "DeleteThread: unable to delete thread", http.StatusInternalServerError)
+		return
 	}
 
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// ////////// Read Threads and Comments ////////////
+// Below 4 func reads threads
 func AllThreads(w http.ResponseWriter, r *http.Request) {
 	db := OpenDb()
 	defer db.Close()
@@ -157,7 +173,8 @@ func AllThreads(w http.ResponseWriter, r *http.Request) {
 			ORDER BY thread_date DESC`
 	threadRows, err := db.Query(req)
 	if err != nil {
-		panic(err)
+		http.Error(w, "AllThreads: db req failed", http.StatusInternalServerError)
+		return
 	}
 	defer threadRows.Close()
 
@@ -183,24 +200,17 @@ func AllThreads(w http.ResponseWriter, r *http.Request) {
 func SingleThreadAndComments(w http.ResponseWriter, r *http.Request) {
 	db := OpenDb()
 	defer db.Close()
-	idStr := chi.URLParam(r, "id")
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		panic(err)
-	}
+
+	thread_id := URLGetThreadID(r)
 
 	var thread models.GetThread
-	err = db.QueryRow(`
+	err := db.QueryRow(`
 		SELECT username,thread_id, user_id, thread_title, thread_info, thread_date
 		FROM users INNER JOIN threads ON user_id = op_id
-		WHERE thread_id = $1`, id).
+		WHERE thread_id = $1`, thread_id).
 		Scan(&thread.Username, &thread.Thread_id, &thread.Op_id, &thread.Thread_title, &thread.Thread_info, &thread.Thread_date)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			http.Error(w, `{"error": "Thread query does not exist"}`, http.StatusNotFound)
-			return
-		}
-		http.Error(w, `{"error": "Internal server error"}`, http.StatusInternalServerError)
+		http.Error(w, "SingleThreadAndComments: db query for thread failed", http.StatusInternalServerError)
 		return
 	}
 
@@ -208,13 +218,9 @@ func SingleThreadAndComments(w http.ResponseWriter, r *http.Request) {
 		SELECT username, comment_id, commenter_id, comment_info, comment_date
 		FROM users INNER JOIN comments ON user_id = commenter_id
 		WHERE thread_id = $1
-		ORDER BY comment_date DESC`, id)
+		ORDER BY comment_date DESC`, thread_id)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			http.Error(w, `{"error": "Thread query does not exist"}`, http.StatusNotFound)
-			return
-		}
-		http.Error(w, `{"error": "Internal server error"}`, http.StatusInternalServerError)
+		http.Error(w, "SingleThreadAndComments: db query for comments failed", http.StatusInternalServerError)
 		return
 	}
 	defer commentRows.Close()
@@ -263,9 +269,10 @@ func CheckThreadOwner(w http.ResponseWriter, r *http.Request) {
 						INNER JOIN threads ON user_id = op_id
 						WHERE user_id = $1 AND thread_id = $2`, userID, threadId).Scan(&count)
 	if err != nil {
-		panic(err)
+		http.Error(w, "CheckThreadOwner: db query failed", http.StatusInternalServerError)
+		return
 	}
-	println("count: ", count)
+
 	if count != 1 {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
@@ -287,7 +294,8 @@ func MyThreads(w http.ResponseWriter, r *http.Request) {
 			ORDER BY thread_date DESC`
 	threadRows, err := db.Query(req, userID)
 	if err != nil {
-		panic(err)
+		http.Error(w, "MyThreads: db query failed", http.StatusInternalServerError)
+		return
 	}
 	defer threadRows.Close()
 
@@ -308,4 +316,61 @@ func MyThreads(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(threads)
+}
+
+// ** For Comments: **
+func CreateComment(w http.ResponseWriter, r *http.Request) {
+	var comment string
+	err := json.NewDecoder(r.Body).Decode(&comment)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	db := OpenDb()
+	defer db.Close()
+
+	thread_id := URLGetThreadID(r)
+	userID := jwtHandler.GetUserIDfromJWT(r)
+
+	_, err = db.Exec(`
+		INSERT INTO comments (thread_id, commenter_id, comment_info) VALUES ($1, $2, $3);`, thread_id, userID, comment)
+	if err != nil {
+		http.Error(w, "creating new comment failed", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusAccepted)
+	w.Header().Set("Content-Type", "application/json")
+}
+
+func DeleteComment(w http.ResponseWriter, r *http.Request) {
+	commentID := URLGetCommentID(r)
+	userID := jwtHandler.GetUserIDfromJWT(r)
+	db := OpenDb()
+	defer db.Close()
+
+	var threadID, commenterID int
+	err := db.QueryRow(`SELECT thread_id, commenter_id FROM comments WHERE comment_id = $1`, commentID).Scan(&threadID, &commenterID)
+	if err != nil {
+		http.Error(w, "DeleteComment: unable to obtain thread_id, commenter_id", http.StatusInternalServerError)
+		return
+	}
+
+	// ensure user that original commenter and userID making delete req matches
+	if commenterID != userID {
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
+	// proceed to delete comment
+	_, err = db.Exec(`
+		DELETE FROM comments WHERE comment_id = $1`, commentID)
+	if err != nil {
+		http.Error(w, "DeleteComment: unable to delete comments", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(threadID)
 }

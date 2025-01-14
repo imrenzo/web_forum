@@ -3,6 +3,7 @@ import Home, { MyThreads } from "./pages/threadPages";
 import LoadIndivThread from "./pages/indivThread";
 import NotFound from './pages/notFound';
 import HandleThread from './pages/handleThread';
+import HandleComment from "./components/handleComment";
 import UserMethod from './userManagement/user';
 import './App.css';
 
@@ -12,6 +13,7 @@ function MyApp() {
       <title>Web Forum</title>
       <BrowserRouter>
         <Routes>
+          {/* ///// FOR THREADS ///// */}
           {/* for creating thread */}
           <Route path="/thread/:method" element={<HandleThread />}></Route>
 
@@ -23,10 +25,13 @@ function MyApp() {
           {/* for updating and deleting thread */}
           <Route path="/thread/:method/:id" element={<HandleThread />}></Route>
 
-          {/* user management */}
+          {/* ///// FOR COMMENTS ///// */}
+          <Route path="/comment/:method/:id" element={<HandleComment />}></Route>
+
+          {/* ///// USER MANAGEMENT ///// */}
           <Route path="/user/:method" element={<UserMethod />}></Route>
 
-          {/* error handling */}
+          {/* ///// ERROR HANDLING ///// */}
           <Route path="/error/:status" element={<NotFound />}></Route>
           <Route path="*" element={<NotFound />}></Route>
         </Routes>

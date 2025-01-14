@@ -1,9 +1,11 @@
 import { ThreadWithComments, Thread } from "../types/types";
 import api from "../components/api";
 
-export function ValidateThreadInput(userEntry: Thread): { isValid: boolean; errorMessage: string } {
-    if (userEntry.title == '' || userEntry.content == '') {
-        return { isValid: false, errorMessage: "Both title and content needs to be filled in" };
+
+
+export function ValidateCommentInput(comment: string): { isValid: boolean; errorMessage: string } {
+    if (comment == '') {
+        return { isValid: false, errorMessage: "Please fill in the comment before submitting" };
     }
     return { isValid: true, errorMessage: '' };
 

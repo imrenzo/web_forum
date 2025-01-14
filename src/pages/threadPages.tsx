@@ -9,14 +9,9 @@ import { CreateJWTHeader } from '../apiService/apiService';
 import api from '../components/api';
 import { PageBoxStyle } from "../components/stylesheet";
 
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
 import CommentIcon from '@mui/icons-material/Comment';
 import AddCommentIcon from '@mui/icons-material/AddComment';
+import { Tooltip, CardActions, CardContent, Typography, IconButton, Box, Card } from '@mui/material';
 
 function AllThreads({ threads }: GetThreadsCardsProps) {
     return (
@@ -28,36 +23,35 @@ function AllThreads({ threads }: GetThreadsCardsProps) {
                 </Box>
                 : <Box>
                     {threads.map((item) =>
-                        <Link key={item.thread_id} to={`/thread_id/${item.thread_id}`} style={{ textDecoration: 'none' }}>
-                            <Card variant="outlined" sx={{ width: '100%', marginTop: 2 }}>
-                                <React.Fragment>
-                                    <CardContent>
-                                        <Typography variant="h5" component="div">
-                                            {item.thread_title}
-                                        </Typography>
-                                        <br></br>
-                                        <Typography variant='body1' sx={{}}>
-                                            {item.thread_info}
-                                        </Typography>
-                                    </CardContent>
-                                </React.Fragment>
-                                <CardActions disableSpacing sx={{ display: 'flex', justifyContent: 'space-between', }}>
-                                    <Typography variant='subtitle1'>
-                                        {FormatDate(item.thread_date)}
+                        // <Link key={item.thread_id} to={`/thread_id/${item.thread_id}`} style={{ textDecoration: 'none' }}>
+                        <Card key={item.thread_id} variant="outlined" sx={{ width: '100%', marginTop: 2 }}>
+                            <React.Fragment>
+                                <CardContent>
+                                    <Typography variant="h5" component="div">
+                                        {item.thread_title}
                                     </Typography>
-                                    <Box>
-                                        <IconButton aria-label="view comment icon">
-                                            <CommentIcon />
-                                        </IconButton>
-                                        {/* <Link to='/signup'> */}
-                                        <IconButton aria-label="add comment icon">
-                                            <AddCommentIcon />
-                                        </IconButton>
-                                        {/* </Link> */}
-                                    </Box>
-                                </CardActions>
-                            </Card>
-                        </Link>
+                                    <br></br>
+                                    <Typography variant='body1' sx={{}}>
+                                        {item.thread_info}
+                                    </Typography>
+                                </CardContent>
+                            </React.Fragment>
+                            <CardActions disableSpacing sx={{ display: 'flex', justifyContent: 'space-between', }}>
+                                <Typography variant='subtitle1'>
+                                    {FormatDate(item.thread_date)}
+                                </Typography>
+                                <Box>
+                                    <Link to={`/thread_id/${item.thread_id}`}>
+                                        <Tooltip title="View Comment">
+                                            <IconButton aria-label="view comment icon">
+                                                <CommentIcon sx={{ fontSize: 40 }} />
+                                            </IconButton>
+                                        </Tooltip>
+                                    </Link>
+                                </Box>
+                            </CardActions>
+                        </Card>
+                        // </Link>
 
                     )}
                 </Box>
