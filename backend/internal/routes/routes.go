@@ -27,6 +27,7 @@ func SetUpRoutes(router chi.Router) {
 
 	// ** For Comments **
 	router.With(jwtHandler.TokenVerifyMiddleware).Post("/comment/{id}", database.CreateComment)
+	router.With(jwtHandler.TokenVerifyMiddleware).Put("/comment/update/{commentID}", database.UpdateComment)
 	router.With(jwtHandler.TokenVerifyMiddleware).Delete("/comment/delete/{commentID}", database.DeleteComment)
 
 }

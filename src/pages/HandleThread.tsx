@@ -1,9 +1,9 @@
 import { FormEvent, useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { NavigateFunction, useNavigate, useParams } from "react-router-dom";
 import { AxiosError } from "axios";
 import Header from "../components/header";
 import { GetThread, Thread, ThreadWithComments } from "../types/types";
-import { CreateJWTHeader, GetThreadWithComments } from "../apiService/apiService";
+import { CreateJWTHeader, ValidateThreadInput, GetThreadWithComments } from "../apiService/apiService";
 import NotFound from "./notFound";
 import api from "../components/api";
 import { PageBoxStyle } from "../components/stylesheet";
@@ -23,21 +23,11 @@ export default function HandleThread() {
         return HandleCreateThread();
     } else if (method == "update" && id) {
         return HandleUpdateThread(id as string);
-    } else if (method == "delete" && id) {
-        return HandleDeleteThread(id as string);
     } else {
         console.log("invalid method");
         return NotFound();
     }
 }
-
-function ValidateThreadInput(userEntry: Thread): { isValid: boolean; errorMessage: string } {
-    if (userEntry.title == '' || userEntry.content == '') {
-        return { isValid: false, errorMessage: "Both title and content needs to be filled in" };
-    }
-    return { isValid: true, errorMessage: '' };
-
-};
 
 function HandleCreateThread() {
     const [userEntry, setUserEntry] = useState<Thread>({ title: '', content: '' });
@@ -46,38 +36,10 @@ function HandleCreateThread() {
 
     let navigate = useNavigate();
 
-    async function PostThread(userEntry: Thread): Promise<{ success: Boolean, errorStatus: number | null }> {
-        try {
-            const jwtHeader = CreateJWTHeader();
-            if (jwtHeader == null) {
-                console.error();
-                return { success: false, errorStatus: 401 };
-            }
-            console.log("Sending to backend post request")
-            console.log(userEntry);
-            const response = await api.post("/thread/create", userEntry, { headers: jwtHeader });
-            console.log("successfully posted")
-            return { success: true, errorStatus: null };
-        } catch (error: unknown) {
-            if (error instanceof AxiosError) {
-                if (error.response) {
-                    if (error.response.status == 401) {
-                        localStorage.removeItem("username");
-                        localStorage.removeItem("jwtToken");
-                    }
-                    return { success: false, errorStatus: error.response.status };
-                } else {
-                    return { success: false, errorStatus: 500 };
-                }
-            }
-            return { success: false, errorStatus: 404 };
-        }
-    };
-
     async function HandlePostRequest(event: FormEvent) {
         event.preventDefault();
+        // validate thread input
         const { isValid, errorMessage } = ValidateThreadInput(userEntry);
-        console.log("valid: ", isValid);
         if (!isValid) {
             setErrorMessage(errorMessage);
             setValidEntry(isValid);
@@ -85,14 +47,34 @@ function HandleCreateThread() {
             return;
         }
 
-        const sendThread = await PostThread(userEntry);
-        if (sendThread.success) {
-            console.log('successfully created thread');
+        // make post request
+        try {
+            const jwtHeader = CreateJWTHeader();
+            if (jwtHeader == null) {
+                console.error();
+                navigate("/error/401");
+            }
+            console.log("Sending to backend post thread request")
+            const response = await api.post("/thread/create", userEntry, { headers: jwtHeader! });
+            console.log('successfully updated thread');
             setValidEntry(false);
-            navigate('/');
-        } else {
-            const errorStatus = sendThread.errorStatus as number;
-            navigate(`/error/${errorStatus}`);
+            const threadID = response.data;
+            navigate(`/thread_id/${threadID}`);
+        } catch (error: unknown) {
+            if (error instanceof AxiosError) {
+                if (error.response) {
+                    if (error.response.status == 401) {
+                        localStorage.removeItem("username");
+                        localStorage.removeItem("jwtToken");
+                        navigate("/error/401");
+                    }
+                    const errorStatus = error.response.status as number;
+                    navigate(`/error/${errorStatus}`);
+                } else {
+                    navigate("/error/500");
+                }
+            }
+            navigate("/error/404");
         }
     }
 
@@ -150,58 +132,46 @@ function HandleUpdateThread(threadId: string) {
         }
     }, [threadId]);
 
-
-    async function PutThread(userEntry: Thread): Promise<{ success: Boolean, errorStatus: number | null }> {
-        try {
-            const jwtHeader = CreateJWTHeader();
-            if (jwtHeader == null) {
-                console.error();
-                return { success: false, errorStatus: 401 };
-            }
-            console.log("Sending to backend PUT request")
-            console.log(userEntry);
-            const response = await api.put(`/thread/update/${threadId}`, userEntry, { headers: jwtHeader });
-            console.log("successfully updated thread")
-            if (response.status != 204) {
-                return { success: false, errorStatus: 400 };
-            }
-            return { success: true, errorStatus: null };
-        } catch (error: unknown) {
-            if (error instanceof AxiosError) {
-                if (error.response) {
-                    if (error.response.status == 401) {
-                        localStorage.removeItem("username");
-                        localStorage.removeItem("jwtToken");
-                    }
-                    return { success: false, errorStatus: error.response.status };
-                } else {
-                    return { success: false, errorStatus: 500 };
-                }
-            }
-            return { success: false, errorStatus: 404 };
-        }
-    };
-
     async function HandlePutRequest(event: FormEvent) {
         event.preventDefault();
-        console.log("sending put request");
+        // validate thread input
         const { isValid, errorMessage } = ValidateThreadInput(userEntry);
-        console.log("valid: ", isValid);
         if (!isValid) {
             setErrorMessage(errorMessage);
             setValidEntry(isValid);
             console.log(errorMessage);
             navigate('*');
         }
-        const sendThread = await PutThread(userEntry);
-        if (sendThread.success) {
-            console.log('successfully created thread');
+
+        try {
+            const jwtHeader = CreateJWTHeader();
+            if (jwtHeader == null) {
+                console.error();
+                navigate("/error/401");
+            }
+            console.log("Sending to backend PUT thread request")
+            console.log(userEntry);
+            const response = await api.put(`/thread/update/${threadId}`, userEntry, { headers: jwtHeader! });
+            if (response.status != 204) {
+                navigate("/error/500");
+            }
+            console.log("successfully updated thread");
             setValidEntry(false);
             navigate(`/thread_id/${threadId}`);
-            window.location.reload();
-        } else {
-            const errorStatus = sendThread.errorStatus as number;
-            navigate(`/error/${errorStatus}`);
+        } catch (error: unknown) {
+            if (error instanceof AxiosError) {
+                if (error.response) {
+                    if (error.response.status == 401) {
+                        localStorage.removeItem("username");
+                        localStorage.removeItem("jwtToken");
+                        navigate("/error/401");
+                    }
+                    navigate(`/error/${error.response.status}`);
+                } else {
+                    navigate("/error/500");
+                }
+            }
+            navigate("/error/404");
         }
     }
 
@@ -234,54 +204,33 @@ function HandleUpdateThread(threadId: string) {
     );
 }
 
-function HandleDeleteThread(threadId: string) {
-    const [run, setRun] = useState(false);
-    let navigate = useNavigate();
-
-    async function DeleteThread(threadID: string): Promise<{ success: Boolean, errorStatus: number | null }> {
-        try {
-            const jwtHeader = CreateJWTHeader();
-            if (jwtHeader == null) {
-                console.error();
-                return { success: false, errorStatus: 401 };
-            }
-            console.log("Sending to backend delete request");
-            const response = await api.delete(`/thread/delete/${threadID}`, { headers: jwtHeader });
-            if (response.status != 204) {
-                return { success: false, errorStatus: 400 };
-            }
-            return { success: true, errorStatus: null };
-        } catch (error: unknown) {
-            if (error instanceof AxiosError) {
-                if (error.response) {
-                    if (error.response.status == 403) {
-                        localStorage.removeItem("username");
-                        localStorage.removeItem("jwtToken");
-                    }
-                    return { success: false, errorStatus: error.response.status };
-                } else {
-                    return { success: false, errorStatus: 500 };
+export async function HandleDeleteThread(threadID: string, navigate: NavigateFunction) {
+    try {
+        const jwtHeader = CreateJWTHeader();
+        if (jwtHeader == null) {
+            console.error();
+            navigate("/error/401");
+        }
+        console.log("Sending to backend delete thread request");
+        const response = await api.delete(`/thread/delete/${threadID}`, { headers: jwtHeader! });
+        if (response.status != 204) {
+            navigate(`/error/500`);
+        }
+        console.log(`successfully deleted thread, id: ${threadID}`);
+        navigate('/');
+    } catch (error: unknown) {
+        if (error instanceof AxiosError) {
+            if (error.response) {
+                if (error.response.status == 403) {
+                    localStorage.removeItem("username");
+                    localStorage.removeItem("jwtToken");
+                    navigate(`/error/403`);
                 }
+                navigate(`/error/${error.response.status}`);
+            } else {
+                navigate(`/error/500`);
             }
-            return { success: false, errorStatus: 404 };
         }
+        navigate(`/error/404`);
     }
-
-    async function HandleDeleteRequest(threadId: string) {
-        const response = await DeleteThread(threadId);
-        if (response.success) {
-            console.log(`successfully deleted thread, id: ${threadId}`);
-            navigate('/');
-        } else {
-            const status = response.errorStatus as number;
-            navigate(`/error/${status}`);
-        }
-    }
-
-    if (!run) {
-        setRun(true);
-        HandleDeleteRequest(threadId);
-    }
-
-    return (<></>);
 }
