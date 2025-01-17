@@ -2,12 +2,14 @@ import * as React from 'react';
 import { useParams, Link, useNavigate, Navigate } from "react-router";
 import Header from "../components/header";
 import { FormEvent, useEffect, useState } from "react";
-import { CreateComment } from '../components/handleComment';
+import { HandleDeleteThread } from './handleThread';
+import CreateComment, { HandleDeleteComment } from '../components/handleComment';
 import { ValidateCommentInput } from '../apiService/apiService';
 import FormatDate from "../components/dateformat";
-import { CheckIsOwner, GetThreadWithComments } from '../apiService/apiService';
-import { GetThread, ThreadWithComments, Comments } from "../types/types";
+import { CheckIsOwner, GetThreadWithComments, CreateJWTHeader } from '../apiService/apiService';
+import { GetThread, ThreadWithComments, Comments, Comment } from "../types/types";
 import { PageBoxStyle } from "../components/stylesheet";
+import { AxiosError } from 'axios';
 
 import {
     Card, CardContent, CardHeader, CardActions, Avatar, IconButton, Typography,
@@ -16,6 +18,7 @@ import {
 import { red } from '@mui/material/colors';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import AddCommentIcon from '@mui/icons-material/AddComment';
+import api from '../components/api';
 
 function ThreadDropDownButton({ threadId }: { threadId: number }) {
     let navigate = useNavigate();
@@ -28,13 +31,17 @@ function ThreadDropDownButton({ threadId }: { threadId: number }) {
     const CloseUserMenu = () => { setAnchorElUser(null); };
 
     function handleDeleteThread() {
+        CloseUserMenu();
         const confirmed = window.confirm("Are you sure you want to delete this thread?");
         if (confirmed) {
-            navigate(`/thread/delete/${threadId}`);
-            console.log("here");
+            HandleDeleteThread(String(threadId), navigate);
         }
-        CloseUserMenu();
     };
+
+    function handleUpdateThread() {
+        CloseUserMenu();
+        navigate(`/thread/update/${threadId}`);
+    }
 
     useEffect(() => {
         const verifiedOwner = async () => {
@@ -71,11 +78,9 @@ function ThreadDropDownButton({ threadId }: { threadId: number }) {
                         open={Boolean(anchorElUser)}
                         onClose={CloseUserMenu}
                     >
-                        <Link to={`/thread/update/${threadId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                            <MenuItem onClick={CloseUserMenu}>
-                                <Typography sx={{ textAlign: 'center' }}>Edit Thread</Typography>
-                            </MenuItem>
-                        </Link>
+                        <MenuItem onClick={handleUpdateThread}>
+                            <Typography sx={{ textAlign: 'center' }}>Edit Thread</Typography>
+                        </MenuItem>
                         <MenuItem onClick={handleDeleteThread}>
                             <Typography sx={{ textAlign: 'center', }}>Delete Thread</Typography>
                         </MenuItem>
@@ -84,53 +89,6 @@ function ThreadDropDownButton({ threadId }: { threadId: number }) {
             </Toolbar>
         </Container>
         : <></>);
-}
-
-function CommentDropDownButton({ commentID }: { commentID: number }) {
-    const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
-    const OpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
-        setAnchorElUser(event.currentTarget);
-    };
-
-    const CloseUserMenu = () => { setAnchorElUser(null); };
-
-    return (
-        <Container maxWidth="xs">
-            <Toolbar disableGutters>
-                <Box sx={{ flexGrow: 0 }}>
-                    <IconButton onClick={OpenUserMenu} sx={{ p: 0 }}>
-                        <MoreVertIcon></MoreVertIcon>
-                    </IconButton>
-                    <Menu
-                        sx={{ mt: '45px' }}
-                        anchorEl={anchorElUser}
-                        anchorOrigin={{
-                            vertical: 'top',
-                            horizontal: 'right',
-                        }}
-                        keepMounted
-                        transformOrigin={{
-                            vertical: 'top',
-                            horizontal: 'right',
-                        }}
-                        open={Boolean(anchorElUser)}
-                        onClose={CloseUserMenu}
-                    >
-                        {/* <Link to={`/comment/update/${commentID}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                            <MenuItem onClick={CloseUserMenu}>
-                                <Typography sx={{ textAlign: 'center' }}>Edit Comment</Typography>
-                            </MenuItem>
-                        </Link> */}
-                        <Link to={`/comment/delete/${commentID}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                            <MenuItem>
-                                <Typography sx={{ textAlign: 'center', }}>Delete Comment</Typography>
-                            </MenuItem>
-                        </Link>
-                    </Menu>
-                </Box>
-            </Toolbar>
-        </Container>
-    )
 }
 
 function ThreadCard({ thread }: { thread: GetThread }) {
@@ -148,7 +106,6 @@ function ThreadCard({ thread }: { thread: GetThread }) {
     async function HandleAddComment(event: FormEvent) {
         event.preventDefault();
         const { isValid, errorMessage } = ValidateCommentInput(comment);
-        console.log("valid: ", isValid);
         if (!isValid) {
             setErrorMessage(errorMessage);
             console.log(errorMessage);
@@ -207,10 +164,10 @@ function ThreadCard({ thread }: { thread: GetThread }) {
             <Card sx={addCommentBox ? { marginTop: 1, display: 'block' } : { marginTop: 1, display: 'none' }}>
                 <form onSubmit={HandleAddComment}>
                     <Box sx={{ marginTop: 1 }}>
-                        <TextField fullWidth label="Add Comment" id="comment" value={comment} onChange={handleInputChange} multiline />
+                        <TextField fullWidth label="Add Comment" id="addComment" value={comment} onChange={handleInputChange} multiline />
                     </Box>
                     <div style={{ textAlign: 'right' }}>
-                        <p id="hiddenText" style={{ color: 'red' }}>{errorMessage}</p>
+                        <p id="errorMessage" style={{ color: 'red' }}>{errorMessage}</p>
                         <Button variant='contained' type="submit">Post Comment</Button>
                     </div>
                 </form>
@@ -220,7 +177,115 @@ function ThreadCard({ thread }: { thread: GetThread }) {
 }
 
 function CommentsCard({ comments }: { comments: Comments }) {
+    let navigate = useNavigate();
     const username = localStorage.getItem("username");
+    const [newComment, setNewComment] = useState<string>("");
+    const [commentID, setCommentID] = useState<number | null>(null);
+    const [errorMessage, setErrorMessage] = useState("");
+
+    function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+        const { id, value } = event.target;
+        setNewComment(value);
+    }
+
+    function CommentDropDownButton({ commentID }: { commentID: number }) {
+        const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
+        const OpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
+            setAnchorElUser(event.currentTarget);
+        };
+
+        const CloseUserMenu = () => { setAnchorElUser(null); };
+
+        function UpdateCommentClick() {
+            CloseUserMenu();
+            setCommentID(commentID);
+            const currentComment = comments.find(comment => comment.comment_id == commentID) as Comment;
+            setNewComment(currentComment.comment_info);
+        };
+
+        function DeleteCommentClick() {
+            CloseUserMenu();
+            const confirmed = window.confirm("Are you sure you want to delete this comment?");
+            if (confirmed) {
+                HandleDeleteComment(String(commentID), navigate);
+            }
+        };
+
+        return (
+            <Container maxWidth="xs">
+                <Toolbar disableGutters>
+                    <Box sx={{ flexGrow: 0 }}>
+                        <IconButton onClick={OpenUserMenu} sx={{ p: 0 }}>
+                            <MoreVertIcon></MoreVertIcon>
+                        </IconButton>
+                        <Menu
+                            sx={{ mt: '45px' }}
+                            anchorEl={anchorElUser}
+                            anchorOrigin={{
+                                vertical: 'top',
+                                horizontal: 'right',
+                            }}
+                            keepMounted
+                            transformOrigin={{
+                                vertical: 'top',
+                                horizontal: 'right',
+                            }}
+                            open={Boolean(anchorElUser)}
+                            onClose={CloseUserMenu}
+                        >
+                            <MenuItem onClick={UpdateCommentClick}>
+                                <Typography sx={{ textAlign: 'center' }}>Edit Comment</Typography>
+                            </MenuItem>
+                            <MenuItem onClick={DeleteCommentClick}>
+                                <Typography sx={{ textAlign: 'center', }}>Delete Comment</Typography>
+                            </MenuItem>
+                        </Menu>
+                    </Box>
+                </Toolbar>
+            </Container>
+        )
+    }
+
+    async function HandleUpdateComment(event: FormEvent) {
+        event.preventDefault();
+        // validate comment input
+        const { isValid, errorMessage } = ValidateCommentInput(newComment);
+        if (!isValid) {
+            setErrorMessage(errorMessage);
+            console.log(errorMessage);
+            return;
+        }
+        try {
+            const jwtHeader = CreateJWTHeader();
+            if (jwtHeader == null) {
+                console.error();
+                return { success: false, errorStatus: 401, threadID: null };
+            }
+
+            // send put request
+            console.log("Sending to backend PUT comment request");
+            const response = await api.put(`/comment/update/${commentID}`, newComment, { headers: jwtHeader });
+            if (response.status == 204) {
+                console.log("successfully commented");
+                window.location.reload();
+            } else {
+                navigate("/error/500");
+            }
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                if (error.response) {
+                    if (error.response.status == 401) {
+                        localStorage.removeItem("username");
+                        localStorage.removeItem("jwtToken");
+                    }
+                    navigate(`/error/${error.response.status}`);
+                } else {
+                    navigate(`/error/500`);
+                }
+            }
+            navigate(`/error/404`);
+        }
+    }
 
     return (
         <Card sx={{ width: '100%', marginTop: 2 }}>
@@ -238,14 +303,27 @@ function CommentsCard({ comments }: { comments: Comments }) {
                         title={comment.username}
                         subheader={FormatDate(comment.comment_date)}
                     />
-                    <CardContent sx={{ overflow: 'hidden', }}>
-                        <Typography variant="body1" sx={{ color: 'text.primary', whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                            {comment.comment_info}
-                        </Typography>
-                        <Typography>
-                            {comment.commenter_id}
-                        </Typography>
-                    </CardContent>
+                    {commentID == comment.comment_id
+                        ? <Box sx={{ m: 1, }}>
+                            <form onSubmit={HandleUpdateComment}>
+                                <Box>
+                                    <TextField fullWidth label="Comment" id="updateCommentBox" value={newComment} onChange={handleInputChange} multiline />
+                                </Box>
+                                <div style={{ textAlign: 'right' }}>
+                                    <p id="errorMessage" style={{ color: 'red' }}>{errorMessage}</p>
+                                    <Button variant='contained' type="submit">Submit</Button>
+                                </div>
+                            </form>
+                        </Box>
+                        : <CardContent sx={{ overflow: 'hidden', }}>
+                            <Typography variant="body1" sx={{ color: 'text.primary', whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                {comment.comment_info}
+                            </Typography>
+                            <Typography>
+                                CommentID: {comment.comment_id}
+                            </Typography>
+                        </CardContent>
+                    }
                 </Card>
             ))}
         </Card>

@@ -344,28 +344,65 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 }
 
+func UpdateComment(w http.ResponseWriter, r *http.Request) {
+	var comment string
+	err := json.NewDecoder(r.Body).Decode(&comment)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	comment_id := URLGetCommentID(r)
+	userID := jwtHandler.GetUserIDfromJWT(r)
+	println("commentid: ", comment_id)
+	db := OpenDb()
+	defer db.Close()
+
+	var commenter_id int
+	err = db.QueryRow(`SELECT commenter_id FROM comments WHERE comment_id = $1`, comment_id).Scan(&commenter_id)
+	if err != nil {
+		http.Error(w, "UpdateComment: unable to obtain commenter_id", http.StatusInternalServerError)
+		return
+	}
+
+	// ensure user that original commenter and userID making delete req matches
+	if commenter_id != userID {
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
+	// proceed to update comment
+	_, err = db.Exec(`UPDATE comments SET comment_info = $1, comment_date = CURRENT_TIMESTAMP WHERE comment_id = $2;`, comment, comment_id)
+	if err != nil {
+		http.Error(w, "unable to update comment", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func DeleteComment(w http.ResponseWriter, r *http.Request) {
-	commentID := URLGetCommentID(r)
+	comment_id := URLGetCommentID(r)
 	userID := jwtHandler.GetUserIDfromJWT(r)
 	db := OpenDb()
 	defer db.Close()
 
-	var threadID, commenterID int
-	err := db.QueryRow(`SELECT thread_id, commenter_id FROM comments WHERE comment_id = $1`, commentID).Scan(&threadID, &commenterID)
+	var threadID, commenter_id int
+	err := db.QueryRow(`SELECT thread_id, commenter_id FROM comments WHERE comment_id = $1`, comment_id).Scan(&threadID, &commenter_id)
 	if err != nil {
 		http.Error(w, "DeleteComment: unable to obtain thread_id, commenter_id", http.StatusInternalServerError)
 		return
 	}
 
 	// ensure user that original commenter and userID making delete req matches
-	if commenterID != userID {
+	if commenter_id != userID {
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 
 	// proceed to delete comment
 	_, err = db.Exec(`
-		DELETE FROM comments WHERE comment_id = $1`, commentID)
+		DELETE FROM comments WHERE comment_id = $1`, comment_id)
 	if err != nil {
 		http.Error(w, "DeleteComment: unable to delete comments", http.StatusInternalServerError)
 		return
