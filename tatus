@@ -1,0 +1,109 @@
+[33mcommit 9f033dbc7f3d0de8cfd0840f42843539edc08e8c[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: renzo <225renzo@gmail.com>
+Date:   Tue Jan 14 16:42:43 2025 +0800
+
+    added create and delete comment requests
+
+[33mcommit 6210a8ab303639c5f927f97b4fe503d9839fcfd1[m
+Author: renzo <225renzo@gmail.com>
+Date:   Sun Jan 12 21:56:44 2025 +0800
+
+    fixed date not being accurate when reading and updating thread
+
+[33mcommit aee0fb5cae8ff51a229ad97c4bda475a09416369[m
+Author: renzo <225renzo@gmail.com>
+Date:   Sun Jan 12 21:35:48 2025 +0800
+
+    implemented delete threads request & myThreads. Cleaned up imports
+
+[33mcommit 4dd912cf5837520742136d2260b6256dd05aadc4[m
+Author: renzo <225renzo@gmail.com>
+Date:   Thu Jan 9 18:09:32 2025 +0800
+
+    moved GetThreadWithComments to apiService as it is to be used by reading and updating thread. UpdateThread halfway implemented for frontend.
+
+[33mcommit 98b8a77de2ca4a37c9579a0c3aca3f464307671e[m
+Author: renzo <225renzo@gmail.com>
+Date:   Thu Jan 9 17:06:32 2025 +0800
+
+    change type of post to thread to standardise naming of data across frontend & backend
+
+[33mcommit eedc27a37b7f6e96799ce2ebabd871dde4f93850[m
+Author: imrenzo <109291780+imrenzo@users.noreply.github.com>
+Date:   Thu Jan 9 17:18:31 2025 +0900
+
+    moved apiService ftns into the original ftns using them
+
+[33mcommit 7afe51c7ca46b5bf314ec4d1676b5344ed078994[m
+Merge: 4364434 e57113f
+Author: imrenzo <109291780+imrenzo@users.noreply.github.com>
+Date:   Sun Jan 5 00:44:57 2025 +0900
+
+    Merge branch 'main' of https://github.com/imrenzo/web_forum
+
+[33mcommit 4364434852f65bf3c6da258db234983b7cd57d45[m
+Author: imrenzo <109291780+imrenzo@users.noreply.github.com>
+Date:   Sun Jan 5 00:43:28 2025 +0900
+
+    added delete thread route, amended styles and
+    added op_id to thread interface
+
+[33mcommit 9c27c9d7bd2737a5c8ec3806f85fed2473962ee6[m
+Author: imrenzo <109291780+imrenzo@users.noreply.github.com>
+Date:   Sun Jan 5 00:42:49 2025 +0900
+
+    amended page width
+
+[33mcommit 3121a306f627c2ce64bc798b66f7bf40f9af13f6[m
+Author: imrenzo <109291780+imrenzo@users.noreply.github.com>
+Date:   Sun Jan 5 00:41:29 2025 +0900
+
+    amended imports
+
+[33mcommit 1a27821a8120fb7e30b9dc2f48368fa7b691faba[m
+Author: imrenzo <109291780+imrenzo@users.noreply.github.com>
+Date:   Sun Jan 5 00:41:06 2025 +0900
+
+    userID added into JWT custom claims
+
+[33mcommit d4aff1c08d4ad21efd8a5657114c386bdc26b60b[m
+Author: imrenzo <109291780+imrenzo@users.noreply.github.com>
+Date:   Sun Jan 5 00:39:47 2025 +0900
+
+    added for delete thread operation
+
+[33mcommit 2d804fd1c328af21a944d1a43e4fcf8402690fc7[m
+Author: imrenzo <109291780+imrenzo@users.noreply.github.com>
+Date:   Sun Jan 5 00:39:21 2025 +0900
+
+    added this to prevent import cycle error with go: database, jwtHandler, users
+
+[33mcommit fe7a4eae6df1abb081f1f45ad903aec9bdcdcf46[m
+Author: imrenzo <109291780+imrenzo@users.noreply.github.com>
+Date:   Sun Jan 5 00:38:40 2025 +0900
+
+    added delete  operation
+
+[33mcommit 5d4964a7d79e5aa440ebcb2c5693873e7c679061[m
+Author: imrenzo <109291780+imrenzo@users.noreply.github.com>
+Date:   Sun Jan 5 00:38:04 2025 +0900
+
+    change indivPost to curr file name
+
+[33mcommit 7e7baf716489970ae8962bc0d023a2b2db02331a[m
+Author: imrenzo <109291780+imrenzo@users.noreply.github.com>
+Date:   Sun Jan 5 00:36:39 2025 +0900
+
+    username no longer set in local storage
+
+[33mcommit 2d0c4d6d5f906ce14161b2fbe4afe49a97e47049[m
+Author: imrenzo <109291780+imrenzo@users.noreply.github.com>
+Date:   Sun Jan 5 00:36:05 2025 +0900
+
+    changed name of contollers to apiService for better naming
+
+[33mcommit 7d0f31162fb57eee1c0ca92e58e390774b7dc43a[m
+Author: imrenzo <109291780+imrenzo@users.noreply.github.com>
+Date:   Sun Jan 5 00:34:28 2025 +0900
+
+    made id based on actual user instead of fixed user initially. amended direct authenticate in jwt. update models.

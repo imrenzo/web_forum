@@ -10,8 +10,7 @@ import api from '../components/api';
 import { PageBoxStyle } from "../components/stylesheet";
 
 import CommentIcon from '@mui/icons-material/Comment';
-import AddCommentIcon from '@mui/icons-material/AddComment';
-import { Tooltip, CardActions, CardContent, Typography, IconButton, Box, Card } from '@mui/material';
+import { Tooltip, CardActions, CardContent, Typography, IconButton, Box, Card, MenuItem, FormControl, InputLabel } from '@mui/material';
 
 function AllThreads({ threads }: GetThreadsCardsProps) {
     return (
@@ -123,7 +122,7 @@ export default function Home() {
                     </select>
                 </Box>
                 <AllThreads threads={threads}></AllThreads>
-            </Box>
+            </Box >
         </>
     );
 }

@@ -61,6 +61,18 @@ func GetCategoryID(category string) int {
 	return categoryID
 }
 
+func GetCategoryID(category string) int {
+	db := OpenDb()
+	defer db.Close()
+
+	var categoryID int
+	err := db.QueryRow(`SELECT category_id FROM categories WHERE category_name = $1`, category).Scan(&categoryID)
+	if err != nil {
+		panic(err)
+	}
+	return categoryID
+}
+
 // ** For Threads: **
 func CreateThread(w http.ResponseWriter, r *http.Request) {
 	var createThreadWithCategory models.CreateThreadWithCategory
@@ -70,6 +82,8 @@ func CreateThread(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var category = createThreadWithCategories.Category
+	var createThreadInfo = createThreadWithCategories.CreateThread
 	userID := jwtHandler.GetUserIDfromJWT(r)
 	createThreadInfo := createThreadWithCategory.CreateThread
 	category := createThreadWithCategory.Category
@@ -81,11 +95,11 @@ func CreateThread(w http.ResponseWriter, r *http.Request) {
 
 	_, err = db.Exec(`
 		INSERT INTO threads (op_id, thread_title, thread_info, category_id) VALUES ($1, $2, $3, $4);`, userID, createThreadInfo.Title, createThreadInfo.ThreadInfo, categoryID)
-
 	if err != nil {
 		http.Error(w, "unable to insert into threads", http.StatusInternalServerError)
 		return
 	}
+	println("here1")
 
 	//get thread_id so that can load back into page
 	var thread_id int
@@ -200,13 +214,15 @@ func AllThreads(w http.ResponseWriter, r *http.Request) {
 		var thread models.GetThread
 		err := threadRows.Scan(&thread.Username, &thread.Thread_id, &thread.Op_id, &thread.Thread_title, &thread.Thread_info, &thread.Thread_date)
 		if err != nil {
-			panic(err)
+			http.Error(w, "error during threadRows scan", http.StatusInternalServerError)
+			return
 		}
 		threads = append(threads, thread)
 	}
 	err = threadRows.Err()
 	if err != nil {
-		panic(err)
+		http.Error(w, "error during threadRows iteration", http.StatusInternalServerError)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -247,13 +263,15 @@ func SingleThreadAndComments(w http.ResponseWriter, r *http.Request) {
 		var comment models.Comments
 		err = commentRows.Scan(&comment.Username, &comment.Comment_id, &comment.Commenter_id, &comment.Comment_info, &comment.Comment_date)
 		if err != nil {
-			panic(err)
+			http.Error(w, "error during commentRows scan", http.StatusInternalServerError)
+			return
 		}
 		comments = append(comments, comment)
 	}
 	err = commentRows.Err()
 	if err != nil {
-		panic(err)
+		http.Error(w, "error during commentRows iteration", http.StatusInternalServerError)
+		return
 	}
 
 	result := models.GetThreadWithComments{
@@ -321,13 +339,15 @@ func MyThreads(w http.ResponseWriter, r *http.Request) {
 		var thread models.GetThread
 		err := threadRows.Scan(&thread.Username, &thread.Thread_id, &thread.Op_id, &thread.Thread_title, &thread.Thread_info, &thread.Thread_date)
 		if err != nil {
-			panic(err)
+			http.Error(w, "error during threadRows scan", http.StatusInternalServerError)
+			return
 		}
 		threads = append(threads, thread)
 	}
 	err = threadRows.Err()
 	if err != nil {
-		panic(err)
+		http.Error(w, "error during threadRows iteration", http.StatusInternalServerError)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")

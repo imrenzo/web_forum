@@ -1,5 +1,7 @@
 import { ThreadWithComments, Thread, Categories } from "../types/types";
 import { AxiosError } from "axios";
+import { ThreadWithComments, Thread, Categories } from "../types/types";
+import { AxiosError } from "axios";
 import api from "../components/api";
 
 export function ValidateThreadInput(userEntry: Thread): { isValid: boolean; errorMessage: string } {
@@ -36,7 +38,7 @@ export async function CheckIsOwner(threadId: number): Promise<{ success: Boolean
             console.error();
             return { success: false, errorStatus: 401 }
         };
-        console.log("sending response");
+        console.log("sending check thread owner");
         const response = await api.post("/checkthreadowner", threadId, { headers: jwtHeader });
         console.log("success");
         return { success: true, errorStatus: null };
