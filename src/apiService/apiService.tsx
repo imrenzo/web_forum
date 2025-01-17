@@ -1,4 +1,5 @@
-import { ThreadWithComments, Thread } from "../types/types";
+import { ThreadWithComments, Thread, Categories } from "../types/types";
+import { AxiosError } from "axios";
 import api from "../components/api";
 
 export function ValidateThreadInput(userEntry: Thread): { isValid: boolean; errorMessage: string } {
@@ -54,3 +55,23 @@ export async function GetThreadWithComments(threadId: string): Promise<{ isValid
         return { isValid: false, errorMessage: "Thread does not exist", output: null };
     }
 };
+
+export async function GetCategories(): Promise<{ success: boolean, errorStatus: number | null, output: Categories | null }> {
+    try {
+        const response = await api.get("/categories/get");
+        return { success: true, errorStatus: null, output: response.data as Categories };
+    } catch (error: unknown) {
+        if (error instanceof AxiosError) {
+            if (error.response) {
+                if (error.response.status == 401) {
+                    return { success: false, errorStatus: 401, output: null };
+                }
+                const errorStatus = error.response.status as number;
+                return { success: false, errorStatus: errorStatus, output: null };
+            } else {
+                return { success: false, errorStatus: 500, output: null };
+            }
+        }
+        return { success: false, errorStatus: 404, output: null };
+    }
+}

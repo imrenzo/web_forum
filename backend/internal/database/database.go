@@ -49,22 +49,38 @@ func URLGetCommentID(r *http.Request) int {
 	return comment_id
 }
 
+func GetCategoryID(category string) int {
+	db := OpenDb()
+	defer db.Close()
+
+	var categoryID int
+	err := db.QueryRow(`SELECT category_id FROM categories WHERE category_name = $1`, category).Scan(&categoryID)
+	if err != nil {
+		panic(err)
+	}
+	return categoryID
+}
+
 // ** For Threads: **
 func CreateThread(w http.ResponseWriter, r *http.Request) {
-	var createThreadInfo models.CreateThread
-	err := json.NewDecoder(r.Body).Decode(&createThreadInfo)
+	var createThreadWithCategory models.CreateThreadWithCategory
+	err := json.NewDecoder(r.Body).Decode(&createThreadWithCategory)
 	if err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
 	userID := jwtHandler.GetUserIDfromJWT(r)
+	createThreadInfo := createThreadWithCategory.CreateThread
+	category := createThreadWithCategory.Category
+
+	categoryID := GetCategoryID(category)
 
 	db := OpenDb()
 	defer db.Close()
 
 	_, err = db.Exec(`
-		INSERT INTO threads (op_id, thread_title, thread_info) VALUES ($1, $2, $3);`, userID, createThreadInfo.Title, createThreadInfo.ThreadInfo)
+		INSERT INTO threads (op_id, thread_title, thread_info, category_id) VALUES ($1, $2, $3, $4);`, userID, createThreadInfo.Title, createThreadInfo.ThreadInfo, categoryID)
 
 	if err != nil {
 		http.Error(w, "unable to insert into threads", http.StatusInternalServerError)
@@ -410,4 +426,35 @@ func DeleteComment(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(threadID)
+}
+
+func GetCategories(w http.ResponseWriter, r *http.Request) {
+	db := OpenDb()
+	defer db.Close()
+
+	categoryRows, err := db.Query("SELECT * FROM categories")
+	if err != nil {
+		http.Error(w, "error querying category rows", http.StatusInternalServerError)
+		return
+	}
+
+	var categories []models.Category
+
+	for categoryRows.Next() {
+		var category models.Category
+		err := categoryRows.Scan(&category.Category_id, &category.Category_name)
+		if err != nil {
+			http.Error(w, "error during categoryRows scan", http.StatusInternalServerError)
+			return
+		}
+		categories = append(categories, category)
+	}
+	err = categoryRows.Err()
+	if err != nil {
+		http.Error(w, "error during categoryRows iteration", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(categories)
 }

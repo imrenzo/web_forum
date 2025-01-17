@@ -30,3 +30,10 @@ export interface Thread {
     title: string | null;
     content: string | null;
 }
+
+export interface Category {
+    category_id: number;
+    category_name: string;
+}
+
+export type Categories = Category[];

@@ -1,5 +1,5 @@
 import { FormEvent, useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { NavigateFunction, useNavigate, useParams } from 'react-router-dom';
 import axios from "axios";
 import NotFound from '../pages/notFound';
 import { formStyles } from '../components/stylesheet';
@@ -8,23 +8,23 @@ import { Button } from '@mui/material';
 
 export default function UserMethod() {
     const method = useParams().method;
+    const navigate = useNavigate();
 
     if (method == "login") {
-        return LogIn();
+        return LogIn(navigate);
     } else if (method == "logout") {
-        return LogOut();
+        return LogOut(navigate);
     } else if (method == "signup") {
-        return SignUp();
+        return SignUp(navigate);
     } else {
         console.log("invalid method");
         return NotFound();
     }
 }
 
-function LogIn() {
+function LogIn(navigate: NavigateFunction) {
     const [userData, setUserdata] = useState<{ username: string; password: string }>({ username: '', password: '' });
     const [invalidCred, setInvalidCred] = useState<boolean>(false);
-    let navigate = useNavigate();
 
     function HandleSubmit(event: FormEvent) {
         event.preventDefault();
@@ -81,8 +81,7 @@ function LogIn() {
     );
 }
 
-function LogOut() {
-    let navigate = useNavigate();
+function LogOut(navigate: NavigateFunction) {
     useEffect(() => {
         localStorage.removeItem("jwtToken");
         localStorage.removeItem("username");
@@ -95,12 +94,10 @@ function LogOut() {
     );
 }
 
-function SignUp() {
+function SignUp(navigate: NavigateFunction) {
     const [userData, setUserdata] = useState<{ username: string; password: string }>({ username: '', password: '' });
     const [invalidCred, setInvalidCred] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string>('');
-
-    let navigate = useNavigate();
 
     function HandleSubmit(event: FormEvent) {
         event.preventDefault();

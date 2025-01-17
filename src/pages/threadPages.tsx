@@ -114,6 +114,14 @@ export default function Home() {
             <title>Web Forum</title>
             <Box sx={PageBoxStyle}>
                 <Header></Header>
+                <Box sx={{ marginTop: 2, }}>
+                    <Typography sx={{ display: 'inline' }}>Category: </Typography>
+                    <select id="moduleFilterSelect">
+                        <option value={20}>Twenty</option>
+                        <option value={21}>Twenty one</option>
+                        <option value={22}>Twenty one and a half</option>
+                    </select>
+                </Box>
                 <AllThreads threads={threads}></AllThreads>
             </Box>
         </>
