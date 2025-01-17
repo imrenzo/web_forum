@@ -4,16 +4,11 @@ import Header from "../components/header";
 import { FormEvent, useEffect, useState } from "react";
 import { HandleDeleteThread } from './handleThread';
 import CreateComment, { HandleDeleteComment } from '../components/handleComment';
-import { HandleDeleteThread } from './handleThread';
-import CreateComment, { HandleDeleteComment } from '../components/handleComment';
 import { ValidateCommentInput } from '../apiService/apiService';
 import FormatDate from "../components/dateformat";
 import { CheckIsOwner, GetThreadWithComments, CreateJWTHeader } from '../apiService/apiService';
 import { GetThread, ThreadWithComments, Comments, Comment } from "../types/types";
-import { CheckIsOwner, GetThreadWithComments, CreateJWTHeader } from '../apiService/apiService';
-import { GetThread, ThreadWithComments, Comments, Comment } from "../types/types";
 import { PageBoxStyle } from "../components/stylesheet";
-import { AxiosError } from 'axios';
 import { AxiosError } from 'axios';
 
 import {
@@ -170,10 +165,8 @@ function ThreadCard({ thread }: { thread: GetThread }) {
                 <form onSubmit={HandleAddComment}>
                     <Box sx={{ marginTop: 1 }}>
                         <TextField fullWidth label="Add Comment" id="addComment" value={comment} onChange={handleInputChange} multiline />
-                        <TextField fullWidth label="Add Comment" id="addComment" value={comment} onChange={handleInputChange} multiline />
                     </Box>
                     <div style={{ textAlign: 'right' }}>
-                        <p id="errorMessage" style={{ color: 'red' }}>{errorMessage}</p>
                         <p id="errorMessage" style={{ color: 'red' }}>{errorMessage}</p>
                         <Button variant='contained' type="submit">Post Comment</Button>
                     </div>
@@ -311,27 +304,6 @@ function CommentsCard({ comments }: { comments: Comments }) {
                         title={comment.username}
                         subheader={FormatDate(comment.comment_date)}
                     />
-                    {commentID == comment.comment_id
-                        ? <Box sx={{ m: 1, }}>
-                            <form onSubmit={HandleUpdateComment}>
-                                <Box>
-                                    <TextField fullWidth label="Comment" id="updateCommentBox" value={newComment} onChange={handleInputChange} multiline />
-                                </Box>
-                                <div style={{ textAlign: 'right' }}>
-                                    <p id="errorMessage" style={{ color: 'red' }}>{errorMessage}</p>
-                                    <Button variant='contained' type="submit">Submit</Button>
-                                </div>
-                            </form>
-                        </Box>
-                        : <CardContent sx={{ overflow: 'hidden', }}>
-                            <Typography variant="body1" sx={{ color: 'text.primary', whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                {comment.comment_info}
-                            </Typography>
-                            <Typography>
-                                CommentID: {comment.comment_id}
-                            </Typography>
-                        </CardContent>
-                    }
                     {commentID == comment.comment_id
                         ? <Box sx={{ m: 1, }}>
                             <form onSubmit={HandleUpdateComment}>

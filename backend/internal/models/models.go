@@ -2,9 +2,7 @@ package models
 
 type GetThread struct {
 	Username     string `json:"username"`
-	Username     string `json:"username"`
 	Thread_id    int    `json:"thread_id"`
-	Op_id        int    `json:"user_id"`
 	Op_id        int    `json:"user_id"`
 	Thread_title string `json:"thread_title"`
 	Thread_info  string `json:"thread_info"`

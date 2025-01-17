@@ -1,7 +1,5 @@
 import { ThreadWithComments, Thread, Categories } from "../types/types";
 import { AxiosError } from "axios";
-import { ThreadWithComments, Thread, Categories } from "../types/types";
-import { AxiosError } from "axios";
 import api from "../components/api";
 
 export function ValidateThreadInput(userEntry: Thread): { isValid: boolean; errorMessage: string } {

@@ -61,18 +61,6 @@ func GetCategoryID(category string) int {
 	return categoryID
 }
 
-func GetCategoryID(category string) int {
-	db := OpenDb()
-	defer db.Close()
-
-	var categoryID int
-	err := db.QueryRow(`SELECT category_id FROM categories WHERE category_name = $1`, category).Scan(&categoryID)
-	if err != nil {
-		panic(err)
-	}
-	return categoryID
-}
-
 // ** For Threads: **
 func CreateThread(w http.ResponseWriter, r *http.Request) {
 	var createThreadWithCategory models.CreateThreadWithCategory
@@ -82,8 +70,6 @@ func CreateThread(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var category = createThreadWithCategories.Category
-	var createThreadInfo = createThreadWithCategories.CreateThread
 	userID := jwtHandler.GetUserIDfromJWT(r)
 	createThreadInfo := createThreadWithCategory.CreateThread
 	category := createThreadWithCategory.Category

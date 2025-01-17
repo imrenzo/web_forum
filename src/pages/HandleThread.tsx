@@ -8,7 +8,6 @@ import NotFound from "./notFound";
 import api from "../components/api";
 import { PageBoxStyle } from "../components/stylesheet";
 import { Box, Button, FormControl, InputLabel, Select, TextField, MenuItem, SelectChangeEvent } from "@mui/material";
-import { Category } from "@mui/icons-material";
 
 // routing into the different methods
 export default function HandleThread() {
