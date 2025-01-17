@@ -1,5 +1,6 @@
 import { FormEvent, useState, useEffect } from "react";
 import { NavigateFunction, useNavigate, useParams } from "react-router-dom";
+import { NavigateFunction, useNavigate, useParams } from "react-router-dom";
 import { AxiosError } from "axios";
 import Header from "../components/header";
 import { GetThread, Thread, ThreadWithComments, Categories } from "../types/types";
@@ -73,6 +74,7 @@ function HandleCreateThread() {
             if (jwtHeader == null) {
                 console.error();
                 navigate("/error/401");
+                navigate("/error/401");
             }
             console.log("Sending to backend post thread request")
             const response = await api.post("/thread/create",
@@ -88,10 +90,17 @@ function HandleCreateThread() {
                         localStorage.removeItem("username");
                         localStorage.removeItem("jwtToken");
                         navigate("/error/401");
+                        navigate("/error/401");
                     }
                     const errorStatus = error.response.status as number;
                     navigate(`/error/${errorStatus}`);
+                    const errorStatus = error.response.status as number;
+                    navigate(`/error/${errorStatus}`);
                 } else {
+                    navigate("/error/500");
+                }
+            }
+            navigate("/error/404");
                     navigate("/error/500");
                 }
             }
@@ -279,7 +288,34 @@ export async function HandleDeleteThread(threadID: string, navigate: NavigateFun
                     localStorage.removeItem("username");
                     localStorage.removeItem("jwtToken");
                     navigate(`/error/403`);
+export async function HandleDeleteThread(threadID: string, navigate: NavigateFunction) {
+    try {
+        const jwtHeader = CreateJWTHeader();
+        if (jwtHeader == null) {
+            console.error();
+            navigate("/error/401");
+        }
+        console.log("Sending to backend delete thread request");
+        const response = await api.delete(`/thread/delete/${threadID}`, { headers: jwtHeader! });
+        if (response.status != 204) {
+            navigate(`/error/500`);
+        }
+        console.log(`successfully deleted thread, id: ${threadID}`);
+        navigate('/');
+    } catch (error: unknown) {
+        if (error instanceof AxiosError) {
+            if (error.response) {
+                if (error.response.status == 403) {
+                    localStorage.removeItem("username");
+                    localStorage.removeItem("jwtToken");
+                    navigate(`/error/403`);
                 }
+                navigate(`/error/${error.response.status}`);
+            } else {
+                navigate(`/error/500`);
+            }
+        }
+        navigate(`/error/404`);
                 navigate(`/error/${error.response.status}`);
             } else {
                 navigate(`/error/500`);
