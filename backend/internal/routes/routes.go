@@ -30,4 +30,5 @@ func SetUpRoutes(router chi.Router) {
 	router.With(jwtHandler.TokenVerifyMiddleware).Put("/comment/update/{commentID}", database.UpdateComment)
 	router.With(jwtHandler.TokenVerifyMiddleware).Delete("/comment/delete/{commentID}", database.DeleteComment)
 
+	router.Get("/categories/get", database.GetCategories)
 }

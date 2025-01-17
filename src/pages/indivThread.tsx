@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useParams, Link, useNavigate, Navigate } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import Header from "../components/header";
 import { FormEvent, useEffect, useState } from "react";
 import { HandleDeleteThread } from './handleThread';
@@ -20,77 +20,6 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import AddCommentIcon from '@mui/icons-material/AddComment';
 import api from '../components/api';
 
-function ThreadDropDownButton({ threadId }: { threadId: number }) {
-    let navigate = useNavigate();
-    const [isOwner, setIsOwner] = useState(false);
-    const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
-    const OpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
-        setAnchorElUser(event.currentTarget);
-    };
-
-    const CloseUserMenu = () => { setAnchorElUser(null); };
-
-    function handleDeleteThread() {
-        CloseUserMenu();
-        const confirmed = window.confirm("Are you sure you want to delete this thread?");
-        if (confirmed) {
-            HandleDeleteThread(String(threadId), navigate);
-        }
-    };
-
-    function handleUpdateThread() {
-        CloseUserMenu();
-        navigate(`/thread/update/${threadId}`);
-    }
-
-    useEffect(() => {
-        const verifiedOwner = async () => {
-            const verifyOwner = await CheckIsOwner(threadId);
-            console.log("is owner? ", verifyOwner.success);
-            if (verifyOwner.success) {
-                setIsOwner(true);
-            } else {
-                setIsOwner(false);
-            }
-        }
-        verifiedOwner();
-    }, []);
-
-    return (isOwner
-        ? <Container maxWidth="xs">
-            <Toolbar disableGutters>
-                <Box sx={{ flexGrow: 0 }}>
-                    <IconButton onClick={OpenUserMenu} sx={{ p: 0 }}>
-                        <MoreVertIcon></MoreVertIcon>
-                    </IconButton>
-                    <Menu
-                        sx={{ mt: '45px' }}
-                        anchorEl={anchorElUser}
-                        anchorOrigin={{
-                            vertical: 'top',
-                            horizontal: 'right',
-                        }}
-                        keepMounted
-                        transformOrigin={{
-                            vertical: 'top',
-                            horizontal: 'right',
-                        }}
-                        open={Boolean(anchorElUser)}
-                        onClose={CloseUserMenu}
-                    >
-                        <MenuItem onClick={handleUpdateThread}>
-                            <Typography sx={{ textAlign: 'center' }}>Edit Thread</Typography>
-                        </MenuItem>
-                        <MenuItem onClick={handleDeleteThread}>
-                            <Typography sx={{ textAlign: 'center', }}>Delete Thread</Typography>
-                        </MenuItem>
-                    </Menu>
-                </Box>
-            </Toolbar>
-        </Container>
-        : <></>);
-}
-
 function ThreadCard({ thread }: { thread: GetThread }) {
     const [addCommentBox, setAddCommentBox] = useState(false);
     const [comment, setComment] = useState("");
@@ -98,11 +27,7 @@ function ThreadCard({ thread }: { thread: GetThread }) {
     const navigate = useNavigate();
     const threadId = useParams().id;
 
-    function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
-        const { id, value } = event.target;
-        setComment(value);
-    }
-
+    // post req to backend
     async function HandleAddComment(event: FormEvent) {
         event.preventDefault();
         const { isValid, errorMessage } = ValidateCommentInput(comment);
@@ -121,6 +46,81 @@ function ThreadCard({ thread }: { thread: GetThread }) {
             const errorStatus = createComment.errorStatus as number;
             navigate(`/error/${errorStatus}`);
         }
+    }
+
+    function ThreadDropDownButton({ threadId }: { threadId: number }) {
+        const [isOwner, setIsOwner] = useState(false);
+        const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
+        const OpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
+            setAnchorElUser(event.currentTarget);
+        };
+
+        const CloseUserMenu = () => { setAnchorElUser(null); };
+
+        function handleDeleteThread() {
+            CloseUserMenu();
+            const confirmed = window.confirm("Are you sure you want to delete this thread?");
+            if (confirmed) {
+                HandleDeleteThread(String(threadId), navigate);
+            }
+        };
+
+        function handleUpdateThread() {
+            CloseUserMenu();
+            navigate(`/thread/update/${threadId}`);
+        }
+
+        useEffect(() => {
+            const verifiedOwner = async () => {
+                const verifyOwner = await CheckIsOwner(threadId);
+                console.log("is owner? ", verifyOwner.success);
+                if (verifyOwner.success) {
+                    setIsOwner(true);
+                } else {
+                    setIsOwner(false);
+                }
+            }
+            verifiedOwner();
+        }, []);
+
+        return (isOwner
+            ? <Container maxWidth="xs">
+                <Toolbar disableGutters>
+                    <Box sx={{ flexGrow: 0 }}>
+                        <IconButton onClick={OpenUserMenu} sx={{ p: 0 }}>
+                            <MoreVertIcon></MoreVertIcon>
+                        </IconButton>
+                        <Menu
+                            sx={{ mt: '45px' }}
+                            anchorEl={anchorElUser}
+                            anchorOrigin={{
+                                vertical: 'top',
+                                horizontal: 'right',
+                            }}
+                            keepMounted
+                            transformOrigin={{
+                                vertical: 'top',
+                                horizontal: 'right',
+                            }}
+                            open={Boolean(anchorElUser)}
+                            onClose={CloseUserMenu}
+                        >
+                            <MenuItem onClick={handleUpdateThread}>
+                                <Typography sx={{ textAlign: 'center' }}>Edit Thread</Typography>
+                            </MenuItem>
+                            <MenuItem onClick={handleDeleteThread}>
+                                <Typography sx={{ textAlign: 'center', }}>Delete Thread</Typography>
+                            </MenuItem>
+                        </Menu>
+                    </Box>
+                </Toolbar>
+            </Container>
+            : <></>);
+    }
+
+    function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+        const { id, value } = event.target;
+        setComment(value);
     }
 
     return (
@@ -177,15 +177,52 @@ function ThreadCard({ thread }: { thread: GetThread }) {
 }
 
 function CommentsCard({ comments }: { comments: Comments }) {
-    let navigate = useNavigate();
+    const navigate = useNavigate();
     const username = localStorage.getItem("username");
     const [newComment, setNewComment] = useState<string>("");
     const [commentID, setCommentID] = useState<number | null>(null);
     const [errorMessage, setErrorMessage] = useState("");
 
-    function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
-        const { id, value } = event.target;
-        setNewComment(value);
+    // put req to backend
+    async function HandleUpdateComment(event: FormEvent) {
+        event.preventDefault();
+        // validate comment input
+        const { isValid, errorMessage } = ValidateCommentInput(newComment);
+        if (!isValid) {
+            setErrorMessage(errorMessage);
+            console.log(errorMessage);
+            return;
+        }
+        try {
+            const jwtHeader = CreateJWTHeader();
+            if (jwtHeader == null) {
+                console.error();
+                return { success: false, errorStatus: 401, threadID: null };
+            }
+
+            // send put request
+            console.log("Sending to backend PUT comment request");
+            const response = await api.put(`/comment/update/${commentID}`, newComment, { headers: jwtHeader });
+            if (response.status == 204) {
+                console.log("successfully commented");
+                window.location.reload();
+            } else {
+                navigate("/error/500");
+            }
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                if (error.response) {
+                    if (error.response.status == 401) {
+                        localStorage.removeItem("username");
+                        localStorage.removeItem("jwtToken");
+                    }
+                    navigate(`/error/${error.response.status}`);
+                } else {
+                    navigate(`/error/500`);
+                }
+            }
+            navigate(`/error/404`);
+        }
     }
 
     function CommentDropDownButton({ commentID }: { commentID: number }) {
@@ -246,45 +283,9 @@ function CommentsCard({ comments }: { comments: Comments }) {
         )
     }
 
-    async function HandleUpdateComment(event: FormEvent) {
-        event.preventDefault();
-        // validate comment input
-        const { isValid, errorMessage } = ValidateCommentInput(newComment);
-        if (!isValid) {
-            setErrorMessage(errorMessage);
-            console.log(errorMessage);
-            return;
-        }
-        try {
-            const jwtHeader = CreateJWTHeader();
-            if (jwtHeader == null) {
-                console.error();
-                return { success: false, errorStatus: 401, threadID: null };
-            }
-
-            // send put request
-            console.log("Sending to backend PUT comment request");
-            const response = await api.put(`/comment/update/${commentID}`, newComment, { headers: jwtHeader });
-            if (response.status == 204) {
-                console.log("successfully commented");
-                window.location.reload();
-            } else {
-                navigate("/error/500");
-            }
-        } catch (error) {
-            if (error instanceof AxiosError) {
-                if (error.response) {
-                    if (error.response.status == 401) {
-                        localStorage.removeItem("username");
-                        localStorage.removeItem("jwtToken");
-                    }
-                    navigate(`/error/${error.response.status}`);
-                } else {
-                    navigate(`/error/500`);
-                }
-            }
-            navigate(`/error/404`);
-        }
+    function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+        const { id, value } = event.target;
+        setNewComment(value);
     }
 
     return (
@@ -334,7 +335,7 @@ export default function LoadIndivThread() {
     // get individual thread and comments
     const [data, setData] = useState<ThreadWithComments>({ thread: null, comments: null });
     const threadId = useParams().id;
-    let navigate = useNavigate();
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (threadId) {

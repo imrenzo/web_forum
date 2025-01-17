@@ -2,13 +2,14 @@ import { FormEvent, useState, useEffect } from "react";
 import { NavigateFunction, useNavigate, useParams } from "react-router-dom";
 import { AxiosError } from "axios";
 import Header from "../components/header";
-import { GetThread, Thread, ThreadWithComments } from "../types/types";
-import { CreateJWTHeader, ValidateThreadInput, GetThreadWithComments } from "../apiService/apiService";
+import { GetThread, Thread, ThreadWithComments, Categories } from "../types/types";
+import { CreateJWTHeader, ValidateThreadInput, GetThreadWithComments, GetCategories } from "../apiService/apiService";
 import NotFound from "./notFound";
 import api from "../components/api";
-import { PageBoxStyle } from "../components/stylesheet";
 
-import { Box, Button, TextField } from "@mui/material";
+import { PageBoxStyle } from "../components/stylesheet";
+import { Box, Button, FormControl, InputLabel, Select, TextField, MenuItem, SelectChangeEvent } from "@mui/material";
+import { Category } from "@mui/icons-material";
 
 // routing into the different methods
 export default function HandleThread() {
@@ -30,11 +31,16 @@ export default function HandleThread() {
 }
 
 function HandleCreateThread() {
+    const navigate = useNavigate();
     const [userEntry, setUserEntry] = useState<Thread>({ title: '', content: '' });
     const [validEntry, setValidEntry] = useState<boolean>(true);
     const [errorMessage, setErrorMessage] = useState<string>('');
+    const [categories, setCategories] = useState<Categories>([]);
+    const [selectedCategory, setSelectedCategory] = useState("Others");
 
-    let navigate = useNavigate();
+    const selectCategoryClick = (event: SelectChangeEvent) => {
+        setSelectedCategory(event.target.value as string);
+    };
 
     async function HandlePostRequest(event: FormEvent) {
         event.preventDefault();
@@ -47,6 +53,20 @@ function HandleCreateThread() {
             return;
         }
 
+        // validate category input
+        if (selectedCategory == '') {
+            setErrorMessage("Please select a category");
+            setValidEntry(false);
+            console.log(errorMessage);
+            return;
+        }
+
+        if (categories.find((category) => category.category_name == selectedCategory) == undefined) {
+            setErrorMessage("Invalid Category input, please reload page");
+            setValidEntry(isValid);
+            console.log(errorMessage);
+            return;
+        }
         // make post request
         try {
             const jwtHeader = CreateJWTHeader();
@@ -55,7 +75,8 @@ function HandleCreateThread() {
                 navigate("/error/401");
             }
             console.log("Sending to backend post thread request")
-            const response = await api.post("/thread/create", userEntry, { headers: jwtHeader! });
+            const response = await api.post("/thread/create",
+                { createThread: userEntry, category: selectedCategory }, { headers: jwtHeader! });
             console.log('successfully updated thread');
             setValidEntry(false);
             const threadID = response.data;
@@ -86,6 +107,19 @@ function HandleCreateThread() {
         }));
     }
 
+    useEffect(() => {
+        const getCategories = async () => {
+            const { success, errorStatus, output } = await GetCategories();
+            if (success) {
+                setCategories(output as Categories);
+            }
+            else {
+                navigate(`/error/${errorStatus}`);
+            }
+        }
+        getCategories();
+    }, []);
+
     return (
         <>
             <title>Create Thread</title>
@@ -98,9 +132,30 @@ function HandleCreateThread() {
                     <Box sx={{ marginTop: 1, marginBottom: 1, }}>
                         <TextField fullWidth label="Content" id="content" value={userEntry.content} onChange={handleInputChange} multiline />
                     </Box>
-                    <div style={{ textAlign: 'right' }}>{!validEntry && <p id="hiddenText" style={{ color: 'red' }}>{errorMessage}</p>}
-                        <Button variant='contained' type="submit">Submit</Button>
-                    </div>
+                    <FormControl fullWidth>
+                        <InputLabel id="selectModuleLabel">Module</InputLabel>
+                        <Select
+                            labelId="selectModule"
+                            id="selectModule"
+                            label="Module"
+                            value={selectedCategory}
+                            onChange={selectCategoryClick}
+                        >
+
+                            {categories.filter((category) => category.category_name != "Others").map((category) => (
+                                <MenuItem key={category.category_id} value={category.category_name}>
+                                    {category.category_name}
+                                </MenuItem>
+                            ))};
+                            <MenuItem key={"Others"} value={"Others"}>Others</MenuItem>
+                        </Select>
+                    </FormControl>
+                    <Box sx={{ textAlign: 'right', }}>
+                        {!validEntry && <p id="hiddenText" style={{ color: 'red' }}>{errorMessage}</p>}
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                            <Button variant='contained' type="submit">Submit</Button>
+                        </Box>
+                    </Box>
                 </form>
             </Box>
         </>
@@ -111,26 +166,7 @@ function HandleUpdateThread(threadId: string) {
     const [userEntry, setUserEntry] = useState<Thread>({ title: '', content: '' });
     const [validEntry, setValidEntry] = useState<boolean>(true);
     const [errorMessage, setErrorMessage] = useState<string>('');
-
-    let navigate = useNavigate();
-
-    useEffect(() => {
-        if (threadId) {
-            const fetchData = async () => {
-                console.log("Getting thread with comments");
-                const { isValid, errorMessage, output } = await GetThreadWithComments(threadId as string);
-                if (!isValid) {
-                    console.log(errorMessage);
-                    navigate('*');
-                    return;
-                }
-                const ThreadWithComments = output as ThreadWithComments;
-                const Thread = ThreadWithComments.thread as GetThread;
-                setUserEntry({ title: Thread.thread_title, content: Thread.thread_info });
-            };
-            fetchData();
-        }
-    }, [threadId]);
+    const navigate = useNavigate();
 
     async function HandlePutRequest(event: FormEvent) {
         event.preventDefault();
@@ -182,6 +218,24 @@ function HandleUpdateThread(threadId: string) {
             [id]: value,
         }));
     }
+
+    useEffect(() => {
+        if (threadId) {
+            const fetchData = async () => {
+                console.log("Getting thread with comments");
+                const { isValid, errorMessage, output } = await GetThreadWithComments(threadId as string);
+                if (!isValid) {
+                    console.log(errorMessage);
+                    navigate('*');
+                    return;
+                }
+                const ThreadWithComments = output as ThreadWithComments;
+                const Thread = ThreadWithComments.thread as GetThread;
+                setUserEntry({ title: Thread.thread_title, content: Thread.thread_info });
+            };
+            fetchData();
+        }
+    }, [threadId]);
 
     return (
         <>

@@ -1,4 +1,5 @@
-import { ThreadWithComments, Thread } from "../types/types";
+import { ThreadWithComments, Thread, Categories } from "../types/types";
+import { AxiosError } from "axios";
 import api from "../components/api";
 
 export function ValidateThreadInput(userEntry: Thread): { isValid: boolean; errorMessage: string } {
@@ -35,7 +36,7 @@ export async function CheckIsOwner(threadId: number): Promise<{ success: Boolean
             console.error();
             return { success: false, errorStatus: 401 }
         };
-        console.log("sending response");
+        console.log("sending check thread owner");
         const response = await api.post("/checkthreadowner", threadId, { headers: jwtHeader });
         console.log("success");
         return { success: true, errorStatus: null };
@@ -54,3 +55,22 @@ export async function GetThreadWithComments(threadId: string): Promise<{ isValid
         return { isValid: false, errorMessage: "Thread does not exist", output: null };
     }
 };
+
+export async function GetCategories(): Promise<{ success: boolean; errorStatus: number | null; output: Categories | null }> {
+    try {
+        const jwtHeader = CreateJWTHeader();
+        if (jwtHeader == null) {
+            console.error();
+            return { success: false, errorStatus: 401, output: null };
+        };
+
+        console.log("sending get categories");
+        const response = await api.get(`/categories/get`);
+        return { success: true, errorStatus: null, output: response.data as Categories };
+    } catch (error: any) {
+        if (error.response) {
+            return { success: false, errorStatus: error.response.status, output: null };
+        }
+        return { success: false, errorStatus: 404, output: null };
+    }
+}

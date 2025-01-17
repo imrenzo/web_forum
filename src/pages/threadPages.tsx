@@ -10,8 +10,7 @@ import api from '../components/api';
 import { PageBoxStyle } from "../components/stylesheet";
 
 import CommentIcon from '@mui/icons-material/Comment';
-import AddCommentIcon from '@mui/icons-material/AddComment';
-import { Tooltip, CardActions, CardContent, Typography, IconButton, Box, Card } from '@mui/material';
+import { Tooltip, CardActions, CardContent, Typography, IconButton, Box, Card, MenuItem, FormControl, InputLabel } from '@mui/material';
 
 function AllThreads({ threads }: GetThreadsCardsProps) {
     return (
@@ -114,8 +113,16 @@ export default function Home() {
             <title>Web Forum</title>
             <Box sx={PageBoxStyle}>
                 <Header></Header>
+                <Box sx={{ marginTop: 2, }}>
+                    <Typography sx={{ display: 'inline' }}>Category: </Typography>
+                    <select id="moduleFilterSelect">
+                        <option value={20}>Twenty</option>
+                        <option value={21}>Twenty one</option>
+                        <option value={22}>Twenty one and a half</option>
+                    </select>
+                </Box>
                 <AllThreads threads={threads}></AllThreads>
-            </Box>
+            </Box >
         </>
     );
 }
