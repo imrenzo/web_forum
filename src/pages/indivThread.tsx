@@ -25,6 +25,7 @@ function ThreadCard({ thread }: { thread: GetThread }) {
     const [comment, setComment] = useState("");
     const [errorMessage, setErrorMessage] = useState<string>('');
     const navigate = useNavigate();
+    const [isOwner, setIsOwner] = useState(false); //prevent dropdown ftn from rerendering
     const threadId = useParams().id;
 
     // post req to backend
@@ -49,7 +50,6 @@ function ThreadCard({ thread }: { thread: GetThread }) {
     }
 
     function ThreadDropDownButton({ threadId }: { threadId: number }) {
-        const [isOwner, setIsOwner] = useState(false);
         const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
         const OpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
             setAnchorElUser(event.currentTarget);
