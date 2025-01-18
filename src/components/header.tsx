@@ -10,7 +10,7 @@ import AdbIcon from '@mui/icons-material/Adb';
 import { Link } from 'react-router-dom';
 
 const pages: { [key: string]: string }[] = [{ 'Home': '/' }, { 'Create Thread': '/thread/create' }, { 'My Threads': '/mythreads' }];
-const iconDropdown: { [key: string]: string }[] = [{ 'Settings': '/' }, { 'Log Out': '/user/logout' }];
+const iconDropdown: { [key: string]: string }[] = [{ 'Log Out': '/user/logout' }];
 
 function LogInSignUpButtons() {
     const ButtonStyles = {
@@ -39,16 +39,16 @@ export default function Header() {
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
     const username = localStorage.getItem("username");
 
-    const OpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
+    const openNavMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorElNav(event.currentTarget);
     };
-    const OpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
+    const openUserMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorElUser(event.currentTarget);
     };
 
-    const CloseNavMenu = () => { setAnchorElNav(null); };
+    const closeNavMenu = () => { setAnchorElNav(null); };
 
-    const CloseUserMenu = () => { setAnchorElUser(null); };
+    const closeUserMenu = () => { setAnchorElUser(null); };
 
     if (isLoading) {
         return null;
@@ -87,7 +87,7 @@ export default function Header() {
                                 aria-label="account of current user"
                                 aria-controls="menu-appbar"
                                 aria-haspopup="true"
-                                onClick={OpenNavMenu}
+                                onClick={openNavMenu}
                                 color="inherit"
                             >
                                 <MenuIcon></MenuIcon>
@@ -105,7 +105,7 @@ export default function Header() {
                                     horizontal: 'left',
                                 }}
                                 open={Boolean(anchorElNav)}
-                                onClose={CloseNavMenu}
+                                onClose={closeNavMenu}
                                 sx={{ display: { xs: 'block', md: 'none' } }}
                             >
                                 {pages.map((page) => {
@@ -114,7 +114,7 @@ export default function Header() {
                                     return (
                                         <Box sx={{ textDecoration: 'none' }} key={key}>
                                             <Link to={href} style={{ color: 'inherit', textDecoration: 'none' }}>
-                                                <MenuItem onClick={CloseNavMenu} >
+                                                <MenuItem onClick={closeNavMenu} >
                                                     <Typography sx={{ textAlign: 'center' }}>{key}</Typography>
                                                 </MenuItem>
                                             </Link>
@@ -156,7 +156,7 @@ export default function Header() {
                                     <Box sx={{ textDecoration: 'none' }} key={key}>
                                         <Link to={href} style={{ color: 'inherit', textDecoration: 'none' }}>
                                             <Button
-                                                onClick={CloseNavMenu}
+                                                onClick={closeNavMenu}
                                                 // align login and logout buttons to the right
                                                 sx={{ my: 2, color: 'white', display: 'block' }}
                                             >
@@ -174,7 +174,7 @@ export default function Header() {
                         </Box>
                         : <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'flex-end' }}>
                             <Tooltip title="Open settings">
-                                <IconButton onClick={OpenUserMenu} sx={{ p: 0 }}>
+                                <IconButton onClick={openUserMenu} sx={{ p: 0 }}>
                                     <Avatar>{username == null ? '' : username[0].toUpperCase()}</Avatar>
                                 </IconButton>
                             </Tooltip>
@@ -192,7 +192,7 @@ export default function Header() {
                                     horizontal: 'right',
                                 }}
                                 open={Boolean(anchorElUser)}
-                                onClose={CloseUserMenu}
+                                onClose={closeUserMenu}
                             >
                                 {iconDropdown.map((page) => {
                                     let key: string = Object.keys(page)[0];
@@ -200,7 +200,7 @@ export default function Header() {
                                     return (
                                         <Box sx={{ textDecoration: 'none' }} key={key}>
                                             <Link to={href} style={{ color: 'inherit', textDecoration: 'none' }}>
-                                                <MenuItem onClick={CloseUserMenu}>
+                                                <MenuItem onClick={closeUserMenu}>
                                                     <Typography sx={{ textAlign: 'center' }}>{key}</Typography>
                                                 </MenuItem>
                                             </Link>

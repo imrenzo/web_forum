@@ -6,7 +6,7 @@ import { GetThread, Thread, ThreadWithComments, Categories } from "../types/type
 import { CreateJWTHeader, ValidateThreadInput, GetThreadWithComments, GetCategories } from "../apiService/apiService";
 import NotFound from "./notFound";
 import api from "../components/api";
-import { PageBoxStyle } from "../components/stylesheet";
+import { pageBoxStyle } from "../components/stylesheet";
 import { Box, Button, FormControl, InputLabel, Select, TextField, MenuItem, SelectChangeEvent } from "@mui/material";
 
 // routing into the different methods
@@ -122,7 +122,7 @@ function HandleCreateThread() {
     return (
         <>
             <title>Create Thread</title>
-            <Box sx={PageBoxStyle}>
+            <Box sx={pageBoxStyle}>
                 <Header></Header>
                 <form onSubmit={HandlePostRequest}>
                     <Box sx={{ marginTop: 1, marginBottom: 1, }}>
@@ -239,7 +239,7 @@ function HandleUpdateThread(threadId: string) {
     return (
         <>
             <title>Update Thread</title>
-            <Box sx={PageBoxStyle}>
+            <Box sx={pageBoxStyle}>
                 <Header></Header>
                 <form onSubmit={HandlePutRequest}>
                     <Box sx={{ marginTop: 1, marginBottom: 1, }}>

@@ -1,15 +1,15 @@
 import { Link, useParams } from 'react-router-dom';
 import Header from '../components/header';
-import { PageBoxStyle } from '../components/stylesheet';
+import { pageBoxStyle } from '../components/stylesheet';
 
 import { Box } from '@mui/material';
 
 export default function NotFound() {
     const status = useParams().status;
-    
+
     return (
         <>
-            <Box sx={PageBoxStyle}>
+            <Box sx={pageBoxStyle}>
                 <title>Error</title>
                 <Header></Header>
                 <div>

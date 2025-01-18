@@ -1,3 +1,4 @@
+// separate file to prevent import loop
 package shared
 
 import (

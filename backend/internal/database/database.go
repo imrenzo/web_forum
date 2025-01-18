@@ -9,7 +9,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"github.com/imrenzo/web_forum/internal/jwtHandler"
+	"github.com/imrenzo/web_forum/internal/authentication"
 	"github.com/imrenzo/web_forum/internal/models"
 )
 
@@ -31,36 +31,6 @@ func OpenDb() *sql.DB {
 	return db
 }
 
-func URLGetThreadID(r *http.Request) int {
-	thread_idStr := chi.URLParam(r, "id")
-	thread_id, err := strconv.Atoi(thread_idStr)
-	if err != nil {
-		panic(err)
-	}
-	return thread_id
-}
-
-func URLGetCommentID(r *http.Request) int {
-	comment_idStr := chi.URLParam(r, "commentID")
-	comment_id, err := strconv.Atoi(comment_idStr)
-	if err != nil {
-		panic(err)
-	}
-	return comment_id
-}
-
-func GetCategoryID(category string) int {
-	db := OpenDb()
-	defer db.Close()
-
-	var categoryID int
-	err := db.QueryRow(`SELECT category_id FROM categories WHERE category_name = $1`, category).Scan(&categoryID)
-	if err != nil {
-		panic(err)
-	}
-	return categoryID
-}
-
 // ** For Threads: **
 func CreateThread(w http.ResponseWriter, r *http.Request) {
 	var createThreadWithCategory models.CreateThreadWithCategory
@@ -70,7 +40,7 @@ func CreateThread(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID := jwtHandler.GetUserIDfromJWT(r)
+	userID := authentication.GetUserIDfromJWT(r)
 	createThreadInfo := createThreadWithCategory.CreateThread
 	category := createThreadWithCategory.Category
 
@@ -117,7 +87,7 @@ func UpdateThread(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	thread_id := URLGetThreadID(r)
-	userID := jwtHandler.GetUserIDfromJWT(r)
+	userID := authentication.GetUserIDfromJWT(r)
 
 	// ensure user that original poster and userID making update req matches
 	var op_id int
@@ -147,7 +117,7 @@ func DeleteThread(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	thread_id := URLGetThreadID(r)
-	userID := jwtHandler.GetUserIDfromJWT(r)
+	userID := authentication.GetUserIDfromJWT(r)
 
 	// ensure user that original poster and userID making delete req matches
 	var op_id int
@@ -178,14 +148,26 @@ func DeleteThread(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+func URLGetThreadID(r *http.Request) int {
+	thread_idStr := chi.URLParam(r, "id")
+	thread_id, err := strconv.Atoi(thread_idStr)
+	if err != nil {
+		panic(err)
+	}
+	return thread_id
+}
+
+//
+
 // Below 4 func reads threads
 func AllThreads(w http.ResponseWriter, r *http.Request) {
 	db := OpenDb()
 	defer db.Close()
 
-	req := `SELECT username,thread_id, user_id, thread_title, thread_info, thread_date
+	req := `SELECT users.username, threads.thread_id, users.user_id, threads.thread_title, threads.thread_info, threads.thread_date, categories.category_name
 			FROM users 
-			INNER JOIN threads ON user_id = op_id
+			INNER JOIN threads ON users.user_id = threads.op_id
+			INNER JOIN categories ON threads.category_id = categories.category_id
 			ORDER BY thread_date DESC`
 	threadRows, err := db.Query(req)
 	if err != nil {
@@ -198,7 +180,7 @@ func AllThreads(w http.ResponseWriter, r *http.Request) {
 
 	for threadRows.Next() {
 		var thread models.GetThread
-		err := threadRows.Scan(&thread.Username, &thread.Thread_id, &thread.Op_id, &thread.Thread_title, &thread.Thread_info, &thread.Thread_date)
+		err := threadRows.Scan(&thread.Username, &thread.Thread_id, &thread.Op_id, &thread.Thread_title, &thread.Thread_info, &thread.Thread_date, &thread.Category_name)
 		if err != nil {
 			http.Error(w, "error during threadRows scan", http.StatusInternalServerError)
 			return
@@ -280,7 +262,7 @@ func CheckThreadOwner(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID := jwtHandler.GetUserIDfromJWT(r)
+	userID := authentication.GetUserIDfromJWT(r)
 	println("userid: ", userID)
 	println("threadid: ", threadId)
 	var count int
@@ -305,13 +287,15 @@ func MyThreads(w http.ResponseWriter, r *http.Request) {
 	db := OpenDb()
 	defer db.Close()
 
-	userID := jwtHandler.GetUserIDfromJWT(r)
+	userID := authentication.GetUserIDfromJWT(r)
 
-	req := `SELECT username,thread_id, user_id, thread_title, thread_info, thread_date
+	req := `SELECT users.username, threads.thread_id, users.user_id, threads.thread_title, threads.thread_info, threads.thread_date, categories.category_name
 			FROM users 
-			INNER JOIN threads ON user_id = op_id
+			INNER JOIN threads ON users.user_id = threads.op_id
+			INNER JOIN categories ON threads.category_id = categories.category_id
 			WHERE user_id = $1
 			ORDER BY thread_date DESC`
+
 	threadRows, err := db.Query(req, userID)
 	if err != nil {
 		http.Error(w, "MyThreads: db query failed", http.StatusInternalServerError)
@@ -323,7 +307,7 @@ func MyThreads(w http.ResponseWriter, r *http.Request) {
 
 	for threadRows.Next() {
 		var thread models.GetThread
-		err := threadRows.Scan(&thread.Username, &thread.Thread_id, &thread.Op_id, &thread.Thread_title, &thread.Thread_info, &thread.Thread_date)
+		err := threadRows.Scan(&thread.Username, &thread.Thread_id, &thread.Op_id, &thread.Thread_title, &thread.Thread_info, &thread.Thread_date, &thread.Category_name)
 		if err != nil {
 			http.Error(w, "error during threadRows scan", http.StatusInternalServerError)
 			return
@@ -340,6 +324,8 @@ func MyThreads(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(threads)
 }
 
+//
+
 // ** For Comments: **
 func CreateComment(w http.ResponseWriter, r *http.Request) {
 	var comment string
@@ -353,7 +339,7 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	thread_id := URLGetThreadID(r)
-	userID := jwtHandler.GetUserIDfromJWT(r)
+	userID := authentication.GetUserIDfromJWT(r)
 
 	_, err = db.Exec(`
 		INSERT INTO comments (thread_id, commenter_id, comment_info) VALUES ($1, $2, $3);`, thread_id, userID, comment)
@@ -375,7 +361,7 @@ func UpdateComment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	comment_id := URLGetCommentID(r)
-	userID := jwtHandler.GetUserIDfromJWT(r)
+	userID := authentication.GetUserIDfromJWT(r)
 	println("commentid: ", comment_id)
 	db := OpenDb()
 	defer db.Close()
@@ -405,7 +391,7 @@ func UpdateComment(w http.ResponseWriter, r *http.Request) {
 
 func DeleteComment(w http.ResponseWriter, r *http.Request) {
 	comment_id := URLGetCommentID(r)
-	userID := jwtHandler.GetUserIDfromJWT(r)
+	userID := authentication.GetUserIDfromJWT(r)
 	db := OpenDb()
 	defer db.Close()
 
@@ -434,6 +420,18 @@ func DeleteComment(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(threadID)
 }
 
+func URLGetCommentID(r *http.Request) int {
+	comment_idStr := chi.URLParam(r, "commentID")
+	comment_id, err := strconv.Atoi(comment_idStr)
+	if err != nil {
+		panic(err)
+	}
+	return comment_id
+}
+
+//
+
+// ** For Categories: **
 func GetCategories(w http.ResponseWriter, r *http.Request) {
 	db := OpenDb()
 	defer db.Close()
@@ -464,3 +462,17 @@ func GetCategories(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(categories)
 }
+
+func GetCategoryID(category string) int {
+	db := OpenDb()
+	defer db.Close()
+
+	var categoryID int
+	err := db.QueryRow(`SELECT category_id FROM categories WHERE category_name = $1`, category).Scan(&categoryID)
+	if err != nil {
+		panic(err)
+	}
+	return categoryID
+}
+
+//

@@ -5,6 +5,7 @@ export interface GetThread {
     thread_title: string;
     thread_info: string;
     thread_date: string;
+    category_name: string;
 };
 
 export interface Comment {
@@ -15,9 +16,7 @@ export interface Comment {
     comment_date: string;
 };
 
-export interface GetThreadsCardsProps {
-    threads: GetThread[];
-};
+export type GetThreadsCardsProps = GetThread[];
 
 export type Comments = Comment[];
 

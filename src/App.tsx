@@ -1,8 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Home, { MyThreads } from "./pages/threadPages";
-import LoadIndivThread from "./pages/indivThread";
+import Home, { LoadIndivThread, MyThreads } from "./pages/threadPages";
 import NotFound from './pages/notFound';
-import HandleThread from './pages/handleThread';
+import HandleThread from './pages/threadMethods';
 import UserMethod from './userManagement/user';
 import './App.css';
 import Test from "./pages/test";

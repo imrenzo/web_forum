@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/imrenzo/web_forum/internal/authentication"
 	"github.com/imrenzo/web_forum/internal/database"
-	"github.com/imrenzo/web_forum/internal/jwtHandler"
 	"github.com/imrenzo/web_forum/internal/models"
 )
 
@@ -34,7 +34,7 @@ func LogInUser(w http.ResponseWriter, r *http.Request) {
 
 	userData.User_ID = GetUserID(userData.Username)
 
-	jwtString := jwtHandler.CreateJwtToken(userData.Username, userData.User_ID)
+	jwtString := authentication.CreateJwtToken(userData.Username, userData.User_ID)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{"message": "Authorised", "token": jwtString})
 }
@@ -70,7 +70,7 @@ func SignUpUser(w http.ResponseWriter, r *http.Request) {
 
 	userData.User_ID = GetUserID(userData.Username)
 
-	jwtString := jwtHandler.CreateJwtToken(userData.Username, userData.User_ID)
+	jwtString := authentication.CreateJwtToken(userData.Username, userData.User_ID)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{"message": "sucessfully registered", "token": jwtString})
 }

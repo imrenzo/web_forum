@@ -7,6 +7,7 @@ type GetThread struct {
 	Thread_title string `json:"thread_title"`
 	Thread_info  string `json:"thread_info"`
 	Thread_date  string `json:"thread_date"`
+	Category_name string `json:"category_name"`
 }
 
 type UserData struct {

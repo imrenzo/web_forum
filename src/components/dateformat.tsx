@@ -4,8 +4,8 @@ export default function FormatDate(dateStr: string): string {
         return "error";
     }
 
-    const trimmedDateStr = dateStr.split('.')[0];
-    const date = new Date(trimmedDateStr);
+    const splitDateStr = dateStr.split('.')[0];
+    const date = new Date(splitDateStr);
 
     return new Intl.DateTimeFormat('en-SG', {
         day: 'numeric',

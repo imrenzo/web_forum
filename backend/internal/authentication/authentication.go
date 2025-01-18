@@ -1,4 +1,4 @@
-package jwtHandler
+package authentication
 
 import (
 	"context"
