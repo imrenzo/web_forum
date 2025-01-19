@@ -567,9 +567,9 @@ export default function Home() {
                     />
                     : <></>}
                 {threads == null
-                    ? <AllThreads threads={threads}></AllThreads>
-                    : <AllThreads threads={threads.filter((thread) => selectedCategory == "All" ? true : thread.category_name == selectedCategory)}>
-                    </AllThreads>}
+                    ? <AllThreads threads={threads} />
+                    : <AllThreads threads={threads.filter((thread) => selectedCategory == "All" ? true : thread.category_name == selectedCategory)} />
+                }
             </Box >
         </>
     );
