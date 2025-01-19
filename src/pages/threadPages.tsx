@@ -566,7 +566,10 @@ export default function Home() {
                         categories={categories}
                     />
                     : <></>}
-                <AllThreads threads={threads.filter((thread) => selectedCategory == "All" ? true : thread.category_name == selectedCategory)}></AllThreads>
+                {threads == null
+                    ? <AllThreads threads={threads}></AllThreads>
+                    : <AllThreads threads={threads.filter((thread) => selectedCategory == "All" ? true : thread.category_name == selectedCategory)}>
+                    </AllThreads>}
             </Box >
         </>
     );
