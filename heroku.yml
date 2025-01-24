@@ -2,4 +2,4 @@ build:
   languages: go
 
 run:
-  web: cd server && go run .
+  web: cd client && yarn start
