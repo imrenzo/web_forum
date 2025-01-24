@@ -1,0 +1,1 @@
+web: cd frontend && yarn install && yarn run build && cd .. && go run backend/main.go
