@@ -48,7 +48,7 @@ export async function CheckIsOwner(threadId: number): Promise<{ success: Boolean
 
 export async function GetThreadWithComments(threadId: string): Promise<{ isValid: boolean; errorMessage: string; output: ThreadWithComments | null }> {
     try {
-        const response = await api.get(`/thread/read/${threadId}`);
+        const response = await api.get(`/thread/${threadId}`);
         return { isValid: true, errorMessage: '', output: response.data };
     } catch (error) {
         console.log(error);

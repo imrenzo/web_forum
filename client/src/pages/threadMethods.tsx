@@ -74,7 +74,7 @@ function HandleCreateThread() {
                 navigate("/error/401");
             }
             console.log("Sending to backend post thread request")
-            const response = await api.post("/thread/create",
+            const response = await api.post("/thread",
                 { createThread: userEntry, category: selectedCategory }, { headers: jwtHeader! });
             console.log('successfully updated thread');
             setValidEntry(false);
@@ -204,7 +204,7 @@ function HandleUpdateThread(threadId: string) {
             }
             console.log("Sending to backend PUT thread request")
             console.log(userEntry);
-            const response = await api.put(`/thread/update/${threadId}`, userEntry, { headers: jwtHeader! });
+            const response = await api.put(`/thread/${threadId}`, userEntry, { headers: jwtHeader! });
             if (response.status != 204) {
                 navigate("/error/500");
             }
@@ -265,7 +265,7 @@ export async function HandleDeleteThread(threadID: string, navigate: NavigateFun
             navigate("/error/401");
         }
         console.log("Sending to backend delete thread request");
-        const response = await api.delete(`/thread/delete/${threadID}`, { headers: jwtHeader! });
+        const response = await api.delete(`/thread/${threadID}`, { headers: jwtHeader! });
         if (response.status != 204) {
             navigate(`/error/500`);
         }

@@ -292,7 +292,7 @@ function CommentsCard({ comments }: { comments: Comments }) {
 
             // send put request
             console.log("Sending to backend PUT comment request");
-            const response = await api.put(`/comment/update/${commentID}`, newComment, { headers: jwtHeader });
+            const response = await api.put(`/comment/${commentID}`, newComment, { headers: jwtHeader });
             if (response.status == 204) {
                 console.log("successfully commented");
                 window.location.reload();

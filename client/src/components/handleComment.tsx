@@ -39,7 +39,7 @@ export async function HandleDeleteComment(commentID: string, navigate: NavigateF
             return { success: false, errorStatus: 401, threadID: null };
         }
         console.log("Sending to backend delete comment request");
-        const response = await api.delete(`/comment/delete/${commentID}`, { headers: jwtHeader });
+        const response = await api.delete(`/comment/${commentID}`, { headers: jwtHeader });
         console.log(`successfully deleted comment, id: ${commentID}`);
         const threadID = response.data;
         window.location.reload();

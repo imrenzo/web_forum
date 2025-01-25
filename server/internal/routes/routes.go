@@ -16,19 +16,19 @@ func SetUpRoutes(router chi.Router) {
 	// ** For threads **
 	// read db for threads
 	router.Get("/", database.AllThreads)
-	router.Get("/thread/read/{id}", database.SingleThreadAndComments)
+	router.Get("/thread/{id}", database.SingleThreadAndComments)
 	router.With(authentication.TokenVerifyMiddleware).Get("/mythreads", database.MyThreads)
 	router.With(authentication.TokenVerifyMiddleware).Post("/checkthreadowner", database.CheckThreadOwner)
 
 	// create, update, delete thread
-	router.With(authentication.TokenVerifyMiddleware).Post("/thread/create", database.CreateThread)
-	router.With(authentication.TokenVerifyMiddleware).Put("/thread/update/{id}", database.UpdateThread)
-	router.With(authentication.TokenVerifyMiddleware).Delete("/thread/delete/{id}", database.DeleteThread)
+	router.With(authentication.TokenVerifyMiddleware).Post("/thread", database.CreateThread)
+	router.With(authentication.TokenVerifyMiddleware).Put("/thread/{id}", database.UpdateThread)
+	router.With(authentication.TokenVerifyMiddleware).Delete("/thread/{id}", database.DeleteThread)
 
 	// ** For Comments **
 	router.With(authentication.TokenVerifyMiddleware).Post("/comment/{id}", database.CreateComment)
-	router.With(authentication.TokenVerifyMiddleware).Put("/comment/update/{commentID}", database.UpdateComment)
-	router.With(authentication.TokenVerifyMiddleware).Delete("/comment/delete/{commentID}", database.DeleteComment)
+	router.With(authentication.TokenVerifyMiddleware).Put("/comment/{commentID}", database.UpdateComment)
+	router.With(authentication.TokenVerifyMiddleware).Delete("/comment/{commentID}", database.DeleteComment)
 
 	router.Get("/categories/get", database.GetCategories)
 }
