@@ -167,7 +167,7 @@ func URLGetThreadID(r *http.Request) int {
 	return thread_id
 }
 
-// Below 4 func reads threads
+// Below functions reads threads
 func AllThreads(w http.ResponseWriter, r *http.Request) {
 	db := OpenDb()
 	defer db.Close()
@@ -330,8 +330,6 @@ func MyThreads(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(threads)
 }
 
-//
-
 // ** For Comments: **
 func CreateComment(w http.ResponseWriter, r *http.Request) {
 	var comment string
@@ -436,8 +434,6 @@ func URLGetCommentID(r *http.Request) int {
 	}
 	return comment_id
 }
-
-//
 
 // ** For Categories: **
 func GetCategories(w http.ResponseWriter, r *http.Request) {

@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"golang.org/x/crypto/bcrypt"
+
 	"github.com/imrenzo/web_forum/internal/authentication"
 	"github.com/imrenzo/web_forum/internal/database"
 	"github.com/imrenzo/web_forum/internal/models"
@@ -19,20 +21,36 @@ func LogInUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// check if user login credentials matches db records
+	// check if username exists db records (as username is unique)
 	var count int
-	err = db.QueryRow("SELECT COUNT(*) FROM users WHERE username = $1 AND password = $2",
-		userData.Username, userData.Password).Scan(&count)
+	err = db.QueryRow("SELECT COUNT(*) FROM users WHERE username = $1",
+		userData.Username).Scan(&count)
 	if err != nil {
-		panic(err)
+		http.Error(w, "error checking if username exists in database", http.StatusInternalServerError)
+		return
 	}
-
 	if count != 1 {
 		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(map[string]string{"message": "Unauthorised"})
 		return
 	}
+	// get hashed password from database
+	var hashedPassword []byte
+	err = db.QueryRow("SELECT password FROM users WHERE username = $1",
+		userData.Username).Scan(&hashedPassword)
+	if err != nil {
+		http.Error(w, "error getting hashed password", http.StatusInternalServerError)
+		return
+	}
 
+	// check if password entered by user matches hashed password in database
+	err = bcrypt.CompareHashAndPassword(hashedPassword, []byte(userData.Password))
+	if err != nil {
+		http.Error(w, "error comparing hashed password", http.StatusUnauthorized)
+		return
+	}
+
+	// return user with jwtToken
 	userData.User_ID = GetUserID(userData.Username)
 	jwtString := authentication.CreateJwtToken(userData.Username, userData.User_ID)
 	w.Header().Set("Content-Type", "application/json")
@@ -49,11 +67,12 @@ func SignUpUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// check username that is to be registered is not in db records
+	// check username that is to be registered is not in db records (i.e. username is unique)
 	var count int
 	err = db.QueryRow("SELECT COUNT(*) FROM users WHERE username = $1", userData.Username).Scan(&count)
 	if err != nil {
-		panic(err)
+		http.Error(w, "error checking duplicate username", http.StatusInternalServerError)
+		return
 	}
 
 	if count > 0 {
@@ -62,14 +81,21 @@ func SignUpUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// insert userData into db & logs user in
-	_, err = db.Query("INSERT INTO users (username, password) VALUES ($1, $2);", userData.Username, userData.Password)
+	// hashing password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(userData.Password), bcrypt.DefaultCost)
 	if err != nil {
-		panic(err)
+		http.Error(w, "error hasing password", http.StatusInternalServerError)
+		return
+	}
+
+	// insert username and hashed password into db & logs user in
+	_, err = db.Query("INSERT INTO users (username, password) VALUES ($1, $2);", userData.Username, hashedPassword)
+	if err != nil {
+		http.Error(w, "error inserting user cred during signup", http.StatusInternalServerError)
+		return
 	}
 
 	userData.User_ID = GetUserID(userData.Username)
-
 	jwtString := authentication.CreateJwtToken(userData.Username, userData.User_ID)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{"message": "sucessfully registered", "token": jwtString})

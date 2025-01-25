@@ -1,7 +1,7 @@
 import { FormEvent, useState, useEffect } from 'react';
 import { NavigateFunction, useNavigate, useParams } from 'react-router-dom';
 import NotFound from '../pages/notFound';
-import { formStyles, pageBoxStyle } from '../components/stylesheet';
+import { formStyles } from '../components/stylesheet';
 import api from '../components/api';
 
 import {

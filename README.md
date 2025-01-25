@@ -6,21 +6,37 @@ Forum where users can start discussions on school subjects.
 
 ## Technologies used
 ### Frontend
-React, Typescript, Axios, MUI, Render, HTML, CSS
+React, Typescript, Axios, MUI, HTML, CSS
 ### Backend
-Go, Go-Chi, Render
+Golang, Go-Chi
 ### Database
-Postgresql, Render
+Postgresql
+### Authentication
+JWT, bcrypt
+### Hosting & Deployment
+Render
 
 # Deployment
-May take a while to load as i'm on Render Free plan.
+May take a while to load as i'm on Render Free plan
 Link: https://web-forum-test.onrender.com
 
-# Authentication
-- JSON Web Token (JWT) issued to authenticated users (Signed with HS256) with a 1 hour validity period
-- When users perform CRUD operations on threads/comments, Chi.Router middleware will authenticate users. Then the USERID key from JWT is passed as a context to next http request
-- Additionally for UD (Update & Delete) operations on threads/comments, more user authentication is done by:
-  - Checking if USERID key in request context matches the thread/comment where UD is going to happen
+# Features
+- Users will be able to view threads and comments (on each thread) regardless of logging in
+
+# Authentication/ Security
+
+### Hashing
+- Users sign up with username and password
+- Passwords are securely hashed with bcrypt before storing on database.
+- When logging in, password user enters is compared with hashed password on database for authentication
+
+### JWT
+- JSON Web Token (JWT) issued to authenticated users. It is signed with HS256 with a certain validity period
+- When users perform CRUD operations on threads/comments, Chi.Router middleware will authenticate users with their JWT signature and validity period. If authenticated, the USERID key from JWT is passed as a context to next http request
+- Additionally for UD (Update & Delete) operations on threads/comments, further up user authentication is done by:
+  - Checking if USERID key in request context matches that of the thread/comment where UD is going to happen
+
+## API
 
 ## File Structure
 Notable files:
@@ -69,7 +85,7 @@ Notable files:
         go mod tidy
         
         
-        ### View link below for backend then
+        ### View text file link below for backend then
         go run .
 
     Frontend: Start a new terminal then,
@@ -78,7 +94,7 @@ Notable files:
         yarn install
 
 
-        ### View link below for frontend
+        ### View text file link below for frontend
         yarn build
         yarn start
 
@@ -88,5 +104,11 @@ Backend & Database: Refer to [here](./database.txt)
 
 Once you have run frontend, backend and database you should be good to go at http://localhost:3000/
 
-## Database tables:
+## Database Tables:
 users, threads, comments, categories
+
+## Acknowledgements
+This project was created using 
+- [React](https://reactjs.org/), [Axios](https://axios-http.com/), [React Router DOM](https://reactrouter.com/), [MUI](https://mui.com/)
+- [go-chi](https://github.com/go-chi/chi), [golang-jwt](https://github.com/golang-jwt), 
+[golang.org/x/crypto](https://pkg.go.dev/golang.org/x/crypto), [pq](https://github.com/lib/pq)

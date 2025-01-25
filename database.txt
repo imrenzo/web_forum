@@ -1,15 +1,16 @@
-1. Ensure you are using postgresql 16/17
+1. Firstly, ensure that you are using postgresql 16/17
 2. In cloned folder dir: 
     $ cd server/internal/database
     $ code database.go
 3. Comment out part between "For hosting on Render" to "END COMMENT2"
 4. Uncomment part between "For development" to "END COMMENT1"
-5. $ cd ../shared
+5. Save and check that fmt/os is imported
+6. $ cd ../shared
    $ code shared.go
-   # Repeat steps 3 and 4 here.
-6. When creating and running your database in PGAdmin, 
+   # Repeat steps 3 and 5 here.
+7. When creating and running your database in PGAdmin, 
 	***use the const declaration info that was uncommented in step 4
-7. In database make the below queries and you're done setting up the database + server:
+8. Finally, in database make the below queries and you're done setting up the database + server:
 
 CREATE TABLE users (
 	user_id SERIAL Primary key,
