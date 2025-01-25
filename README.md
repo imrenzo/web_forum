@@ -52,7 +52,12 @@ Notable files:
         └── users
 ```
 
-## Installation
+## Installation (for local)
+1. install node v22.12.0
+2. install yarn
+3. install go 1.23.4
+4. install postgresql 16/ 17
+5. Run in terminal:
 
         #Clone this repository:
         git clone https://github.com/imrenzo/web_forum.git
