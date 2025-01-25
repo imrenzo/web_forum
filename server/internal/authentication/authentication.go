@@ -106,7 +106,7 @@ func TokenVerifyMiddleware(next http.Handler) http.Handler {
 				log.Println(errormsg)
 				return
 			}
-			// println("************************************authenticated by middleware!************************************")
+			println("authenticated by middleware!")
 			ctx := context.WithValue(r.Context(), userIDkey, id)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		} else {

@@ -1,5 +1,36 @@
 1. Ensure you are using postgresql 16/17
-2. In web_froum folder: code server/internal/database/database.go
+2. In cloned folder dir: 
+    $ cd server/internal/database
+    open folder database.go --> $ code database.go
 3. Comment out part between "For hosting on Render" to "END COMMENT2"
 4. Uncomment part between "For development" to "END COMMENT1"
 5. When creating and running your database in PGAdmin, use the const declaration info that was uncommented
+6. In database make the below queries and you're done setting up the database:
+
+CREATE TABLE users (
+	user_id SERIAL Primary key,
+	username text unique NOT NULL,
+	password text NOT NULL
+);
+
+CREATE TABLE categories (
+    category_id SERIAL PRIMARY KEY,
+    category_name TEXT NOT NULL
+);
+
+CREATE TABLE threads (
+	thread_id SERIAL Primary key,
+	op_id SERIAL REFERENCES users(user_id),
+	thread_title TEXT NOT NULL,
+	thread_info TEXT NOT NULL,
+	thread_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	category_id INT REFERENCES categories(category_id)
+);
+
+CREATE TABLE comments (
+	comment_id SERIAL Primary key,
+	thread_id SERIAL references threads(thread_id),
+	commenter_id SERIAL references users(user_id),
+	comment_info TEXT NOT NULL,
+	comment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
