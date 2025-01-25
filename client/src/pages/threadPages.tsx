@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { FormEvent, useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import { HandleDeleteThread } from './threadMethods';
 import CreateComment, { HandleDeleteComment } from '../components/handleComment';
 import { ValidateCommentInput } from '../apiService/apiService';
@@ -489,8 +489,11 @@ export function MyThreads() {
         const getCategories = async () => {
             const { success, errorStatus, output } = await GetCategories();
             if (success) {
-                setCategories(output as Categories);
-                setGetCategories(true);
+                if (output == null) {
+                    setCategories([]);
+                } else {
+                    setCategories(output as Categories);
+                }
             }
             else {
                 setGetCategories(false);
@@ -530,8 +533,12 @@ export default function Home() {
         console.log("fetching threads and categories");
         const fetchThreads = async () => {
             try {
-                const response = await axios.get("http://localhost:8080/");
-                setThreads(response.data);
+                const response = await api.get("/");
+                if (Array.isArray(response.data)) {
+                    setThreads(response.data);
+                } else {
+                    setThreads([]);
+                }
             } catch (error) {
                 console.log(error);
                 setThreads([]);
@@ -541,7 +548,11 @@ export default function Home() {
         const getCategories = async () => {
             const { success, errorStatus, output } = await GetCategories();
             if (success) {
-                setCategories(output as Categories);
+                if (output == null) {
+                    setCategories([]);
+                } else {
+                    setCategories(output as Categories);
+                }
                 setGetCategories(true);
             }
             else {
@@ -566,7 +577,7 @@ export default function Home() {
                         categories={categories}
                     />
                     : <></>}
-                {threads == null
+                {threads.length == 0
                     ? <AllThreads threads={threads} />
                     : <AllThreads threads={threads.filter((thread) => selectedCategory == "All" ? true : thread.category_name == selectedCategory)} />
                 }

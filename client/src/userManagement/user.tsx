@@ -1,14 +1,15 @@
 import { FormEvent, useState, useEffect } from 'react';
 import { NavigateFunction, useNavigate, useParams } from 'react-router-dom';
-import axios from "axios";
 import NotFound from '../pages/notFound';
 import { formStyles } from '../components/stylesheet';
+import api from '../components/api';
 
 import { Button } from '@mui/material';
 
 export default function UserMethod() {
     const method = useParams().method;
     const navigate = useNavigate();
+    console.log(method);
 
     if (method == "login") {
         return LogIn(navigate);
@@ -34,8 +35,7 @@ function LogIn(navigate: NavigateFunction) {
             setUserdata({ username: '', password: '' });
             console.log("invalid credentials");
         } else {
-            axios
-                .post("http://localhost:8080/user/login", userData)
+            api.post("/user/login", userData)
                 .then(function (response) {
                     setInvalidCred(false);
                     localStorage.setItem("jwtToken", response.data.token);
@@ -108,8 +108,7 @@ function SignUp(navigate: NavigateFunction) {
             setUserdata({ username: '', password: '' });
             console.log("invalid credentials");
         } else {
-            axios
-                .post("http://localhost:8080/signup", userData)
+            api.post("/user/signup", userData)
                 .then(function (response) {
                     console.log('successfully registered');
                     console.log(response.data.token);
