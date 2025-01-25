@@ -1,0 +1,5 @@
+1. Ensure you are using postgresql 16/17
+2. In web_froum folder: code server/internal/database/database.go
+3. Comment out part between "For hosting on Render" to "END COMMENT2"
+4. Uncomment part between "For development" to "END COMMENT1"
+5. When creating and running your database in PGAdmin, use the const declaration info that was uncommented

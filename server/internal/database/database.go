@@ -13,21 +13,26 @@ import (
 	"github.com/imrenzo/web_forum/internal/models"
 )
 
-// const (
-// 	host     = "localhost"
-// 	port     = 5432
-// 	user     = "postgres"
-// 	password = "root"
-// 	dbname   = "web_forum"
-// )
-
 func OpenDb() *sql.DB {
+	// For development:
+	// const (
+	// 	host     = "localhost"
+	// 	port     = 5432
+	// 	user     = "postgres"
+	// 	password = "root"
+	// 	dbname   = "web_forum"
+	// )
+
 	// psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 	// 	host, port, user, password, dbname)
+	//	END COMMENT1
+
+	// For hosting on Render
 	psqlInfo := os.Getenv("DATABASE_URL")
 	if psqlInfo == "" {
 		panic("DATABASE_URL is not set")
 	}
+	// END COMMENT2
 
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
