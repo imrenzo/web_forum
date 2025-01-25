@@ -3,7 +3,6 @@ package authentication
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -13,11 +12,8 @@ import (
 )
 
 const secretkey = "hello_world"
-
 const userIDkey contextKey = "userID"
-
 type contextKey string
-
 type MyCustomClaims struct {
 	Username string `json:"username"`
 	UserID   int    `json:"userID"`
@@ -28,7 +24,6 @@ func CreateJwtToken(username string, userID int) string {
 	key := []byte(secretkey)
 	// token validity duration
 	expirationTime := time.Now().Add(time.Hour)
-
 	claims := MyCustomClaims{
 		username,
 		userID,
@@ -39,7 +34,6 @@ func CreateJwtToken(username string, userID int) string {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
 	jwtString, err := token.SignedString(key)
 	if err != nil {
 		panic(err)
@@ -58,10 +52,12 @@ func VerifyToken(tokenStr string) (*MyCustomClaims, error) {
 		fmt.Println("Error parsing token:", err)
 		return nil, err
 	}
+
 	claims, ok := token.Claims.(*MyCustomClaims)
 	if !ok {
 		return nil, fmt.Errorf("failed to parse token claims")
 	}
+
 	if token.Valid {
 		if claims.Issuer != "web-forum" {
 			return nil, fmt.Errorf("invalid token")
@@ -84,7 +80,7 @@ func TokenVerifyMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		// Check if the header is in the correct "Bearer <token>" format
+		// check if the header is in the correct "Bearer <token>" format
 		tokenParts := strings.Split(authHeader, " ")
 		if len(tokenParts) != 2 || tokenParts[0] != "Bearer" {
 			http.Error(w, "Invalid authorization format", http.StatusUnauthorized)
@@ -92,25 +88,22 @@ func TokenVerifyMiddleware(next http.Handler) http.Handler {
 		}
 		tokenStr := tokenParts[1]
 		claims, err := VerifyToken(tokenStr)
-
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return
 		}
 
 		id := claims.UserID
-
 		if id > 0 {
 			exists, errormsg := shared.UserIDExists(id)
 			if !exists {
-				log.Println(errormsg)
+				http.Error(w, errormsg, http.StatusNotFound)
 				return
 			}
 			println("authenticated by middleware!")
 			ctx := context.WithValue(r.Context(), userIDkey, id)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		} else {
-			log.Println("Empty id!")
 			http.Error(w, "Invalid User ID", http.StatusUnauthorized)
 			return
 		}
@@ -135,7 +128,6 @@ func DirectAuthenticate(w http.ResponseWriter, r *http.Request) {
 	tokenStr := tokenParts[1]
 
 	claims, err := VerifyToken(tokenStr)
-
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return

@@ -21,7 +21,8 @@ func LogInUser(w http.ResponseWriter, r *http.Request) {
 
 	// check if user login credentials matches db records
 	var count int
-	err = db.QueryRow("SELECT COUNT(*) FROM users WHERE username = $1 AND password = $2", userData.Username, userData.Password).Scan(&count)
+	err = db.QueryRow("SELECT COUNT(*) FROM users WHERE username = $1 AND password = $2",
+		userData.Username, userData.Password).Scan(&count)
 	if err != nil {
 		panic(err)
 	}
@@ -33,7 +34,6 @@ func LogInUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userData.User_ID = GetUserID(userData.Username)
-
 	jwtString := authentication.CreateJwtToken(userData.Username, userData.User_ID)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{"message": "Authorised", "token": jwtString})
