@@ -59,24 +59,32 @@ Notable files:
 4. install postgresql 16/ 17
 5. Run in terminal:
 
-        #Clone this repository:
+    Clone this repository:
+    
         git clone https://github.com/imrenzo/web_forum.git
 
-        # Frontend:
-        cd client
-        yarn install
-        yarn start
-
-        # Backend:
-        ## Start a new terminal:   
+    Backend:   
+    
         cd server
         go mod tidy
+        
+        
+        ### View link below for backend then
         go run .
 
-        # View link below for database & frontend config
+    Frontend: Start a new terminal then,
 
-Database: Refer to [here](./database.txt)
+        cd client
+        yarn install
+
+
+        ### View link below for frontend
+        yarn build
+        yarn start
+
 Frontend: Refer to [here](./client.txt)
+
+Backend & Database: Refer to [here](./database.txt)
 
 Once you have run frontend, backend and database you should be good to go at http://localhost:3000/
 

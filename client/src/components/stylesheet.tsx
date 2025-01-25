@@ -9,7 +9,10 @@ export const pageBoxStyle: { marginLeft: string, marginRight: string } = {
 
 export const formStyles: CSS.Properties = {
     display: 'flex',
+    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: '10%',
+    width: 'auto',
+    maxWidth: '400px',
+    margin: '0 auto'
 };

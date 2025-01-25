@@ -8,7 +8,6 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
-
 	"github.com/imrenzo/web_forum/internal/authentication"
 	"github.com/imrenzo/web_forum/internal/models"
 )

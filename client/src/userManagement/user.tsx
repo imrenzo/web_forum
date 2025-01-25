@@ -1,10 +1,14 @@
 import { FormEvent, useState, useEffect } from 'react';
 import { NavigateFunction, useNavigate, useParams } from 'react-router-dom';
 import NotFound from '../pages/notFound';
-import { formStyles } from '../components/stylesheet';
+import { formStyles, pageBoxStyle } from '../components/stylesheet';
 import api from '../components/api';
 
-import { Button } from '@mui/material';
+import {
+    Box, Button, Typography, AppBar, Toolbar, Container
+} from '@mui/material';
+import AdbIcon from '@mui/icons-material/Adb';
+import { Link } from 'react-router-dom';
 
 export default function UserMethod() {
     const method = useParams().method;
@@ -50,34 +54,43 @@ function LogIn(navigate: NavigateFunction) {
         }
     }
 
-    return (
-        <>
-            <title>Login</title>
-            <div style={formStyles}>
-                <form onSubmit={HandleSubmit}>
-                    <div className='form'>
-                        <div>
-                            <input type='text' id='username' placeholder='Enter Username'
-                                value={userData.username}
-                                onChange={event => setUserdata(prevState => ({
-                                    ...prevState, username: event.target.value
-                                }))}>
-                            </input>
-                        </div>
-                        <div>
-                            <input type='password' id='password' placeholder='Enter Password'
-                                value={userData.password} onChange={event => setUserdata(prevState => ({
-                                    ...prevState, password: event.target.value
-                                }))}>
-                            </input>
-                        </div>
+    return (<>
+        <title>Login</title>
+        <Box sx={formStyles}>
+            <Header></Header>
+        </Box>
+        <br></br>
+        <Box sx={{
+            border: 1,
+            paddingTop: 2,
+            paddingBottom: 2,
+            ...formStyles
+        }}>
+            <form onSubmit={HandleSubmit} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <div className='form'>
+                    <div>
+                        <input type='text' id='username' placeholder='Enter Username'
+                            value={userData.username}
+                            onChange={event => setUserdata(prevState => ({
+                                ...prevState, username: event.target.value
+                            }))}>
+                        </input>
                     </div>
-                    <div style={{ textAlign: 'center' }}>{invalidCred && <p id="hiddenText" style={{ color: 'red' }}>Invalid username/ password</p>}
-                        <Button variant='outlined' type="submit">Log In</Button>
+                    <div>
+                        <input type='password' id='password' placeholder='Enter Password'
+                            value={userData.password} onChange={event => setUserdata(prevState => ({
+                                ...prevState, password: event.target.value
+                            }))}>
+                        </input>
                     </div>
-                </form>
-            </div>
-        </>
+                </div>
+                <br></br>
+                <div style={{ textAlign: 'center' }}>{invalidCred && <p id="hiddenText" style={{ color: 'red' }}>Invalid username/ password</p>}
+                    <Button variant='outlined' type="submit">Log In</Button>
+                </div>
+            </form>
+        </Box>
+    </>
     );
 }
 
@@ -128,9 +141,18 @@ function SignUp(navigate: NavigateFunction) {
         }
     };
 
-    return (
-        <div style={formStyles}>
-            <form onSubmit={HandleSubmit}>
+    return (<>
+        <Box sx={formStyles}>
+            <Header></Header>
+        </Box>
+        <br></br>
+        <Box sx={{
+            border: 1,
+            paddingTop: 2,
+            paddingBottom: 2,
+            ...formStyles
+        }}>
+            <form onSubmit={HandleSubmit} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 <div className='form'>
                     <div>
                         <input type='text' id='username' placeholder='Enter Username'
@@ -148,12 +170,69 @@ function SignUp(navigate: NavigateFunction) {
                         </input>
                     </div>
                 </div>
-
+                <br></br>
                 <div style={{ textAlign: 'center' }}>{invalidCred && <p id="hiddenText" style={{ color: 'red' }}>{errorMessage}</p>}
                     <Button variant='contained' type="submit">Sign Up</Button>
                 </div>
             </form>
-        </div>
+        </Box>
+    </>
+    );
+}
 
+function Header() {
+    return (<>
+        <AppBar position="static">
+            <Container maxWidth="xl">
+                <Toolbar disableGutters>
+                    <Box sx={{ textDecoration: 'none', }}>
+                        <Link to={'/'} style={{ color: 'inherit', textDecoration: 'none' }}>
+                            <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+                        </Link>
+                    </Box>
+                    <Typography
+                        variant="h6"
+                        noWrap
+                        component="a"
+                        href="/"
+                        sx={{
+                            mr: 2,
+                            display: { xs: 'none', md: 'flex' },
+                            fontFamily: 'monospace',
+                            fontWeight: 700,
+                            letterSpacing: '.3rem',
+                            color: 'inherit',
+                            textDecoration: 'none',
+                        }}
+                    >
+                        Forum
+                    </Typography>
+                    <Box sx={{ textDecoration: 'none' }}>
+                        <Link to={'/'} style={{ color: 'inherit', textDecoration: 'none' }}>
+                            <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
+                        </Link>
+                    </Box>
+                    <Typography
+                        variant="h5"
+                        noWrap
+                        component="a"
+                        href="/"
+                        sx={{
+                            mr: 2,
+                            display: { xs: 'flex', md: 'none' },
+                            flexGrow: 1,
+                            fontFamily: 'monospace',
+                            fontWeight: 700,
+                            letterSpacing: '.3rem',
+                            color: 'inherit',
+                            textDecoration: 'none',
+                        }}
+                    >
+                        Forum
+                    </Typography>
+                </Toolbar>
+            </Container>
+        </AppBar>
+    </>
     );
 }
