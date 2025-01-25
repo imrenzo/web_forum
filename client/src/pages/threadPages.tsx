@@ -410,9 +410,6 @@ function CommentsCard({ comments }: { comments: Comments }) {
                             <Typography variant="body1" sx={{ color: 'text.primary', whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                 {comment.comment_info}
                             </Typography>
-                            <Typography>
-                                CommentID: {comment.comment_id}
-                            </Typography>
                         </CardContent>
                     }
                 </Card>

@@ -38,3 +38,15 @@ CREATE TABLE comments (
 	comment_info TEXT NOT NULL,
 	comment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+INSERT INTO categories (category_name) VALUES
+('English'),
+('Mathematics'),
+('Science'),
+('Chinese'),
+('Malay'),
+('Tamil'),
+('History'),
+('Geography'),
+('Literature'),
+('Others');
