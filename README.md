@@ -73,9 +73,10 @@ Notable files:
         go mod tidy
         go run .
 
-        # View link below for database
+        # View link below for database & frontend config
 
-Database: Refer to here [a link](./database.txt)
+Database: Refer to [here](./database.txt)
+Frontend: Refer to [here](./client.txt)
 
 Once you have run frontend, backend and database you should be good to go at http://localhost:3000/
 
