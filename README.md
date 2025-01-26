@@ -23,6 +23,12 @@ Website link: https://web-forum-test.onrender.com
 
 # Features
 - Users will be able to view threads and comments (on each thread) regardless of logging in
+- Users can perform CRUD operations on threads and posts
+- Users can filter for thread based on their categories using the Subjects dropdown box
+- Users can search for threads based on search bar
+    - Search bar filters (with RegEx) to ensure that the search query + posts' title/ info matches word for word
+    - Search bar ignores multiple whitespaces between words and will function properly
+- Upon logging in Users may view their own thread posts
 
 # Authentication/ Security
 
@@ -37,8 +43,6 @@ Website link: https://web-forum-test.onrender.com
 - When users perform CRUD operations on threads/comments, Chi.Router middleware will authenticate users with their JWT signature and validity period. If authenticated, the USERID key from JWT is passed as a context to next http request
 - Additionally for UD (Update & Delete) operations on threads/comments, further up user authentication is done by:
   - Checking if USERID key in request context matches that of the thread/comment where UD is going to happen
-
-## API
 
 ## File Structure
 Notable files:

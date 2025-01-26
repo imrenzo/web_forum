@@ -17,11 +17,12 @@ import {
     Tooltip, CardActions, CardContent, Typography, IconButton, Box,
     Card, MenuItem, Select, SelectChangeEvent, Chip,
     FormControl, InputLabel, CardHeader, Avatar,
-    Toolbar, Menu, Container, TextField, Button
+    Toolbar, Menu, Container, TextField, Button,
 } from '@mui/material';
 import { red } from '@mui/material/colors';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import AddCommentIcon from '@mui/icons-material/AddComment';
+import SearchIcon from "@mui/icons-material/Search";
 import { Helmet } from 'react-helmet';
 
 function AllThreads({ threads }: { threads: GetThreadsCardsProps }) {
@@ -33,81 +34,41 @@ function AllThreads({ threads }: { threads: GetThreadsCardsProps }) {
                     <Typography variant='body1'>No threads yet. Create the first Thread!!</Typography >
                 </Box>
                 : <Box>
-                    {threads.map((item) =>
-                        // <Link key={item.thread_id} to={`/thread_id/${item.thread_id}`} style={{ textDecoration: 'none' }}>
-                        <Card key={item.thread_id} variant="outlined" sx={{ width: '100%', marginTop: 2 }}>
+                    {threads.map((threads) =>
+                        <Card key={threads.thread_id} variant="outlined" sx={{ width: '100%', marginTop: 2 }}>
                             <React.Fragment>
                                 <CardContent>
 
                                     <Typography variant="h4" component="div">
-                                        {item.thread_title}
+                                        {threads.thread_title}
                                     </Typography>
-                                    <Chip label={item.category_name} />
+                                    <Chip label={threads.category_name} />
                                     <br></br>
                                     <br></br>
                                     <Typography variant='body1'>
-                                        {item.thread_info}
+                                        {threads.thread_info}
                                     </Typography>
                                 </CardContent>
                             </React.Fragment>
                             <CardActions disableSpacing sx={{ display: 'flex', justifyContent: 'space-between', }}>
                                 <Typography variant='subtitle1'>
-                                    {FormatDate(item.thread_date)}
+                                    By {threads.username}: {FormatDate(threads.thread_date)}
                                 </Typography>
                                 <Box>
-                                    <Link to={`/thread_id/${item.thread_id}`}>
+                                    <Link to={`/thread_id/${threads.thread_id}`}>
                                         <Tooltip title="View Comment">
                                             <IconButton aria-label="view comment icon">
-                                                <CommentIcon sx={{ fontSize: 40 }} />
+                                                <CommentIcon sx={{ fontSize: 35 }} />
                                             </IconButton>
                                         </Tooltip>
                                     </Link>
                                 </Box>
                             </CardActions>
                         </Card>
-                        // </Link>
-
                     )}
                 </Box>
             }
         </>
-    );
-}
-
-function CategoryFilter(
-    { selectedCategory, setSelectedCategory, categories }:
-        {
-            selectedCategory: string,
-            setSelectedCategory: React.Dispatch<React.SetStateAction<string>>,
-            categories: Categories
-        }
-) {
-
-    const selectCategoryClick = (setSelectedCategory: React.Dispatch<React.SetStateAction<string>>) => (event: SelectChangeEvent) => {
-        setSelectedCategory(event.target.value as string);
-    };
-
-    return (
-        <Box sx={{ marginTop: 2, }}>
-            <FormControl fullWidth>
-                <InputLabel id="selectModuleLabel">Module</InputLabel>
-                <Select
-                    labelId="selectModule"
-                    id="selectModule"
-                    label="Module"
-                    value={selectedCategory}
-                    onChange={selectCategoryClick(setSelectedCategory)}
-                >
-                    <MenuItem key={"All"} value={"All"}>All</MenuItem>
-                    {categories.filter((category) => category.category_name !== "Others").map((category) => (
-                        <MenuItem key={category.category_id} value={category.category_name}>
-                            {category.category_name}
-                        </MenuItem>
-                    ))};
-                    <MenuItem key={"Others"} value={"Others"}>Others</MenuItem>
-                </Select>
-            </FormControl>
-        </Box>
     );
 }
 
@@ -245,7 +206,7 @@ function ThreadCard({ thread }: { thread: GetThread }) {
                     <Box>
                         <Tooltip title="Add Comment">
                             <IconButton aria-label="add comment button" onClick={() => setAddCommentBox(!addCommentBox)}>
-                                <AddCommentIcon sx={{ fontSize: 40 }} />
+                                <AddCommentIcon sx={{ fontSize: 35 }} />
                             </IconButton>
                         </Tooltip>
                         {/* <IconButton aria-label="like button">
@@ -536,12 +497,90 @@ export function MyThreads() {
     );
 }
 
+function CategoryFilter(
+    { selectedCategory, setSelectedCategory, categories }:
+        {
+            selectedCategory: string,
+            setSelectedCategory: React.Dispatch<React.SetStateAction<string>>,
+            categories: Categories
+        }
+) {
+
+    const selectCategoryClick = (setSelectedCategory: React.Dispatch<React.SetStateAction<string>>) => (event: SelectChangeEvent) => {
+        setSelectedCategory(event.target.value as string);
+    };
+
+    return (
+        <Box sx={{ marginTop: 2, }}>
+            <FormControl fullWidth>
+                <InputLabel id="selectSubjectLabel">Subject</InputLabel>
+                <Select
+                    labelId="selectSubject"
+                    id="selectSubject"
+                    label="Subject"
+                    value={selectedCategory}
+                    onChange={selectCategoryClick(setSelectedCategory)}
+                >
+                    <MenuItem key={"All"} value={"All"}>All</MenuItem>
+                    {categories.filter((category) => category.category_name !== "Others").map((category) => (
+                        <MenuItem key={category.category_id} value={category.category_name}>
+                            {category.category_name}
+                        </MenuItem>
+                    ))};
+                    <MenuItem key={"Others"} value={"Others"}>Others</MenuItem>
+                </Select>
+            </FormControl>
+        </Box>
+    );
+}
+
+function SearchBar({ setSearchValue }: { setSearchValue: React.Dispatch<React.SetStateAction<string[] | null>> }) {
+    const HandleSearchSubmit = () => {
+        const searchBarElement = document.getElementById("search-bar") as HTMLInputElement;
+        if (searchBarElement) {
+            const searchValue = searchBarElement.value;
+            console.log("searchValue: ", searchValue);
+            // filter to prevent inputs with multiple whitespace from affecting filter query later
+            const slicedValues: string[] = searchValue.toLowerCase().split(" ").filter((value) => value !== "");
+            if (slicedValues.length === 0) {
+                setSearchValue(null);
+            } else {
+                setSearchValue(slicedValues);
+            }
+        } else {
+            setSearchValue(null);
+        }
+    }
+    return (
+        <Box sx={{ marginTop: 2, }}>
+            <FormControl fullWidth sx={{ display: 'flex', alignItems: 'center', flexDirection: 'row' }}>
+                <TextField
+                    id="search-bar"
+                    className="text"
+                    label="Search"
+                    variant="outlined"
+                    placeholder="Search..."
+                    size="small"
+                    sx={{ width: '100%' }}
+                    autoComplete="off"
+                />
+                <Tooltip title="Search" placement='top'>
+                    <IconButton type="submit" aria-label="search" onClick={HandleSearchSubmit}>
+                        <SearchIcon style={{ fill: "blue", fontSize: 35 }} />
+                    </IconButton>
+                </Tooltip>
+            </FormControl>
+        </Box>
+    )
+}
+
 export default function Home() {
     const [threads, setThreads] = useState<GetThreadsCardsProps>([]);
     const [categories, setCategories] = useState<Categories>([]);
     const [getCategories, setGetCategories] = useState<boolean>(false);
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [fetchedData, setFetchedData] = useState<boolean>(false);
+    const [searchValue, setSearchValue] = useState<string[] | null>(null);
 
     useEffect(() => {
         console.log("fetching threads and categories");
@@ -594,12 +633,29 @@ export default function Home() {
                         categories={categories}
                     />
                     : <></>}
+                <SearchBar setSearchValue={setSearchValue}></SearchBar>
                 {fetchedData
                     ?
                     (threads.length === 0
                         ? <AllThreads threads={threads} />
                         : <AllThreads
-                            threads={threads.filter((thread) => selectedCategory === "All" ? true : thread.category_name === selectedCategory)}
+                            threads={threads.filter((thread) => selectedCategory === "All" //filter by category
+                                ? true
+                                : thread.category_name === selectedCategory)
+                                .filter((thread) => {   // filter by searchValue
+                                    if (searchValue === null) {
+                                        return true;
+                                    } else {
+                                        const title: string = thread.thread_title.toLowerCase()
+                                        const info: string = thread.thread_info.toLowerCase()
+                                        console.log("searchValue: ", searchValue)
+                                        return searchValue.some((item) => {
+                                            //check if any word in searchValue exactly matches title/info
+                                            const regex = new RegExp(`\\b${item.toLowerCase()}\\b`, 'i');
+                                            return (regex.test(title) || regex.test(info));
+                                        })
+                                    }
+                                })}
                         />)
                     : <></>}
             </Box >
