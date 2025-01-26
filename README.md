@@ -17,14 +17,14 @@ JWT, bcrypt
 ### Hosting & Deployment
 Render
 
-# Deployment
+## Deployment
 May take a while to load as i'm on Render Free plan. 
 
 *If the homepage only has a header loaded, please wait awhile, then reload the page.
 
 Website link: https://web-forum-test.onrender.com
 
-# Features
+## Features
 - Users will be able to view threads and comments (on each thread) regardless of logging in
 - Users can perform CRUD operations on threads and comments
 - Users can filter for threads based on their categories using the Subjects dropdown box
@@ -34,7 +34,7 @@ Website link: https://web-forum-test.onrender.com
 - Upon logging in Users may view their own threads
 - Users are able to change their password
 
-# Authentication/ Security
+## Authentication/ Security
 
 ### Password/ Hashing
 - Users log in and sign up with username and password
