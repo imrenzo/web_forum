@@ -5,7 +5,7 @@ export default function FormatDate(dateStr: string): string {
     }
 
     const splitDateStr = dateStr.split('.')[0];
-    const date = new Date(splitDateStr);
+    const date = new Date(splitDateStr + 'Z');
 
     return new Intl.DateTimeFormat('en-SG', {
         day: 'numeric',
