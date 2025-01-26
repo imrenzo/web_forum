@@ -88,7 +88,8 @@ function LogIn(navigate: NavigateFunction) {
                     </div>
                 </div>
                 <br></br>
-                <div style={{ textAlign: 'center' }}>{invalidCred && <p id="hiddenText" style={{ color: 'red' }}>Invalid username/ password</p>}
+                <div style={{ textAlign: 'center' }}>
+                    {invalidCred && <p id="hiddenText" style={{ color: 'red' }}>Invalid username/ password</p>}
                     <Button variant='outlined' type="submit">Log In</Button>
                 </div>
             </form>

@@ -9,7 +9,8 @@ import MenuIcon from '@mui/icons-material/Menu';
 import AdbIcon from '@mui/icons-material/Adb';
 import { Link } from 'react-router-dom';
 
-const pages: { [key: string]: string }[] = [{ 'Home': '/' }, { 'Create Thread': '/thread/create' }, { 'My Threads': '/mythreads' }];
+const pages: { [key: string]: string }[] =
+    [{ 'Home': '/' }, { 'Create Thread': '/thread/create' }, { 'My Threads': '/mythreads' }];
 const iconDropdown: { [key: string]: string }[] = [{ 'Log Out': '/user/logout' }];
 
 function LogInSignUpButtons() {

@@ -228,11 +228,13 @@ function ThreadCard({ thread }: { thread: GetThread }) {
                     title={thread == null ? '' : <Typography>{thread.username}</Typography>}
                 />
                 <CardContent sx={{ overflow: 'hidden', }}>
-                    <Typography variant="h5" sx={{ color: 'text.primary', whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: '700' }}>
+                    <Typography variant="h5"
+                        sx={{ color: 'text.primary', whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: '700' }}>
                         {thread == null ? <></> : <>{thread.thread_title}</>}
                     </Typography>
                     <Typography>&nbsp;</Typography>
-                    <Typography variant="body1" sx={{ color: 'text.primary', whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <Typography variant="body1"
+                        sx={{ color: 'text.primary', whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {thread == null ? <></> : <>{thread.thread_info}</>}
                     </Typography>
                 </CardContent>
@@ -408,7 +410,9 @@ function CommentsCard({ comments }: { comments: Comments }) {
                             </form>
                         </Box>
                         : <CardContent sx={{ overflow: 'hidden', }}>
-                            <Typography variant="body1" sx={{ color: 'text.primary', whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            <Typography variant="body1"
+                                sx={{ color: 'text.primary', whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                            >
                                 {comment.comment_info}
                             </Typography>
                         </CardContent>
@@ -466,6 +470,7 @@ export function MyThreads() {
     const [categories, setCategories] = useState<Categories>([]);
     const [getCategories, setGetCategories] = useState<boolean>(false);
     const [selectedCategory, setSelectedCategory] = useState("All");
+    const [fetchedData, setFetchedData] = useState<boolean>(false);
 
     useEffect(() => {
         const fetchThreads = async () => {
@@ -482,6 +487,7 @@ export function MyThreads() {
                 } else {
                     setThreads(response.data);
                 }
+                setFetchedData(true);
             } catch (error) {
                 console.log(error);
                 setThreads([]);
@@ -521,7 +527,11 @@ export function MyThreads() {
                         categories={categories}
                     />
                     : <></>}
-                <AllThreads threads={threads.filter((thread) => selectedCategory === "All" ? true : thread.category_name === selectedCategory)}></AllThreads>
+                {fetchedData
+                    ? <AllThreads
+                        threads={threads.filter((thread) => selectedCategory === "All" ? true : thread.category_name === selectedCategory)}>
+                    </AllThreads>
+                    : <></>}
             </Box>
         </>
     );
@@ -532,6 +542,7 @@ export default function Home() {
     const [categories, setCategories] = useState<Categories>([]);
     const [getCategories, setGetCategories] = useState<boolean>(false);
     const [selectedCategory, setSelectedCategory] = useState("All");
+    const [fetchedData, setFetchedData] = useState<boolean>(false);
 
     useEffect(() => {
         console.log("fetching threads and categories");
@@ -543,6 +554,7 @@ export default function Home() {
                 } else {
                     setThreads([]);
                 }
+                setFetchedData(true);
             } catch (error) {
                 console.log(error);
                 setThreads([]);
@@ -583,10 +595,14 @@ export default function Home() {
                         categories={categories}
                     />
                     : <></>}
-                {threads.length === 0
-                    ? <AllThreads threads={threads} />
-                    : <AllThreads threads={threads.filter((thread) => selectedCategory === "All" ? true : thread.category_name === selectedCategory)} />
-                }
+                {fetchedData
+                    ?
+                    (threads.length === 0
+                        ? <AllThreads threads={threads} />
+                        : <AllThreads
+                            threads={threads.filter((thread) => selectedCategory === "All" ? true : thread.category_name === selectedCategory)}
+                        />)
+                    : <></>}
             </Box >
         </>
     );
