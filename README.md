@@ -32,7 +32,7 @@ Website link: https://web-forum-test.onrender.com
     - Search bar uses filtering (with RegEx) to ensure that the search query matches word for word with the threads' title/ info
     - Search bar ignores multiple whitespaces between words and will function properly
 - Upon logging in Users may view their own threads
-- In the individual thread pages, for threads and comments where the current logged in user is the original poster, 
+- In the individual thread pages, for threads & comments where the current logged in user is the original poster, 
     - 3 vertical dots button would appear on the top right corner of the thread/comment card
     - Click on the 3 vertical dots button to access update/ delete thread functionality.
 - Users are able to change their password
@@ -53,7 +53,7 @@ Website link: https://web-forum-test.onrender.com
   - Checking if USERID key in request context matches that of the thread/comment where UD is going to happen
 
 ## File Structure
-Please view [client](./client/) and [Server](./server/) folders to view their individual README.md
+Please view [client](./client/) and [server](./server/) folders to view their individual README.md
 ```
 .
 ├── client
