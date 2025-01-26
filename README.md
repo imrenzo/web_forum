@@ -71,17 +71,22 @@ Please view [client](./client/) and [server](./server/) folders to view their in
 1. install node v22.12.0
 2. install yarn
 3. install go 1.23.4
-4. Run in terminal:
+4. install postgresql 16/17
+5. Run in terminal:
 
     Clone this repository:
     
         git clone https://github.com/imrenzo/web_forum.git
 
-    Then open web_forum folder
-
-    Next, for backend:   
+    Open web_forum folder, then for backend run:
     
         cd server
+        go mod tidy
+
+    And follow steps in this [file](database.txt)
+    
+    In server folder run:
+
         go mod tidy
         go run .
 
@@ -92,7 +97,9 @@ Please view [client](./client/) and [server](./server/) folders to view their in
         cd src/services
         code api.tsx
 
-    Then, in api.tsx: __Change URL to development URL__, save then
+    Then, in api.tsx: 
+    
+    __Change URL to development URL (and comment out render URL)__, save then
     go back to client folder and run:
 
         yarn build

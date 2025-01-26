@@ -1,0 +1,90 @@
+For local server & database setup:
+
+1. Firstly, ensure that you have installed postgresql 16/17 and Go 1.23.4
+
+Go Config:
+2. In cloned folder (web_forum) directory: 
+    $ cd server/internal/database
+    $ code database.go
+
+3. You will see lines:
+
+	// database url
+	psqlInfo := os.Getenv("DATABASE_URL")
+	if psqlInfo == "" {
+		panic("DATABASE_URL is not set")
+	}
+	//
+
+4. For the 4 lines between the 2 comments,
+	Replace with the below instead:
+
+	const (
+	 	host     = "localhost"
+	 	port     = 5432
+	 	user     = "postgres"
+	 	password = "root"
+	 	dbname   = "web_forum"
+	 )
+	 psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+	 	host, port, user, password, dbname)
+
+5. Save and check that all required packages (incl. fmt) is imported
+6. $ cd ../shared
+   $ code shared.go
+7. Repeat steps 3 and 5 in shared.go 
+   and you would have successfully configured server files for local use
+
+pgAdmin config:
+8. Create a database in pgAdmin with the info from the const declaration code above i.e.
+
+	const (
+	 	host     = "localhost"
+	 	port     = 5432
+	 	user     = "postgres"
+	 	password = "root"
+	 	dbname   = "web_forum"
+	 )
+
+9. Run/ Start your database.
+10. Lastly, in database, paste all the below database queries:
+
+CREATE TABLE users (
+	user_id SERIAL Primary key,
+	username text unique NOT NULL,
+	password text NOT NULL
+);
+
+CREATE TABLE categories (
+    category_id SERIAL PRIMARY KEY,
+    category_name TEXT NOT NULL
+);
+
+CREATE TABLE threads (
+	thread_id SERIAL Primary key,
+	op_id SERIAL REFERENCES users(user_id),
+	thread_title TEXT NOT NULL,
+	thread_info TEXT NOT NULL,
+	thread_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	category_id INT REFERENCES categories(category_id)
+);
+
+CREATE TABLE comments (
+	comment_id SERIAL Primary key,
+	thread_id SERIAL references threads(thread_id),
+	commenter_id SERIAL references users(user_id),
+	comment_info TEXT NOT NULL,
+	comment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO categories (category_name) VALUES
+('English'),
+('Mathematics'),
+('Science'),
+('Chinese'),
+('Malay'),
+('Tamil'),
+('History'),
+('Geography'),
+('Literature'),
+('Others');
