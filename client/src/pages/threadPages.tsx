@@ -53,7 +53,7 @@ function AllThreads({ threads }: { threads: GetThreadsCardsProps }) {
                             </React.Fragment>
                             <CardActions disableSpacing sx={{ display: 'flex', justifyContent: 'space-between', }}>
                                 <Typography variant='subtitle1'>
-                                    &nbsp;By {threads.username}: {FormatDate(threads.thread_date)}
+                                    &nbsp;&nbsp;By {threads.username}: {FormatDate(threads.thread_date)}
                                 </Typography>
                                 <Box>
                                     <Link to={`/thread_id/${threads.thread_id}`}>
@@ -195,7 +195,7 @@ function ThreadCard({ thread }: { thread: GetThread }) {
                         sx={{ color: 'text.primary', whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: '700' }}>
                         {thread == null ? <></> : <>{thread.thread_title}</>}
                     </Typography>
-                    <Typography>&nbsp;</Typography>
+                    <br></br>
                     <Typography variant="body1"
                         sx={{ color: 'text.primary', whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {thread == null ? <></> : <>{thread.thread_info}</>}
@@ -203,7 +203,7 @@ function ThreadCard({ thread }: { thread: GetThread }) {
                 </CardContent>
                 <CardActions disableSpacing sx={{ display: 'flex', justifyContent: 'space-between', }}>
                     <Typography variant='subtitle1'>
-                        &nbsp;{FormatDate(thread.thread_date as string)}
+                        &nbsp;&nbsp;{FormatDate(thread.thread_date as string)}
                     </Typography>
                     <Box>
                         <Tooltip title="Add Comment">
@@ -366,7 +366,7 @@ function CommentsCard({ comments }: { comments: Comments }) {
                                 </Box>
                                 <div style={{ textAlign: 'right' }}>
                                     <p id="errorMessage" style={{ color: 'red' }}>{errorMessage}</p>
-                                    <Button variant='contained' type="submit">Submit</Button>
+                                    <Button variant='contained' type="submit">Update Comment</Button>
                                 </div>
                             </form>
                         </Box>

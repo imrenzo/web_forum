@@ -18,7 +18,9 @@ JWT, bcrypt
 Render
 
 # Deployment
-May take a while to load as i'm on Render Free plan
+May take a while to load as i'm on Render Free plan. 
+
+*If the homepage only has a header loaded, please wait awhile, then reload the page.
 
 Website link: https://web-forum-test.onrender.com
 
@@ -48,34 +50,18 @@ Website link: https://web-forum-test.onrender.com
   - Checking if USERID key in request context matches that of the thread/comment where UD is going to happen
 
 ## File Structure
+Please view [client](./client/) and [Server](./server/) folders to view their individual README.md
 ```
 .
 ├── client
-    ├── public
-    ├── package.json
-    ├── tsconfig.json
-    ├── yarn.lock
-    └── src
-        ├── services    
-        ├── components
-        ├── pages
-        ├── types
-        ├── userManagement
-        ├── App.tsx
-        |
-        ...
-├── server
-    ├── main.go
-    ├── go.mod
-    ├── go.sum
-    └── internal
-        ├── authentication
-        ├── database
-        ├── models
-        ├── router
-        ├── routes
-        ├── shared
-        └── users
+|   |── README.md
+|   |
+|   etc...
+|    
+└── server
+    |── README.md
+    |
+    etc...
 ```
 
 ## Installation (for local)

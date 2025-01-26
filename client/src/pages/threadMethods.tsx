@@ -154,7 +154,7 @@ function HandleCreateThread() {
                     <Box sx={{ textAlign: 'right', }}>
                         {!validEntry ? <p id="hiddenText" style={{ color: 'red' }}>{errorMessage}</p> : <br></br>}
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                            <Button variant='contained' type="submit">Submit</Button>
+                            <Button variant='contained' type="submit">Create Thread</Button>
                         </Box>
                     </Box>
                 </form>
