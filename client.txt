@@ -1,8 +1,0 @@
-Run commands below:
-
-----
-cd client/src/components
-code api.tsx
-----
-
-Change URL to development URL

@@ -53,7 +53,7 @@ function AllThreads({ threads }: { threads: GetThreadsCardsProps }) {
                             </React.Fragment>
                             <CardActions disableSpacing sx={{ display: 'flex', justifyContent: 'space-between', }}>
                                 <Typography variant='subtitle1'>
-                                    By {threads.username}: {FormatDate(threads.thread_date)}
+                                    &nbsp;By {threads.username}: {FormatDate(threads.thread_date)}
                                 </Typography>
                                 <Box>
                                     <Link to={`/thread_id/${threads.thread_id}`}>
@@ -203,7 +203,7 @@ function ThreadCard({ thread }: { thread: GetThread }) {
                 </CardContent>
                 <CardActions disableSpacing sx={{ display: 'flex', justifyContent: 'space-between', }}>
                     <Typography variant='subtitle1'>
-                        {FormatDate(thread.thread_date as string)}
+                        &nbsp;{FormatDate(thread.thread_date as string)}
                     </Typography>
                     <Box>
                         <Tooltip title="Add Comment">
@@ -211,9 +211,6 @@ function ThreadCard({ thread }: { thread: GetThread }) {
                                 <AddCommentIcon sx={{ fontSize: 35 }} />
                             </IconButton>
                         </Tooltip>
-                        {/* <IconButton aria-label="like button">
-                            <>3&nbsp;</><FavoriteIcon />
-                        </IconButton> */}
                     </Box>
                 </CardActions>
             </Card >
@@ -634,9 +631,9 @@ export default function Home() {
                 <title>Subject Forum</title>
             </Helmet>
             <Box sx={pageBoxStyle}>
-                {/* render everything together once backend calls done */}
+                <Header></Header>
+                {/* render everything below header together once backend calls done */}
                 {threadsLoaded && categoriesLoaded && (<>
-                    <Header></Header>
                     {getCategories
                         ? <CategoryFilter
                             selectedCategory={selectedCategory}

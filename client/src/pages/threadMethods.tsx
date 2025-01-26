@@ -135,11 +135,11 @@ function HandleCreateThread() {
                         <TextField fullWidth label="Content" id="content" value={userEntry.content} onChange={handleInputChange} multiline />
                     </Box>
                     <FormControl fullWidth>
-                        <InputLabel id="selectModuleLabel">Module</InputLabel>
+                        <InputLabel id="selectSubjectLabel">Subject</InputLabel>
                         <Select
-                            labelId="selectModule"
-                            id="selectModule"
-                            label="Module"
+                            labelId="selectSubject"
+                            id="selectSubject"
+                            label="Subject"
                             value={selectedCategory}
                             onChange={selectCategoryClick}
                         >
