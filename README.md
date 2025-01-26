@@ -109,8 +109,6 @@ Once you have run frontend, backend and database the website should appear at ht
 
 Backend is at http://localhost:8080/
 
-Database url is in (./server/internal/database/database.go). Assigned to variable psqlInfo
-
 ## Database Tables:
 users, threads, comments, categories
 
