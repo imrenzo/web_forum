@@ -76,6 +76,7 @@ Please view [client](./client/) and [server](./server/) folders to view their in
     Clone this repository:
     
         git clone https://github.com/imrenzo/web_forum.git
+        cd web_forum
 
     Then for backend:   
     
