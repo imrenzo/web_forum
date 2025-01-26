@@ -18,7 +18,7 @@ JWT, bcrypt
 Render
 
 ## Deployment
-May take a while to load as i'm on Render Free plan. 
+May take a while to load as i'm on Render Free plan.
 
 *If the homepage only has a header loaded, please wait awhile, then reload the page.
 
