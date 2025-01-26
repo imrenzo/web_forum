@@ -93,7 +93,7 @@ function LogIn(navigate: NavigateFunction) {
                 </div>
                 <br></br>
                 <div style={{ textAlign: 'center' }}>
-                    {invalidCred && <p id="hiddenText" style={{ color: 'red' }}>Invalid username/ password</p>}
+                    {invalidCred && <p id="errorMessage" style={{ color: 'red' }}>Invalid username/ password</p>}
                     <Button variant='outlined' type="submit">Log In</Button>
                 </div>
             </form>
@@ -182,7 +182,7 @@ function SignUp(navigate: NavigateFunction) {
                     </div>
                 </div>
                 <br></br>
-                <div style={{ textAlign: 'center' }}>{invalidCred && <p id="hiddenText" style={{ color: 'red' }}>{errorMessage}</p>}
+                <div style={{ textAlign: 'center' }}>{invalidCred && <p id="errorMessage" style={{ color: 'red' }}>{errorMessage}</p>}
                     <Button variant='contained' type="submit">Sign Up</Button>
                 </div>
             </form>
@@ -276,7 +276,7 @@ function ChangePassword(navigate: NavigateFunction) {
             <form onSubmit={HandleSubmit} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 <div className='form'>
                     <div>
-                        <input type='text' id='oldPassword' placeholder='Enter Old Password'
+                        <input type='password' id='oldPassword' placeholder='Enter Old Password'
                             value={prevPassword}
                             onChange={event => setPrevPassword(event.target.value)}
                             autoComplete='off'
@@ -284,7 +284,7 @@ function ChangePassword(navigate: NavigateFunction) {
                         </input>
                     </div>
                     <div>
-                        <input type='text' id='newPassword1' placeholder='Enter New Password'
+                        <input type='password' id='newPassword1' placeholder='Enter New Password'
                             value={newPassword1}
                             onChange={event => setNewPassword1(event.target.value)}
                             autoComplete='off'
@@ -292,7 +292,7 @@ function ChangePassword(navigate: NavigateFunction) {
                         </input>
                     </div>
                     <div>
-                        <input type='text' id='newPassword2' placeholder='Re-enter New Password'
+                        <input type='password' id='newPassword2' placeholder='Re-enter New Password'
                             value={newPassword2}
                             onChange={event => setNewPassword2(event.target.value)}
                             autoComplete='off'
@@ -301,7 +301,7 @@ function ChangePassword(navigate: NavigateFunction) {
                     </div>
                 </div>
                 <div style={{ textAlign: 'center' }}>
-                    {invalidCred ? <p id="hiddenText" style={{ color: 'red' }}>{errorMessage}</p> : <br></br>}
+                    {invalidCred ? <p id="errorMessage" style={{ color: 'red' }}>{errorMessage}</p> : <br></br>}
                     <Button variant='outlined' type="submit">Submit</Button>
                     {changedPassword && (<>
                         <Typography variant='body1' sx={{ marginTop: 1 }}>Successfully changed password!</Typography>
@@ -313,7 +313,6 @@ function ChangePassword(navigate: NavigateFunction) {
         </Box>
     </>)
 }
-
 
 function Header() {
     return (<>
@@ -371,4 +370,3 @@ function Header() {
     </>
     );
 }
-

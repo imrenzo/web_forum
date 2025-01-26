@@ -25,6 +25,7 @@ import AddCommentIcon from '@mui/icons-material/AddComment';
 import SearchIcon from "@mui/icons-material/Search";
 import { Helmet } from 'react-helmet';
 
+// for threads in homepage
 function AllThreads({ threads }: { threads: GetThreadsCardsProps }) {
     return (
         <>
@@ -38,10 +39,10 @@ function AllThreads({ threads }: { threads: GetThreadsCardsProps }) {
                         <Card key={threads.thread_id} variant="outlined" sx={{ width: '100%', marginTop: 2 }}>
                             <React.Fragment>
                                 <CardContent>
-
                                     <Typography variant="h4" component="div">
                                         {threads.thread_title}
                                     </Typography>
+                                    <br></br>
                                     <Chip label={threads.category_name} />
                                     <br></br>
                                     <br></br>
@@ -72,6 +73,7 @@ function AllThreads({ threads }: { threads: GetThreadsCardsProps }) {
     );
 }
 
+// for individiual threads
 function ThreadCard({ thread }: { thread: GetThread }) {
     const [addCommentBox, setAddCommentBox] = useState(false);
     const [comment, setComment] = useState("");
@@ -230,6 +232,7 @@ function ThreadCard({ thread }: { thread: GetThread }) {
     )
 }
 
+// for individiual threads
 function CommentsCard({ comments }: { comments: Comments }) {
     const navigate = useNavigate();
     const username = localStorage.getItem("username");
@@ -628,7 +631,7 @@ export default function Home() {
     return (
         <>
             <Helmet>
-                <title>Web Forum</title>
+                <title>Subject Forum</title>
             </Helmet>
             <Box sx={pageBoxStyle}>
                 {/* render everything together once backend calls done */}

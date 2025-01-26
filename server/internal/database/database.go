@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
-	"os"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
@@ -27,11 +26,12 @@ func OpenDb() *sql.DB {
 	//	END COMMENT1
 
 	// For hosting on Render
-	psqlInfo := os.Getenv("DATABASE_URL")
-	if psqlInfo == "" {
-		psqlInfo = "postgresql://web_forum_dwt5_user:bOnSXX5Dr9OZbHDAv61qxvS56ZMSAFK8@dpg-cua98u9opnds73eb2mmg-a.oregon-postgres.render.com/web_forum_dwt5"
-	}
+	// psqlInfo := os.Getenv("DATABASE_URL")
+	// if psqlInfo == "" {
+	// 	psqlInfo = "postgresql://web_forum_dwt5_user:bOnSXX5Dr9OZbHDAv61qxvS56ZMSAFK8@dpg-cua98u9opnds73eb2mmg-a.oregon-postgres.render.com/web_forum_dwt5"
+	// }
 	// END COMMENT2
+	psqlInfo := "postgresql://web_forum_dwt5_user:bOnSXX5Dr9OZbHDAv61qxvS56ZMSAFK8@dpg-cua98u9opnds73eb2mmg-a.oregon-postgres.render.com/web_forum_dwt5"
 
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
