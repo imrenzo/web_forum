@@ -13,7 +13,7 @@ export default function IsAuthenticated(): { isAuthenticated: boolean; isLoading
                 setIsLoading(false);
             } else {
                 try {
-                    const response = await api.get("/authenticate", {
+                    await api.get("/authenticate", {
                         headers: {
                             "Authorization": `Bearer ${jwtToken}`,
                             "Content-Type": "application/json"

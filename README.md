@@ -18,16 +18,18 @@ Render
 
 # Deployment
 May take a while to load as i'm on Render Free plan
-Link: https://web-forum-test.onrender.com
+
+Website link: https://web-forum-test.onrender.com
 
 # Features
 - Users will be able to view threads and comments (on each thread) regardless of logging in
 
 # Authentication/ Security
 
-### Hashing
-- Users sign up with username and password
-- Passwords are securely hashed with bcrypt before storing on database.
+### Password/ Hashing
+- Users log in and sign up with username and password
+- When signing up, passwords are securely hashed with bcrypt
+- Only hashed passwords are stored on database
 - When logging in, password user enters is compared with hashed password on database for authentication
 
 ### JWT
@@ -111,4 +113,4 @@ users, threads, comments, categories
 This project was created using 
 - [React](https://reactjs.org/), [Axios](https://axios-http.com/), [React Router DOM](https://reactrouter.com/), [MUI](https://mui.com/)
 - [go-chi](https://github.com/go-chi/chi), [golang-jwt](https://github.com/golang-jwt), 
-[golang.org/x/crypto](https://pkg.go.dev/golang.org/x/crypto), [pq](https://github.com/lib/pq)
+[golang.org/x/crypto](https://pkg.go.dev/golang.org/x/crypto), [jwtSecret.com](https://jwtsecret.com/generate), [pq](https://github.com/lib/pq)

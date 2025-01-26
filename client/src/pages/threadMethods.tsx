@@ -3,24 +3,25 @@ import { NavigateFunction, useNavigate, useParams } from "react-router-dom";
 import { AxiosError } from "axios";
 import Header from "../components/header";
 import { GetThread, Thread, ThreadWithComments, Categories } from "../types/types";
-import { CreateJWTHeader, ValidateThreadInput, GetThreadWithComments, GetCategories } from "../apiService/apiService";
+import { CreateJWTHeader, ValidateThreadInput, GetThreadWithComments, GetCategories } from "../services/apiService";
 import NotFound from "./notFound";
-import api from "../components/api";
+import api from "../services/api";
 import { pageBoxStyle } from "../components/stylesheet";
 import { Box, Button, FormControl, InputLabel, Select, TextField, MenuItem, SelectChangeEvent } from "@mui/material";
+import { Helmet } from "react-helmet";
 
 // routing into the different methods
 export default function HandleThread() {
     const method = useParams().method;
     const id = useParams().id;
 
-    if (method == "create") {
-        if (id != undefined) {
+    if (method === "create") {
+        if (id !== undefined) {
             console.log("invalid url");
             return NotFound();
         }
         return HandleCreateThread();
-    } else if (method == "update" && id) {
+    } else if (method === "update" && id) {
         return HandleUpdateThread(id as string);
     } else {
         console.log("invalid method");
@@ -52,14 +53,14 @@ function HandleCreateThread() {
         }
 
         // validate category input
-        if (selectedCategory == '') {
+        if (selectedCategory === '') {
             setErrorMessage("Please select a category");
             setValidEntry(false);
             console.log(errorMessage);
             return;
         }
 
-        if (categories.find((category) => category.category_name == selectedCategory) == undefined) {
+        if (categories.find((category) => category.category_name === selectedCategory) === undefined) {
             setErrorMessage("Invalid Category input, please reload page");
             setValidEntry(isValid);
             console.log(errorMessage);
@@ -83,7 +84,7 @@ function HandleCreateThread() {
         } catch (error: unknown) {
             if (error instanceof AxiosError) {
                 if (error.response) {
-                    if (error.response.status == 401) {
+                    if (error.response.status === 401) {
                         localStorage.removeItem("username");
                         localStorage.removeItem("jwtToken");
                         navigate("/error/401");
@@ -117,11 +118,13 @@ function HandleCreateThread() {
             }
         }
         getCategories();
-    }, []);
+    }, [navigate]);
 
     return (
         <>
-            <title>Create Thread</title>
+            <Helmet>
+                <title>Create Thread</title>
+            </Helmet>
             <Box sx={pageBoxStyle}>
                 <Header></Header>
                 <form onSubmit={HandlePostRequest}>
@@ -140,7 +143,7 @@ function HandleCreateThread() {
                             value={selectedCategory}
                             onChange={selectCategoryClick}
                         >
-                            {categories.filter((category) => category.category_name != "Others").map((category) => (
+                            {categories.filter((category) => category.category_name !== "Others").map((category) => (
                                 <MenuItem key={category.category_id} value={category.category_name}>
                                     {category.category_name}
                                 </MenuItem>
@@ -149,7 +152,7 @@ function HandleCreateThread() {
                         </Select>
                     </FormControl>
                     <Box sx={{ textAlign: 'right', }}>
-                        {!validEntry && <p id="hiddenText" style={{ color: 'red' }}>{errorMessage}</p>}
+                        {!validEntry ? <p id="hiddenText" style={{ color: 'red' }}>{errorMessage}</p> : <br></br>}
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                             <Button variant='contained' type="submit">Submit</Button>
                         </Box>
@@ -165,7 +168,7 @@ function HandleUpdateThread(threadId: string) {
     const [validEntry, setValidEntry] = useState<boolean>(true);
     const [errorMessage, setErrorMessage] = useState<string>('');
 
-    let navigate = useNavigate();
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (threadId) {
@@ -183,7 +186,7 @@ function HandleUpdateThread(threadId: string) {
             };
             fetchData();
         }
-    }, [threadId]);
+    }, [threadId, navigate]);
 
     async function HandlePutRequest(event: FormEvent) {
         event.preventDefault();
@@ -205,7 +208,7 @@ function HandleUpdateThread(threadId: string) {
             console.log("Sending to backend PUT thread request")
             console.log(userEntry);
             const response = await api.put(`/thread/${threadId}`, userEntry, { headers: jwtHeader! });
-            if (response.status != 204) {
+            if (response.status !== 204) {
                 navigate("/error/500");
             }
             console.log("successfully updated thread");
@@ -214,7 +217,7 @@ function HandleUpdateThread(threadId: string) {
         } catch (error: unknown) {
             if (error instanceof AxiosError) {
                 if (error.response) {
-                    if (error.response.status == 401) {
+                    if (error.response.status === 401) {
                         localStorage.removeItem("username");
                         localStorage.removeItem("jwtToken");
                         navigate("/error/401");
@@ -266,7 +269,7 @@ export async function HandleDeleteThread(threadID: string, navigate: NavigateFun
         }
         console.log("Sending to backend delete thread request");
         const response = await api.delete(`/thread/${threadID}`, { headers: jwtHeader! });
-        if (response.status != 204) {
+        if (response.status !== 204) {
             navigate(`/error/500`);
         }
         console.log(`successfully deleted thread, id: ${threadID}`);
@@ -274,7 +277,7 @@ export async function HandleDeleteThread(threadID: string, navigate: NavigateFun
     } catch (error: unknown) {
         if (error instanceof AxiosError) {
             if (error.response) {
-                if (error.response.status == 403) {
+                if (error.response.status === 403) {
                     localStorage.removeItem("username");
                     localStorage.removeItem("jwtToken");
                     navigate(`/error/403`);

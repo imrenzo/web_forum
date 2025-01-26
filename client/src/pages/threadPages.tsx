@@ -3,13 +3,13 @@ import { FormEvent, useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { AxiosError } from "axios";
 import { HandleDeleteThread } from './threadMethods';
-import CreateComment, { HandleDeleteComment } from '../components/handleComment';
-import { ValidateCommentInput } from '../apiService/apiService';
+import CreateComment, { HandleDeleteComment } from '../services/handleComment';
+import { ValidateCommentInput } from '../services/apiService';
 import { GetThreadsCardsProps, Categories, GetThread, ThreadWithComments, Comments, Comment } from '../types/types';
 import Header from "../components/header";
 import FormatDate from "../components/dateformat";
-import { CreateJWTHeader, GetCategories, CheckIsOwner, GetThreadWithComments } from '../apiService/apiService';
-import api from '../components/api';
+import { CreateJWTHeader, GetCategories, CheckIsOwner, GetThreadWithComments } from '../services/apiService';
+import api from '../services/api';
 import { pageBoxStyle } from "../components/stylesheet";
 
 import CommentIcon from '@mui/icons-material/Comment';
@@ -22,14 +22,15 @@ import {
 import { red } from '@mui/material/colors';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import AddCommentIcon from '@mui/icons-material/AddComment';
+import { Helmet } from 'react-helmet';
 
 function AllThreads({ threads }: { threads: GetThreadsCardsProps }) {
     return (
         <>
-            {threads === null
+            {threads.length === 0
                 ? <Box>
                     <br></br>
-                    <Typography variant='body1'>No threads yet. Create your first Thread!</Typography >
+                    <Typography variant='body1'>No threads yet. Create the first Thread!!</Typography >
                 </Box>
                 : <Box>
                     {threads.map((item) =>
@@ -98,7 +99,7 @@ function CategoryFilter(
                     onChange={selectCategoryClick(setSelectedCategory)}
                 >
                     <MenuItem key={"All"} value={"All"}>All</MenuItem>
-                    {categories.filter((category) => category.category_name != "Others").map((category) => (
+                    {categories.filter((category) => category.category_name !== "Others").map((category) => (
                         <MenuItem key={category.category_id} value={category.category_name}>
                             {category.category_name}
                         </MenuItem>
@@ -171,7 +172,7 @@ function ThreadCard({ thread }: { thread: GetThread }) {
                 }
             }
             verifiedOwner();
-        }, []);
+        }, [threadId]);
 
         return (isOwner
             ? <Container maxWidth="xs">
@@ -293,7 +294,7 @@ function CommentsCard({ comments }: { comments: Comments }) {
             // send put request
             console.log("Sending to backend PUT comment request");
             const response = await api.put(`/comment/${commentID}`, newComment, { headers: jwtHeader });
-            if (response.status == 204) {
+            if (response.status === 204) {
                 console.log("successfully commented");
                 window.location.reload();
             } else {
@@ -302,7 +303,7 @@ function CommentsCard({ comments }: { comments: Comments }) {
         } catch (error) {
             if (error instanceof AxiosError) {
                 if (error.response) {
-                    if (error.response.status == 401) {
+                    if (error.response.status === 401) {
                         localStorage.removeItem("username");
                         localStorage.removeItem("jwtToken");
                     }
@@ -326,7 +327,7 @@ function CommentsCard({ comments }: { comments: Comments }) {
         function UpdateCommentClick() {
             CloseUserMenu();
             setCommentID(commentID);
-            const currentComment = comments.find(comment => comment.comment_id == commentID) as Comment;
+            const currentComment = comments.find(comment => comment.comment_id === commentID) as Comment;
             setNewComment(currentComment.comment_info);
         };
 
@@ -389,12 +390,12 @@ function CommentsCard({ comments }: { comments: Comments }) {
                             </Avatar>
                         }
                         action={
-                            comment.username == username ? <CommentDropDownButton commentID={comment.comment_id} /> : <></>
+                            comment.username === username ? <CommentDropDownButton commentID={comment.comment_id} /> : <></>
                         }
                         title={comment.username}
                         subheader={FormatDate(comment.comment_date)}
                     />
-                    {commentID == comment.comment_id
+                    {commentID === comment.comment_id
                         ? <Box sx={{ m: 1, }}>
                             <form onSubmit={HandleUpdateComment}>
                                 <Box>
@@ -439,7 +440,7 @@ export function LoadIndivThread() {
             };
             fetchData();
         }
-    }, [threadId]);
+    }, [threadId, navigate]);
 
 
     return (
@@ -476,7 +477,11 @@ export function MyThreads() {
                 }
                 console.log("Sending to backend get request");
                 const response = await api.get("/mythreads", { headers: jwtHeader });
-                setThreads(response.data);
+                if (response.data == null) {
+                    setThreads([]);
+                } else {
+                    setThreads(response.data);
+                }
             } catch (error) {
                 console.log(error);
                 setThreads([]);
@@ -504,7 +509,9 @@ export function MyThreads() {
 
     return (
         <>
-            <title>Web Forum</title>
+            <Helmet>
+                <title>Web Forum</title>
+            </Helmet>
             <Box sx={pageBoxStyle}>
                 <Header></Header>
                 {getCategories
@@ -514,7 +521,7 @@ export function MyThreads() {
                         categories={categories}
                     />
                     : <></>}
-                <AllThreads threads={threads.filter((thread) => selectedCategory == "All" ? true : thread.category_name == selectedCategory)}></AllThreads>
+                <AllThreads threads={threads.filter((thread) => selectedCategory === "All" ? true : thread.category_name === selectedCategory)}></AllThreads>
             </Box>
         </>
     );
@@ -564,7 +571,9 @@ export default function Home() {
 
     return (
         <>
-            <title>Web Forum</title>
+            <Helmet>
+                <title>Web Forum</title>
+            </Helmet>
             <Box sx={pageBoxStyle}>
                 <Header></Header>
                 {getCategories
@@ -574,9 +583,9 @@ export default function Home() {
                         categories={categories}
                     />
                     : <></>}
-                {threads.length == 0
+                {threads.length === 0
                     ? <AllThreads threads={threads} />
-                    : <AllThreads threads={threads.filter((thread) => selectedCategory == "All" ? true : thread.category_name == selectedCategory)} />
+                    : <AllThreads threads={threads.filter((thread) => selectedCategory === "All" ? true : thread.category_name === selectedCategory)} />
                 }
             </Box >
         </>

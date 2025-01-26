@@ -1,6 +1,6 @@
 {
   "name": "web_forum",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "dependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
@@ -11,6 +11,7 @@
     "axios": "^1.7.9",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
+    "react-helmet": "^6.1.0",
     "react-router-dom": "^7.0.2",
     "react-scripts": "^5.0.1",
     "serve": "^14.2.4",
@@ -44,6 +45,7 @@
     "@types/node": "^16.7.13",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
+    "@types/react-helmet": "^6.1.11",
     "@types/react-router-dom": "^5.3.3"
   }
 }

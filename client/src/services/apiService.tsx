@@ -1,9 +1,9 @@
 import { ThreadWithComments, Thread, Categories } from "../types/types";
 import { AxiosError } from "axios";
-import api from "../components/api";
+import api from "./api";
 
 export function ValidateThreadInput(userEntry: Thread): { isValid: boolean; errorMessage: string } {
-    if (userEntry.title == '' || userEntry.content == '') {
+    if (userEntry.title === '' || userEntry.content === '') {
         return { isValid: false, errorMessage: "Both title and content needs to be filled in" };
     }
     return { isValid: true, errorMessage: '' };
@@ -11,7 +11,7 @@ export function ValidateThreadInput(userEntry: Thread): { isValid: boolean; erro
 };
 
 export function ValidateCommentInput(comment: string): { isValid: boolean; errorMessage: string } {
-    if (comment == '') {
+    if (comment === '') {
         return { isValid: false, errorMessage: "Please fill in the comment before submitting" };
     }
     return { isValid: true, errorMessage: '' };
@@ -37,7 +37,7 @@ export async function CheckIsOwner(threadId: number): Promise<{ success: Boolean
             return { success: false, errorStatus: 401 }
         };
         console.log("sending check thread owner");
-        const response = await api.post("/checkthreadowner", threadId, { headers: jwtHeader });
+        await api.post("/checkthreadowner", threadId, { headers: jwtHeader });
         console.log("success");
         return { success: true, errorStatus: null };
     } catch (error: unknown) {
@@ -63,7 +63,7 @@ export async function GetCategories(): Promise<{ success: boolean, errorStatus: 
     } catch (error: unknown) {
         if (error instanceof AxiosError) {
             if (error.response) {
-                if (error.response.status == 401) {
+                if (error.response.status === 401) {
                     return { success: false, errorStatus: 401, output: null };
                 }
                 const errorStatus = error.response.status as number;

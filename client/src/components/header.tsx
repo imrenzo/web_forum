@@ -1,5 +1,5 @@
 import * as React from 'react';
-import IsAuthenticated from './authenticate';
+import IsAuthenticated from '../services/authenticate';
 
 import {
     Box, Button, Typography, AppBar, Toolbar, IconButton,

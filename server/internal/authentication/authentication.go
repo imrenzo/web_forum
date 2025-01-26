@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -11,8 +12,8 @@ import (
 	"github.com/imrenzo/web_forum/internal/shared"
 )
 
-const secretkey = "hello_world"
 const userIDkey contextKey = "userID"
+
 type contextKey string
 type MyCustomClaims struct {
 	Username string `json:"username"`
@@ -20,8 +21,18 @@ type MyCustomClaims struct {
 	jwt.RegisteredClaims
 }
 
+func GetSecretKey() string {
+	secretkey := os.Getenv("secretKey")
+
+	if secretkey == "" {
+		secretkey = "forTesting"  // for development
+	}
+
+	return secretkey
+}
+
 func CreateJwtToken(username string, userID int) string {
-	key := []byte(secretkey)
+	key := []byte(GetSecretKey())
 	// token validity duration
 	expirationTime := time.Now().Add(time.Hour)
 	claims := MyCustomClaims{
@@ -42,7 +53,7 @@ func CreateJwtToken(username string, userID int) string {
 }
 
 func VerifyToken(tokenStr string) (*MyCustomClaims, error) {
-	key := []byte(secretkey)
+	key := []byte(GetSecretKey())
 
 	token, err := jwt.ParseWithClaims(tokenStr, &MyCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return key, nil

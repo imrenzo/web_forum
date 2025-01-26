@@ -1,8 +1,9 @@
 import { FormEvent, useState, useEffect } from 'react';
 import { NavigateFunction, useNavigate, useParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 import NotFound from '../pages/notFound';
 import { formStyles } from '../components/stylesheet';
-import api from '../components/api';
+import api from '../services/api';
 
 import {
     Box, Button, Typography, AppBar, Toolbar, Container
@@ -15,11 +16,11 @@ export default function UserMethod() {
     const navigate = useNavigate();
     console.log(method);
 
-    if (method == "login") {
+    if (method === "login") {
         return LogIn(navigate);
-    } else if (method == "logout") {
+    } else if (method === "logout") {
         return LogOut(navigate);
-    } else if (method == "signup") {
+    } else if (method === "signup") {
         return SignUp(navigate);
     } else {
         console.log("invalid method");
@@ -55,7 +56,9 @@ function LogIn(navigate: NavigateFunction) {
     }
 
     return (<>
-        <title>Login</title>
+        <Helmet>
+            <title>Login</title>
+        </Helmet>
         <Box sx={formStyles}>
             <Header></Header>
         </Box>
@@ -142,6 +145,9 @@ function SignUp(navigate: NavigateFunction) {
     };
 
     return (<>
+        <Helmet>
+            <title>Sign Up</title>
+        </Helmet>
         <Box sx={formStyles}>
             <Header></Header>
         </Box>

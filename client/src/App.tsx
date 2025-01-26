@@ -4,7 +4,6 @@ import NotFound from './pages/notFound';
 import HandleThread from './pages/threadMethods';
 import UserMethod from './userManagement/user';
 import './App.css';
-import Test from "./pages/test";
 function MyApp() {
   return (
     <>
@@ -29,7 +28,6 @@ function MyApp() {
           {/* ///// ERROR HANDLING ///// */}
           <Route path="/error/:status" element={<NotFound />}></Route>
           <Route path="*" element={<NotFound />}></Route>
-          <Route path="/test" element={<Test />}></Route>
         </Routes>
       </BrowserRouter >
     </>

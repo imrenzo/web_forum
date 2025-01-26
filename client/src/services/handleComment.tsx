@@ -1,6 +1,6 @@
 import { AxiosError } from "axios";
 import { NavigateFunction } from "react-router-dom";
-import { CreateJWTHeader } from "../apiService/apiService";
+import { CreateJWTHeader } from "../services/apiService";
 import api from "./api";
 
 // routing into the different methods [update comment handled in indivThread.tsx]
@@ -12,13 +12,13 @@ export default async function CreateComment(comment: string, threadID: string): 
             return { success: false, errorStatus: 401 };
         }
         console.log("Sending to backend post comment request")
-        const response = await api.post(`/comment/${threadID}`, comment, { headers: jwtHeader });
+        await api.post(`/comment/${threadID}`, comment, { headers: jwtHeader });
         console.log("successfully commented")
         return { success: true, errorStatus: null };
     } catch (error: unknown) {
         if (error instanceof AxiosError) {
             if (error.response) {
-                if (error.response.status == 401) {
+                if (error.response.status === 401) {
                     localStorage.removeItem("username");
                     localStorage.removeItem("jwtToken");
                 }
@@ -39,15 +39,14 @@ export async function HandleDeleteComment(commentID: string, navigate: NavigateF
             return { success: false, errorStatus: 401, threadID: null };
         }
         console.log("Sending to backend delete comment request");
-        const response = await api.delete(`/comment/${commentID}`, { headers: jwtHeader });
+        await api.delete(`/comment/${commentID}`, { headers: jwtHeader });
         console.log(`successfully deleted comment, id: ${commentID}`);
-        const threadID = response.data;
         window.location.reload();
     } catch (error: unknown) {
         if (error instanceof AxiosError) {
             if (error.response) {
                 console.log(error.response.data)
-                if (error.response.status == 403) {
+                if (error.response.status === 403) {
                     localStorage.removeItem("username");
                     localStorage.removeItem("jwtToken");
                     navigate("/error/403");
