@@ -528,9 +528,8 @@ export function MyThreads() {
                     />
                     : <></>}
                 {fetchedData
-                    ? <AllThreads
-                        threads={threads.filter((thread) => selectedCategory === "All" ? true : thread.category_name === selectedCategory)}>
-                    </AllThreads>
+                    ? <AllThreads threads={threads.filter((thread) => selectedCategory === "All"
+                        ? true : thread.category_name === selectedCategory)}></AllThreads>
                     : <></>}
             </Box>
         </>
