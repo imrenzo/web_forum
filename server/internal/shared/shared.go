@@ -23,7 +23,7 @@ func OpenDb() *sql.DB {
 	// For hosting on Render
 	psqlInfo := os.Getenv("DATABASE_URL")
 	if psqlInfo == "" {
-		panic("DATABASE_URL is not set")
+		psqlInfo = "postgresql://web_forum_dwt5_user:bOnSXX5Dr9OZbHDAv61qxvS56ZMSAFK8@dpg-cua98u9opnds73eb2mmg-a.oregon-postgres.render.com/web_forum_dwt5"
 	}
 	// END COMMENT2
 

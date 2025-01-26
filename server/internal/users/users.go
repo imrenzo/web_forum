@@ -57,6 +57,57 @@ func LogInUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"message": "Authorised", "token": jwtString})
 }
 
+func ChangePassword(w http.ResponseWriter, r *http.Request) {
+	db := database.OpenDb()
+	defer db.Close()
+	var passwords models.ChangePassword
+	err := json.NewDecoder(r.Body).Decode(&passwords)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	oldPassword := passwords.PrevPassword
+	newPassword := passwords.NewPassword
+	userID := authentication.GetUserIDfromJWT(r)
+
+	// get hashed password from database
+	var hashedPassword []byte
+	var username string
+	err = db.QueryRow("SELECT password, username FROM users WHERE user_id = $1",
+		userID).Scan(&hashedPassword, &username)
+	if err != nil {
+		http.Error(w, "error getting hashed password/ username", http.StatusInternalServerError)
+		return
+	}
+
+	// check if password entered by user matches hashed password in database
+	err = bcrypt.CompareHashAndPassword(hashedPassword, []byte(oldPassword))
+	if err != nil {
+		http.Error(w, "Old password is wrong", http.StatusUnauthorized)
+		return
+	}
+
+	// hashing new password
+	newHashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		http.Error(w, "error hashing password", http.StatusInternalServerError)
+		return
+	}
+
+	//update passsword in db
+	_, err = db.Exec(`UPDATE users SET password = $1 WHERE user_id = $2`, newHashedPassword, userID)
+	if err != nil {
+		http.Error(w, "error updating new password", http.StatusInternalServerError)
+		return
+	}
+
+	// return user with new jwtToken
+	jwtString := authentication.CreateJwtToken(username, userID)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"message": "Authorised", "token": jwtString})
+}
+
 func SignUpUser(w http.ResponseWriter, r *http.Request) {
 	db := database.OpenDb()
 	defer db.Close()

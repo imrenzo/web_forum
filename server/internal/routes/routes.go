@@ -12,6 +12,7 @@ func SetUpRoutes(router chi.Router) {
 	router.Get("/authenticate", authentication.DirectAuthenticate)
 	router.Post("/user/login", users.LogInUser)
 	router.Post("/user/signup", users.SignUpUser)
+	router.With(authentication.TokenVerifyMiddleware).Post("/user/change_password", users.ChangePassword)
 
 	// ** For threads **
 	// read db for threads

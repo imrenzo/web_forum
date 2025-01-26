@@ -11,7 +11,7 @@ import { Link } from 'react-router-dom';
 
 const pages: { [key: string]: string }[] =
     [{ 'Home': '/' }, { 'Create Thread': '/thread/create' }, { 'My Threads': '/mythreads' }];
-const iconDropdown: { [key: string]: string }[] = [{ 'Log Out': '/user/logout' }];
+const iconDropdown: { [key: string]: string }[] = [{ 'Change Password': '/user/change_password' }, { 'Log Out': '/user/logout' }];
 
 function LogInSignUpButtons() {
     const ButtonStyles = {

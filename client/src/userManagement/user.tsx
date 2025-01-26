@@ -10,6 +10,8 @@ import {
 } from '@mui/material';
 import AdbIcon from '@mui/icons-material/Adb';
 import { Link } from 'react-router-dom';
+import { CreateJWTHeader } from '../services/apiService';
+import { AxiosError } from 'axios';
 
 export default function UserMethod() {
     const method = useParams().method;
@@ -22,6 +24,8 @@ export default function UserMethod() {
         return LogOut(navigate);
     } else if (method === "signup") {
         return SignUp(navigate);
+    } else if (method === "change_password") {
+        return ChangePassword(navigate);
     } else {
         console.log("invalid method");
         return NotFound();
@@ -187,6 +191,130 @@ function SignUp(navigate: NavigateFunction) {
     );
 }
 
+function ChangePassword(navigate: NavigateFunction) {
+    const [prevPassword, setPrevPassword] = useState<string>("");
+    const [newPassword1, setNewPassword1] = useState<string>("");
+    const [newPassword2, setNewPassword2] = useState<string>("");
+    const [invalidCred, setInvalidCred] = useState<boolean>(false);
+    const [errorMessage, setErrorMessage] = useState<string>("");
+    const [changedPassword, setChangedPassword] = useState<boolean>(false);
+
+    function ClearInputFields() {
+        setPrevPassword("");
+        setNewPassword1("");
+        setNewPassword2("");
+    }
+
+    function HandleSubmit(event: FormEvent) {
+        event.preventDefault();
+
+        if (prevPassword === "" || newPassword1 === "" || newPassword2 === "") {
+            setInvalidCred(true);
+            ClearInputFields();
+            setErrorMessage("Please fill in all fields");
+        } else if (newPassword1 !== newPassword2) {
+            setInvalidCred(true);
+            setErrorMessage("Please ensure new passwords match");
+        } else {
+            const jwtHeader = CreateJWTHeader();
+            if (jwtHeader == null) {
+                console.error();
+                navigate('/error/404');
+            }
+            console.log("Sending to backend change password request");
+            api.post("/user/change_password", { prevPassword: prevPassword, newPassword: newPassword1 }, { headers: jwtHeader! })
+                .then(function (response) {
+                    setInvalidCred(false);
+                    console.log("successfully changed password");
+                    localStorage.removeItem("jwtToken");
+                    localStorage.setItem("jwtToken", response.data.token);
+                    setInvalidCred(false);
+                    setChangedPassword(true);
+
+                    // redirect after 5 seconds
+                    setTimeout(() => {
+                        navigate('/');
+                        window.location.reload();
+                    }, 5000)
+                })
+                .catch(function (error) {
+                    if (error instanceof AxiosError) {
+                        if (error.response) {
+                            if (error.response.status === 401) {
+                                setErrorMessage(error.response.data);
+                                ClearInputFields();
+                                setInvalidCred(true);
+                            } else {
+                                ClearInputFields();
+                                setErrorMessage(error.response.data);
+                                navigate(`/error/${error.response.status}`);
+                            }
+                        } else {
+                            ClearInputFields();
+                            setErrorMessage("unknown error");
+                            navigate(`/error/404`);
+                        }
+                    }
+                })
+
+        }
+    }
+    return (<>
+        <Helmet>
+            <title>Change Password</title>
+        </Helmet>
+        <Box sx={formStyles}>
+            <Header></Header>
+        </Box>
+        <br></br>
+        <Box sx={{
+            border: 1,
+            paddingTop: 2,
+            paddingBottom: 2,
+            ...formStyles
+        }}>
+            <form onSubmit={HandleSubmit} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <div className='form'>
+                    <div>
+                        <input type='text' id='oldPassword' placeholder='Enter Old Password'
+                            value={prevPassword}
+                            onChange={event => setPrevPassword(event.target.value)}
+                            autoComplete='off'
+                        >
+                        </input>
+                    </div>
+                    <div>
+                        <input type='text' id='newPassword1' placeholder='Enter New Password'
+                            value={newPassword1}
+                            onChange={event => setNewPassword1(event.target.value)}
+                            autoComplete='off'
+                        >
+                        </input>
+                    </div>
+                    <div>
+                        <input type='text' id='newPassword2' placeholder='Re-enter New Password'
+                            value={newPassword2}
+                            onChange={event => setNewPassword2(event.target.value)}
+                            autoComplete='off'
+                        >
+                        </input>
+                    </div>
+                </div>
+                <div style={{ textAlign: 'center' }}>
+                    {invalidCred ? <p id="hiddenText" style={{ color: 'red' }}>{errorMessage}</p> : <br></br>}
+                    <Button variant='outlined' type="submit">Submit</Button>
+                    {changedPassword && (<>
+                        <Typography variant='body1' sx={{ marginTop: 1 }}>Successfully changed password!</Typography>
+                        <Typography variant='body1'>Redirecting to home in 5 seconds...</Typography>
+                    </>)
+                    }
+                </div>
+            </form>
+        </Box>
+    </>)
+}
+
+
 function Header() {
     return (<>
         <AppBar position="static">
@@ -243,3 +371,4 @@ function Header() {
     </>
     );
 }
+

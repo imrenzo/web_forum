@@ -1,19 +1,19 @@
 package models
 
-type GetThread struct {
-	Username     string `json:"username"`
-	Thread_id    int    `json:"thread_id"`
-	Op_id        int    `json:"user_id"`
-	Thread_title string `json:"thread_title"`
-	Thread_info  string `json:"thread_info"`
-	Thread_date  string `json:"thread_date"`
-	Category_name string `json:"category_name"`
+// for reading thread with comments
+type GetThreadWithComments struct {
+	GetThread GetThread  `json:"thread"`
+	Comments  []Comments `json:"comments"`
 }
 
-type UserData struct {
-	User_ID  int    `json:"userID"`
-	Username string `json:"username"`
-	Password string `json:"password"`
+type GetThread struct {
+	Username      string `json:"username"`
+	Thread_id     int    `json:"thread_id"`
+	Op_id         int    `json:"user_id"`
+	Thread_title  string `json:"thread_title"`
+	Thread_info   string `json:"thread_info"`
+	Thread_date   string `json:"thread_date"`
+	Category_name string `json:"category_name"`
 }
 
 type Comments struct {
@@ -24,14 +24,17 @@ type Comments struct {
 	Comment_date string `json:"comment_date"`
 }
 
-type GetThreadWithComments struct {
-	GetThread GetThread  `json:"thread"`
-	Comments  []Comments `json:"comments"`
-}
+//
 
+// for posting threads
 type CreateThreadWithCategory struct {
 	CreateThread CreateThread `json:"createThread"`
 	Category     string       `json:"category"`
+}
+
+type Category struct {
+	Category_id   int    `json:"category_id"`
+	Category_name string `json:"category_name"`
 }
 
 type CreateThread struct {
@@ -39,9 +42,11 @@ type CreateThread struct {
 	ThreadInfo string `json:"content"`
 }
 
-type CreateThreadWithCategories struct {
-	CreateThread CreateThread `json:"createThread"`
-	Category     string       `json:"category"`
+// for user related models
+type UserData struct {
+	User_ID  int    `json:"userID"`
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 type ThreadOwnerCheck struct {
@@ -49,7 +54,9 @@ type ThreadOwnerCheck struct {
 	ThreadId int    `json:"threadId"`
 }
 
-type Category struct {
-	Category_id   int    `json:"category_id"`
-	Category_name string `json:"category_name"`
+type ChangePassword struct {
+	PrevPassword string `json:"prevPassword"`
+	NewPassword  string `json:"newPassword"`
 }
+
+//

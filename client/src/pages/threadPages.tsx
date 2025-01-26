@@ -581,6 +581,8 @@ export default function Home() {
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [fetchedData, setFetchedData] = useState<boolean>(false);
     const [searchValue, setSearchValue] = useState<string[] | null>(null);
+    const [threadsLoaded, setThreadsLoaded] = useState<boolean>(false);
+    const [categoriesLoaded, setCategoriesLoaded] = useState<boolean>(false);
 
     useEffect(() => {
         console.log("fetching threads and categories");
@@ -596,6 +598,8 @@ export default function Home() {
             } catch (error) {
                 console.log(error);
                 setThreads([]);
+            } finally {
+                setThreadsLoaded(true);
             }
         };
 
@@ -608,10 +612,12 @@ export default function Home() {
                     setCategories(output as Categories);
                 }
                 setGetCategories(true);
+                setCategoriesLoaded(true);
             }
             else {
                 setGetCategories(false);
                 console.log("unable to get categories, error status: ", errorStatus);
+                setCategoriesLoaded(true);
             }
         }
 
@@ -625,39 +631,42 @@ export default function Home() {
                 <title>Web Forum</title>
             </Helmet>
             <Box sx={pageBoxStyle}>
-                <Header></Header>
-                {getCategories
-                    ? <CategoryFilter
-                        selectedCategory={selectedCategory}
-                        setSelectedCategory={setSelectedCategory}
-                        categories={categories}
-                    />
-                    : <></>}
-                <SearchBar setSearchValue={setSearchValue}></SearchBar>
-                {fetchedData
-                    ?
-                    (threads.length === 0
-                        ? <AllThreads threads={threads} />
-                        : <AllThreads
-                            threads={threads.filter((thread) => selectedCategory === "All" //filter by category
-                                ? true
-                                : thread.category_name === selectedCategory)
-                                .filter((thread) => {   // filter by searchValue
-                                    if (searchValue === null) {
-                                        return true;
-                                    } else {
-                                        const title: string = thread.thread_title.toLowerCase()
-                                        const info: string = thread.thread_info.toLowerCase()
-                                        console.log("searchValue: ", searchValue)
-                                        return searchValue.some((item) => {
-                                            //check if any word in searchValue exactly matches title/info
-                                            const regex = new RegExp(`\\b${item.toLowerCase()}\\b`, 'i');
-                                            return (regex.test(title) || regex.test(info));
-                                        })
-                                    }
-                                })}
-                        />)
-                    : <></>}
+                {/* render everything together once backend calls done */}
+                {threadsLoaded && categoriesLoaded && (<>
+                    <Header></Header>
+                    {getCategories
+                        ? <CategoryFilter
+                            selectedCategory={selectedCategory}
+                            setSelectedCategory={setSelectedCategory}
+                            categories={categories}
+                        />
+                        : <></>}
+                    <SearchBar setSearchValue={setSearchValue}></SearchBar>
+                    {fetchedData
+                        ?
+                        (threads.length === 0
+                            ? <AllThreads threads={threads} />
+                            : <AllThreads
+                                threads={threads.filter((thread) => selectedCategory === "All" //filter by category
+                                    ? true
+                                    : thread.category_name === selectedCategory)
+                                    .filter((thread) => {   // filter by searchValue
+                                        if (searchValue === null) {
+                                            return true;
+                                        } else {
+                                            const title: string = thread.thread_title.toLowerCase()
+                                            const info: string = thread.thread_info.toLowerCase()
+                                            console.log("searchValue: ", searchValue)
+                                            return searchValue.some((item) => {
+                                                //check if any word in searchValue exactly matches title/info
+                                                const regex = new RegExp(`\\b${item.toLowerCase()}\\b`, 'i');
+                                                return (regex.test(title) || regex.test(info));
+                                            })
+                                        }
+                                    })}
+                            />)
+                        : <></>}
+                </>)}
             </Box >
         </>
     );

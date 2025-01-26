@@ -29,6 +29,7 @@ Website link: https://web-forum-test.onrender.com
     - Search bar filters (with RegEx) to ensure that the search query + posts' title/ info matches word for word
     - Search bar ignores multiple whitespaces between words and will function properly
 - Upon logging in Users may view their own thread posts
+- Users are able to change their password
 
 # Authentication/ Security
 
