@@ -1,12 +1,13 @@
 # Subject Forum
 
+Creator: Chua Renzo
 ## Description
 ### Simple Web Forum for NUS CVWO Winter Assignment AY24-25
 Web Forum where Students can start discussions on school subjects.
 
 ## Technologies used
 ### Frontend
-React, Typescript, Axios, MUI, HTML, CSS
+React.js, Typescript, Axios, MUI, HTML, CSS
 ### Backend
 Golang, Go-Chi
 ### Database
