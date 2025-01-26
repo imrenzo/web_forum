@@ -1,8 +1,8 @@
-# Web Forum
+# Subject Forum
 
 ## Description
 ### Simple Web Forum for NUS CVWO Winter Assignment AY24-25
-Forum where users can start discussions on school subjects.
+Web Forum where Students can start discussions on school subjects.
 
 ## Technologies used
 ### Frontend
@@ -23,12 +23,12 @@ Website link: https://web-forum-test.onrender.com
 
 # Features
 - Users will be able to view threads and comments (on each thread) regardless of logging in
-- Users can perform CRUD operations on threads and posts
-- Users can filter for thread based on their categories using the Subjects dropdown box
+- Users can perform CRUD operations on threads and comments
+- Users can filter for threads based on their categories using the Subjects dropdown box
 - Users can search for threads based on search bar
-    - Search bar filters (with RegEx) to ensure that the search query + posts' title/ info matches word for word
+    - Search bar uses filtering (with RegEx) to ensure that the search query matches word for word with the threads' title/ info
     - Search bar ignores multiple whitespaces between words and will function properly
-- Upon logging in Users may view their own thread posts
+- Upon logging in Users may view their own threads
 - Users are able to change their password
 
 # Authentication/ Security
@@ -40,13 +40,13 @@ Website link: https://web-forum-test.onrender.com
 - When logging in, password user enters is compared with hashed password on database for authentication
 
 ### JWT
-- JSON Web Token (JWT) issued to authenticated users. It is signed with HS256 with a certain validity period
-- When users perform CRUD operations on threads/comments, Chi.Router middleware will authenticate users with their JWT signature and validity period. If authenticated, the USERID key from JWT is passed as a context to next http request
-- Additionally for UD (Update & Delete) operations on threads/comments, further up user authentication is done by:
+- JSON Web Token (JWT) issued to authenticated users and stored on localStorage. It is signed with HS256 with a certain validity period.
+- When users perform CRUD operations on threads/ comments, Chi.Router middleware will authenticate users with their JWT signature and validity period. 
+- If authenticated, the USERID key from JWT is passed as a context to next http request
+- Additionally for UD (Update & Delete) operations on threads/comments, further user authentication is done by:
   - Checking if USERID key in request context matches that of the thread/comment where UD is going to happen
 
 ## File Structure
-Notable files:
 ```
 .
 ├── client
@@ -55,12 +55,14 @@ Notable files:
     ├── tsconfig.json
     ├── yarn.lock
     └── src
-        ├── apiService       
+        ├── services    
         ├── components
         ├── pages
         ├── types
         ├── userManagement
-        └── App.tsx
+        ├── App.tsx
+        |
+        ...
 ├── server
     ├── main.go
     ├── go.mod
@@ -79,37 +81,35 @@ Notable files:
 1. install node v22.12.0
 2. install yarn
 3. install go 1.23.4
-4. install postgresql 16/ 17
-5. Run in terminal:
+4. Run in terminal:
 
     Clone this repository:
     
         git clone https://github.com/imrenzo/web_forum.git
 
-    Backend:   
+    Then for backend:   
     
         cd server
         go mod tidy
-        
-        
-        ### View text file link below for backend then
         go run .
 
-    Frontend: Start a new terminal then,
+    Frontend: Start a **new terminal** then,
 
         cd client
         yarn install
+        cd src/services
+        code api.tsx
 
+    Then, in api.tsx: __Change URL to development URL__, save then:
 
-        ### View text file link below for frontend
         yarn build
         yarn start
 
-Frontend: Refer to [here](./client.txt)
+Once you have run frontend, backend and database the website should appear at http://localhost:3000/
 
-Backend & Database: Refer to [here](./database.txt)
+Backend is at http://localhost:8080/
 
-Once you have run frontend, backend and database you should be good to go at http://localhost:3000/
+Database url is in (./server/internal/database/database.go). Assigned to variable psqlInfo
 
 ## Database Tables:
 users, threads, comments, categories
