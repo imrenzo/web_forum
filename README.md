@@ -92,7 +92,8 @@ Please view [client](./client/) and [server](./server/) folders to view their in
         cd src/services
         code api.tsx
 
-    Then, in api.tsx: __Change URL to development URL__, save then:
+    Then, in api.tsx: __Change URL to development URL__, save then
+    go back to client folder and run:
 
         yarn build
         yarn start
