@@ -20,9 +20,12 @@ Render
 ## Deployment
 May take a while to load as i'm on Render Free plan.
 
-*If the homepage only has a header loaded, please wait awhile, then reload the page.
+*If the homepage only has a header loaded, please wait about 5 mins, then reload the page.
 
 Website link: https://web-forum-test.onrender.com
+
+Homepage:
+![Alt text](./homepage.JPG)
 
 ## Features
 - Users will be able to view threads and comments (on each thread) regardless of logging in
