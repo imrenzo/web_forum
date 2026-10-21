@@ -46,16 +46,12 @@ export async function HandleDeleteComment(commentID: string, navigate: NavigateF
         if (error instanceof AxiosError) {
             if (error.response) {
                 console.log(error.response.data)
-                if (error.response.status === 403) {
-                    localStorage.removeItem("username");
-                    localStorage.removeItem("jwtToken");
-                    navigate("/error/403");
-                }
                 navigate(`/error/${error.response.status}`);
             } else {
                 console.log("no response: ", error.response)
                 navigate("/error/500");
             }
+            return;
         }
         navigate("/error/404");
     }

@@ -109,6 +109,7 @@ function LogOut(navigate: NavigateFunction) {
         console.log("logged out");
         navigate('/');
         window.location.reload();
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- run once; navigate changes on every location change
     }, [])
     return (
         <></>

@@ -94,6 +94,7 @@ function HandleCreateThread() {
                 } else {
                     navigate("/error/500");
                 }
+                return;
             }
             navigate("/error/404");
         }
@@ -226,6 +227,7 @@ function HandleUpdateThread(threadId: string) {
                 } else {
                     navigate("/error/500");
                 }
+                return;
             }
             navigate("/error/404");
         }
@@ -277,15 +279,11 @@ export async function HandleDeleteThread(threadID: string, navigate: NavigateFun
     } catch (error: unknown) {
         if (error instanceof AxiosError) {
             if (error.response) {
-                if (error.response.status === 403) {
-                    localStorage.removeItem("username");
-                    localStorage.removeItem("jwtToken");
-                    navigate(`/error/403`);
-                }
                 navigate(`/error/${error.response.status}`);
             } else {
                 navigate(`/error/500`);
             }
+            return;
         }
         navigate(`/error/404`);
     }

@@ -8,7 +8,7 @@ import { ValidateCommentInput } from '../services/apiService';
 import { GetThreadsCardsProps, Categories, GetThread, ThreadWithComments, Comments, Comment } from '../types/types';
 import Header from "../components/header";
 import FormatDate from "../components/dateformat";
-import { CreateJWTHeader, GetCategories, CheckIsOwner, GetThreadWithComments } from '../services/apiService';
+import { CreateJWTHeader, GetCategories, CheckIsOwner, GetThreadWithComments, EscapeRegExp } from '../services/apiService';
 import api from '../services/api';
 import { pageBoxStyle } from "../components/stylesheet";
 
@@ -26,13 +26,13 @@ import SearchIcon from "@mui/icons-material/Search";
 import { Helmet } from 'react-helmet';
 
 // for threads in homepage
-function AllThreads({ threads }: { threads: GetThreadsCardsProps }) {
+function AllThreads({ threads, filtered = false }: { threads: GetThreadsCardsProps, filtered?: boolean }) {
     return (
         <>
             {threads.length === 0
                 ? <Box>
                     <br></br>
-                    <Typography variant='body1'>No threads yet. Create the first Thread!!</Typography >
+                    <Typography variant='body1'>{filtered ? 'No threads match your search/ subject.' : 'No threads yet. Create the first Thread!!'}</Typography >
                 </Box>
                 : <Box>
                     {threads.map((threads) =>
@@ -173,8 +173,7 @@ function ThreadCard({ thread }: { thread: GetThread }) {
     }
 
     function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
-        const { id, value } = event.target;
-        setComment(value);
+        setComment(event.target.value);
     }
 
     return (
@@ -274,6 +273,7 @@ function CommentsCard({ comments }: { comments: Comments }) {
                 } else {
                     navigate(`/error/500`);
                 }
+                return;
             }
             navigate(`/error/404`);
         }
@@ -338,8 +338,7 @@ function CommentsCard({ comments }: { comments: Comments }) {
     }
 
     function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
-        const { id, value } = event.target;
-        setNewComment(value);
+        setNewComment(event.target.value);
     }
 
     return (
@@ -647,6 +646,7 @@ export default function Home() {
                         (threads.length === 0
                             ? <AllThreads threads={threads} />
                             : <AllThreads
+                                filtered
                                 threads={threads.filter((thread) => selectedCategory === "All" //filter by category
                                     ? true
                                     : thread.category_name === selectedCategory)
@@ -659,7 +659,7 @@ export default function Home() {
                                             console.log("searchValue: ", searchValue)
                                             return searchValue.some((item) => {
                                                 //check if any word in searchValue exactly matches title/info
-                                                const regex = new RegExp(`\\b${item.toLowerCase()}\\b`, 'i');
+                                                const regex = new RegExp(`\\b${EscapeRegExp(item)}\\b`, 'i');
                                                 return (regex.test(title) || regex.test(info));
                                             })
                                         }
