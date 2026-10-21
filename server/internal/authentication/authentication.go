@@ -21,13 +21,12 @@ type MyCustomClaims struct {
 	jwt.RegisteredClaims
 }
 
+// no default: a guessable signing key would let anyone forge tokens
 func GetSecretKey() string {
-	secretkey := os.Getenv("secretKey")
-
+	secretkey := os.Getenv("JWT_SECRET")
 	if secretkey == "" {
-		secretkey = "forTesting"  // for development
+		panic("JWT_SECRET is not set")
 	}
-
 	return secretkey
 }
 
@@ -108,7 +107,8 @@ func TokenVerifyMiddleware(next http.Handler) http.Handler {
 		if id > 0 {
 			exists, errormsg := shared.UserIDExists(id)
 			if !exists {
-				http.Error(w, errormsg, http.StatusNotFound)
+				// token belongs to a deleted user: same as an invalid token, so the client drops it
+				http.Error(w, errormsg, http.StatusUnauthorized)
 				return
 			}
 			println("authenticated by middleware!")
