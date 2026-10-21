@@ -2,3 +2,5 @@
 
 # developing
 /testing
+# local env files (copy from .env.example)
+.env
