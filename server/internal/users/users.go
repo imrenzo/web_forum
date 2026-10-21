@@ -3,6 +3,7 @@ package users
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -118,6 +119,11 @@ func SignUpUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if strings.TrimSpace(userData.Username) == "" || userData.Password == "" {
+		http.Error(w, "username and password must not be empty", http.StatusBadRequest)
+		return
+	}
+
 	// check username that is to be registered is not in db records (i.e. username is unique)
 	var count int
 	err = db.QueryRow("SELECT COUNT(*) FROM users WHERE username = $1", userData.Username).Scan(&count)
@@ -140,7 +146,7 @@ func SignUpUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// insert username and hashed password into db & logs user in
-	_, err = db.Query("INSERT INTO users (username, password) VALUES ($1, $2);", userData.Username, hashedPassword)
+	_, err = db.Exec("INSERT INTO users (username, password) VALUES ($1, $2);", userData.Username, hashedPassword)
 	if err != nil {
 		http.Error(w, "error inserting user cred during signup", http.StatusInternalServerError)
 		return
