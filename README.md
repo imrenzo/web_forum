@@ -10,7 +10,7 @@ Built by Chua Renzo for the NUS CVWO Winter Assignment AY24-25.
 
 ## Run locally
 
-Prerequisites: Docker (with Compose), Go 1.23.4+, Node.js and Yarn 1.x.
+Prerequisites: Docker (with Compose), Go 1.23.4+, Node.js and Yarn 1.x (`corepack enable` provides it).
 
 ```sh
 # 1. Postgres (creates the schema and subject list on first start)  [UNVERIFIED: see Known limitations]
@@ -20,7 +20,7 @@ docker compose up -d
 cd server && set -a && . ./.env.example && set +a && go run .
 
 # 3. Client on http://localhost:3000  (new terminal, from the repo root)
-cd client && yarn install && yarn build && yarn start
+cd client && yarn install --frozen-lockfile && yarn build && yarn start
 ```
 
 No source edits are needed. Open http://localhost:3000, sign up, and create a thread.
