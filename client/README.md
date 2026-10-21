@@ -15,7 +15,7 @@ Notable files:
     |   └── threadPages.tsx     ---> Homepage, MyThreads pages.
     |                                Reads threads & Updates comment with server
     ├── services
-    |   ├── api.tsx    ---> URL for requests [change this if setting up locally]
+    |   ├── api.tsx    ---> API base URL (from REACT_APP_API_URL, default http://localhost:8080)
     |   ├── apiService.tsx   ---> Services reused multiple times (front+backend)
     |   ├── authenticate.tsx    ---> Authentication for header styles/ ftns
     |   └── handleComment.tsx   ---> handle CD comments with server
