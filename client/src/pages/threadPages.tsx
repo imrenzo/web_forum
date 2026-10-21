@@ -8,7 +8,8 @@ import { ValidateCommentInput } from '../services/apiService';
 import { GetThreadsCardsProps, Categories, GetThread, ThreadWithComments, Comments, Comment } from '../types/types';
 import Header from "../components/header";
 import FormatDate from "../components/dateformat";
-import { CreateJWTHeader, GetCategories, CheckIsOwner, GetThreadWithComments, EscapeRegExp } from '../services/apiService';
+import { CreateJWTHeader, GetCategories, CheckIsOwner, GetThreadWithComments } from '../services/apiService';
+import { EscapeRegExp } from '../services/escapeRegExp';
 import api from '../services/api';
 import { pageBoxStyle } from "../components/stylesheet";
 

@@ -10,11 +10,6 @@ export function ValidateThreadInput(userEntry: Thread): { isValid: boolean; erro
 
 };
 
-// search terms are user input, so regex metacharacters must be matched literally
-export function EscapeRegExp(text: string): string {
-    return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
 export function ValidateCommentInput(comment: string): { isValid: boolean; errorMessage: string } {
     if (comment === '') {
         return { isValid: false, errorMessage: "Please fill in the comment before submitting" };
